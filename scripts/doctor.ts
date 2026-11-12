@@ -42,7 +42,8 @@ function checkClaudeCode() {
     report(
       false,
       "Claude Code",
-      "not found: install it with the command in 00-orientation/README.md, then open a new terminal",
+      "not found: install it with the command in 00-orientation/README.md, " +
+        "then open a new terminal",
     );
     report(false, "Signed in", "no: install Claude Code, run claude, then type /login");
     return;

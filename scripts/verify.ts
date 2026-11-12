@@ -1,6 +1,7 @@
-// bun run verify <step-name>            check your work on one step, then show progress on every step
+// bun run verify <step-name>            check your work on one step,
+//                                       then show progress on every step
 // bun run verify <step-name> solution   check the sample solution instead
-// bun run verify part <part-name>      check every step in one part (a deliverable)
+// bun run verify part <part-name>       check every step in one part (a deliverable)
 // bun run verify --report               write verify-report.json for cohort grading
 // bun run verify --all                  CI: each check fails on its starter and wrong answers,
 //                                       and passes on its solution
@@ -208,7 +209,9 @@ async function verifyStep(stepName: string | undefined, which: string | undefine
   if (result.status === "error") process.exit(2);
   if (result.status === "pass") console.log(`Done. All ${result.total} rules pass.`);
   else {
-    console.log(`${result.passed} of ${result.total} rules pass. Fix the FAIL lines and run it again.`);
+    console.log(
+      `${result.passed} of ${result.total} rules pass. Fix the FAIL lines and run it again.`,
+    );
   }
   if (!asSolution) {
     // Done is recomputed from the checks every time, never read from a saved flag.
