@@ -1,8 +1,8 @@
 // The course runs on the real Claude Code and nothing else. These run with no Claude Code and no key.
-import { test, expect } from "bun:test";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { expect, test } from "bun:test";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { payload, cases } from "../checks/lib/guard";
+import { cases, payload } from "../checks/lib/guard";
 import { RECORDINGS, readRecording } from "../world/lib/claude";
 
 const ROOT = join(import.meta.dir, "..");
@@ -16,10 +16,20 @@ const walk = (dir: string, out: string[] = []): string[] => {
 };
 
 test("no model API, provider switch or API key anywhere in the repo", () => {
-  const banned = ["@ai-sdk/", "@anthropic-ai/sdk", "openrouter", "LLM_PROVIDER", "ANTHROPIC_" + "API_KEY"];
+  const banned = [
+    "@ai-sdk/",
+    "@anthropic-ai/sdk",
+    "openrouter",
+    "LLM_PROVIDER",
+    "ANTHROPIC_" + "API_KEY",
+  ];
   const hits = walk(ROOT)
     .filter((f) => !f.endsWith(".png") && !f.endsWith(".jsonl") && !f.endsWith("claude.test.ts"))
-    .flatMap((f) => banned.filter((b) => readFileSync(f, "utf8").toLowerCase().includes(b.toLowerCase())).map((b) => `${relative(ROOT, f)}: ${b}`));
+    .flatMap((f) =>
+      banned
+        .filter((b) => readFileSync(f, "utf8").toLowerCase().includes(b.toLowerCase()))
+        .map((b) => `${relative(ROOT, f)}: ${b}`),
+    );
   expect(hits).toEqual([]);
 });
 
@@ -46,12 +56,17 @@ test("every recording is a whole claude -p transcript: it holds Claude Code's in
     expect(init).toBeDefined();
     expect(typeof init!.claude_code_version).toBe("string");
     expect(ev.at(-1)?.type).toBe("result");
-    expect(readFileSync(f, "utf8")).not.toMatch(/claude-(opus|sonnet|haiku|fable)|\b(opus|sonnet|haiku|fable) \d/i);
+    expect(readFileSync(f, "utf8")).not.toMatch(
+      /claude-(opus|sonnet|haiku|fable)|\b(opus|sonnet|haiku|fable) \d/i,
+    );
   }
 });
 
 test("bun run demo replays a real session in which the guard blocks the apply", () => {
-  const r = Bun.spawnSync(["bun", "run", "demo"], { cwd: ROOT, env: { ...process.env, CLAUDE_REPLAY: "1" } });
+  const r = Bun.spawnSync(["bun", "run", "demo"], {
+    cwd: ROOT,
+    env: { ...process.env, CLAUDE_REPLAY: "1" },
+  });
   const out = r.stdout.toString();
   expect(out).toContain("Replaying a recorded Claude Code session");
   expect(out).toContain("BLOCKED  Blocked by guard-infra: terraform apply");

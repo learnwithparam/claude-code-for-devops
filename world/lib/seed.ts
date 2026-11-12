@@ -1,7 +1,27 @@
 // Builds one copy of the world from world/seed: the infra repo, the cloud and the clusters, with every fault planted.
-import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
-import { ENVS, WORLD, desired, plan, applyPlan, saveCluster, loadCloud, saveCloud, log, type Cluster, type Env } from "../sim/state";
+import {
+  applyPlan,
+  type Cluster,
+  desired,
+  ENVS,
+  type Env,
+  loadCloud,
+  log,
+  plan,
+  saveCloud,
+  saveCluster,
+  WORLD,
+} from "../sim/state";
 
 export const SEED = join(WORLD, "seed", "tallowmark-infra");
 
@@ -22,7 +42,11 @@ export function seedInstance(home: string, overlay?: string) {
     for (const name of ["seat-api", "waiting-room"]) {
       const dir = join(repo, "charts", name);
       const c = yaml(join(dir, "Chart.yaml"));
-      cl.releases[name] = { chart: `${c.name}-${c.version}`, revision: 1, values: yaml(join(dir, "values.yaml")) };
+      cl.releases[name] = {
+        chart: `${c.name}-${c.version}`,
+        revision: 1,
+        values: yaml(join(dir, "values.yaml")),
+      };
     }
     const hpa = yaml(join(repo, "k8s", "scan-telemetry-hpa.yaml"));
     cl.hpa[hpa.metadata.name] = { minReplicas: hpa.spec.minReplicas };
@@ -33,7 +57,22 @@ export function seedInstance(home: string, overlay?: string) {
   // The infra repo is its own git repo, as it would be on a laptop, so Claude Code sees its history and not the
   // course repo around it. .env stays out of git, like a real one.
   writeFileSync(join(repo, ".gitignore"), ".env\n");
-  const git = (...a: string[]) => Bun.spawnSync(["git", "-c", "user.name=Tallowmark platform team", "-c", "user.email=platform@tallowmark.test", "-c", "init.defaultBranch=main", "-c", "commit.gpgsign=false", ...a], { cwd: repo });
+  const git = (...a: string[]) =>
+    Bun.spawnSync(
+      [
+        "git",
+        "-c",
+        "user.name=Tallowmark platform team",
+        "-c",
+        "user.email=platform@tallowmark.test",
+        "-c",
+        "init.defaultBranch=main",
+        "-c",
+        "commit.gpgsign=false",
+        ...a,
+      ],
+      { cwd: repo },
+    );
   git("init", "-q");
   git("add", "-A");
   git("commit", "-q", "-m", "tallowmark-infra as the platform team left it");
@@ -47,13 +86,33 @@ function plantDrift(home: string, env: Env) {
   const bucket = `tallowmark-${env}-buyer-records`;
   for (const r of Object.values(cloud)) {
     if (r.attrs.bucket !== bucket) continue;
-    if (r.type === "aws_s3_bucket_versioning") r.attrs.versioning_configuration = [{ status: "Suspended" }];
+    if (r.type === "aws_s3_bucket_versioning")
+      r.attrs.versioning_configuration = [{ status: "Suspended" }];
     if (r.type === "aws_s3_bucket_public_access_block")
-      for (const k of ["block_public_acls", "block_public_policy", "ignore_public_acls", "restrict_public_buckets"]) r.attrs[k] = false;
+      for (const k of [
+        "block_public_acls",
+        "block_public_policy",
+        "ignore_public_acls",
+        "restrict_public_buckets",
+      ])
+        r.attrs[k] = false;
   }
   saveCloud(env, cloud, home);
   const by = { actor: "ops-oncall", tool: "aws", env, mutating: true, cwd: "." };
-  log({ ...by, args: ["s3api", "put-bucket-versioning", "--bucket", bucket, "--versioning-configuration", "Status=Suspended"] }, home);
+  log(
+    {
+      ...by,
+      args: [
+        "s3api",
+        "put-bucket-versioning",
+        "--bucket",
+        bucket,
+        "--versioning-configuration",
+        "Status=Suspended",
+      ],
+    },
+    home,
+  );
   log({ ...by, args: ["s3api", "delete-public-access-block", "--bucket", bucket] }, home);
 }
 

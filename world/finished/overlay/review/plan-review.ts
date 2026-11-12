@@ -10,10 +10,21 @@ import { mode, runClaude } from "../../../lib/claude";
 
 const file = process.argv.at(-1)!;
 const plan = JSON.parse(readFileSync(file, "utf8"));
-const changes = (plan.resource_changes ?? []) as { address: string; type: string; change: { actions: string[] } }[];
-const destroys = changes.filter((c) => c.change.actions.length === 1 && c.change.actions[0] === "delete").map((c) => c.address);
-const replaces = changes.filter((c) => c.change.actions.includes("delete") && c.change.actions.includes("create")).map((c) => c.address);
-const summary = changes.filter((c) => !c.change.actions.includes("no-op")).map((c) => `${c.change.actions.join("+")} ${c.address}`).join("\n");
+const changes = (plan.resource_changes ?? []) as {
+  address: string;
+  type: string;
+  change: { actions: string[] };
+}[];
+const destroys = changes
+  .filter((c) => c.change.actions.length === 1 && c.change.actions[0] === "delete")
+  .map((c) => c.address);
+const replaces = changes
+  .filter((c) => c.change.actions.includes("delete") && c.change.actions.includes("create"))
+  .map((c) => c.address);
+const summary = changes
+  .filter((c) => !c.change.actions.includes("no-op"))
+  .map((c) => `${c.change.actions.join("+")} ${c.address}`)
+  .join("\n");
 
 const prompt = [
   "You review one Terraform plan for a ticketing platform's infra repo. Do not run anything.",
@@ -32,12 +43,21 @@ const run = runClaude({
   live: mode().mode === "live",
 });
 const said = run.result?.structured_output as { verdict?: string; reasons?: string[] } | undefined;
-const verdict = said && ["approve", "block", "needs-human"].includes(said.verdict ?? "") ? said.verdict! : "needs-human";
-const reasons = said?.reasons?.length ? said.reasons : ["Claude Code returned no verdict, so a person decides"];
+const verdict =
+  said && ["approve", "block", "needs-human"].includes(said.verdict ?? "")
+    ? said.verdict!
+    : "needs-human";
+const reasons = said?.reasons?.length
+  ? said.reasons
+  : ["Claude Code returned no verdict, so a person decides"];
 const hard = destroys.length || replaces.length;
-console.log(JSON.stringify({
-  verdict: hard ? "block" : verdict,
-  destroys,
-  replaces,
-  reasons: hard ? [`the plan destroys or replaces ${[...destroys, ...replaces].join(", ")}`, ...reasons] : reasons,
-}));
+console.log(
+  JSON.stringify({
+    verdict: hard ? "block" : verdict,
+    destroys,
+    replaces,
+    reasons: hard
+      ? [`the plan destroys or replaces ${[...destroys, ...replaces].join(", ")}`, ...reasons]
+      : reasons,
+  }),
+);

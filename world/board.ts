@@ -2,9 +2,9 @@
 // bun run board --html     also write the board as a page, world/live/board.html
 import { writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
-import { instance } from "./sim/state";
-import { isSeeded, seedInstance } from "./lib/seed";
 import { faults, guardScore, mutatingByAgent } from "./lib/faults";
+import { isSeeded, seedInstance } from "./lib/seed";
+import { instance } from "./sim/state";
 
 const home = instance();
 if (!isSeeded(home)) seedInstance(home);
@@ -30,9 +30,12 @@ const lines = [
 console.log(lines.join("\n"));
 
 if (process.argv.includes("--html")) {
-  const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
-  const row = (ok: boolean, name: string, ev: string) => `<tr><td class="${ok ? "ok" : "bad"}">${ok ? "Fixed" : "Open"}</td><td>${esc(name)}</td><td class="ev">${esc(ev)}</td></tr>`;
-  const tile = (label: string, v: string, ok: boolean) => `<div class="tile ${ok ? "ok" : "bad"}"><div class="v">${v}</div><div>${label}</div></div>`;
+  const esc = (s: string) =>
+    s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
+  const row = (ok: boolean, name: string, ev: string) =>
+    `<tr><td class="${ok ? "ok" : "bad"}">${ok ? "Fixed" : "Open"}</td><td>${esc(name)}</td><td class="ev">${esc(ev)}</td></tr>`;
+  const tile = (label: string, v: string, ok: boolean) =>
+    `<div class="tile ${ok ? "ok" : "bad"}"><div class="v">${v}</div><div>${label}</div></div>`;
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Tallowmark board</title><style>
 body{font:15px/1.45 system-ui,sans-serif;background:#f6f5f2;color:#1d1d1b;margin:0;padding:28px}
 h1{font-size:20px;margin:0 0 4px}p{margin:0 0 18px;color:#5b5b57}

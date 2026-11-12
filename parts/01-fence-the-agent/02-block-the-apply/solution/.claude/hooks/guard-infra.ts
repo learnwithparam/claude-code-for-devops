@@ -20,7 +20,10 @@ const command: string = call.tool_input?.command ?? "";
 const filePath: string = call.tool_input?.file_path ?? "";
 
 const DANGEROUS: [RegExp, string][] = [
-  [/\bterraform\s+(apply|destroy|import|taint)\b/, "terraform apply and destroy change real infrastructure"],
+  [
+    /\bterraform\s+(apply|destroy|import|taint)\b/,
+    "terraform apply and destroy change real infrastructure",
+  ],
   [/\bterraform\s+state\s+(rm|mv|push)\b/, "terraform state rm rewrites the state"],
   [/\bterraform\s+workspace\s+delete\b/, "deleting a workspace removes an environment"],
   [/\bkubectl\s+(delete|apply|scale|drain|patch|edit|cordon)\b/, "kubectl writes change a cluster"],

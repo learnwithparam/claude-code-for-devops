@@ -36,20 +36,11 @@
     "failIfUnavailable": true,
     "allowUnsandboxedCommands": false,
     "filesystem": {
-      "denyRead": [
-        "~/.aws",
-        "~/.ssh",
-        "~/.kube/prod"
-      ],
-      "allowWrite": [
-        "../.state",
-        "../logs"
-      ]
+      "denyRead": ["~/.aws", "~/.ssh", "~/.kube/prod"],
+      "allowWrite": ["../.state", "../logs"]
     },
     "network": {
-      "allowedDomains": [
-        "*"
-      ]
+      "allowedDomains": ["*"]
     }
   }
 }

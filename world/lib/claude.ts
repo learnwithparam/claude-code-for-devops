@@ -14,7 +14,8 @@ export type Status = { installed: boolean; version: string | null; signedIn: boo
 
 // Ask `claude` itself: its version, and `claude auth status`. Never read a credentials file.
 export function claudeStatus(): Status {
-  if (!Bun.which("claude")) return { installed: false, version: null, signedIn: false, how: "not installed" };
+  if (!Bun.which("claude"))
+    return { installed: false, version: null, signedIn: false, how: "not installed" };
   const v = Bun.spawnSync(["claude", "--version"], { stdout: "pipe", stderr: "pipe" });
   if (!v.success) return { installed: false, version: null, signedIn: false, how: "not installed" };
   const version = v.stdout.toString().match(/\d+\.\d+\.\d+/)?.[0] ?? null;
@@ -24,8 +25,16 @@ export function claudeStatus(): Status {
   try {
     const j = JSON.parse(a.stdout.toString());
     signedIn = j.loggedIn === true;
-    if (signedIn) how = j.subscriptionType ? `signed in (${j.subscriptionType} plan)` : j.authMethod === "api_key" ? "signed in with a Console account" : "signed in";
-  } catch { /* an older claude prints text: treat a clean exit as signed in */ signedIn = a.success; how = signedIn ? "signed in" : how; }
+    if (signedIn)
+      how = j.subscriptionType
+        ? `signed in (${j.subscriptionType} plan)`
+        : j.authMethod === "api_key"
+          ? "signed in with a Console account"
+          : "signed in";
+  } catch {
+    /* an older claude prints text: treat a clean exit as signed in */ signedIn = a.success;
+    how = signedIn ? "signed in" : how;
+  }
   return { installed: true, version, signedIn, how };
 }
 
@@ -35,7 +44,8 @@ export function mode(): { mode: Mode; why: string } {
   if (process.env.CI) return { mode: "replay", why: "this is CI" };
   const s = claudeStatus();
   if (!s.installed) return { mode: "replay", why: "Claude Code is not installed" };
-  if (!s.signedIn) return { mode: "replay", why: "Claude Code is not signed in (run claude, then /login)" };
+  if (!s.signedIn)
+    return { mode: "replay", why: "Claude Code is not signed in (run claude, then /login)" };
   return { mode: "live", why: `Claude Code ${s.version}, ${s.how}` };
 }
 
@@ -62,20 +72,52 @@ export function redact(out: string): string {
     }
     return o;
   };
-  return out.split("\n").filter((l) => l.startsWith("{")).map((l) => { try { return JSON.stringify(fix(JSON.parse(l))); } catch { return null; } }).filter(Boolean).join("\n") + "\n";
+  return (
+    out
+      .split("\n")
+      .filter((l) => l.startsWith("{"))
+      .map((l) => {
+        try {
+          return JSON.stringify(fix(JSON.parse(l)));
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean)
+      .join("\n") + "\n"
+  );
 }
 
 export function readRecording(name: string): Event[] {
   const p = recordingPath(name);
-  if (!existsSync(p)) throw new Error(`No recording at world/recordings/${name}.jsonl. Record it with a signed-in Claude Code: see world/recordings/RECORD.md.`);
-  return readFileSync(p, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+  if (!existsSync(p))
+    throw new Error(
+      `No recording at world/recordings/${name}.jsonl. Record it with a signed-in Claude Code: see world/recordings/RECORD.md.`,
+    );
+  return readFileSync(p, "utf8")
+    .split("\n")
+    .filter(Boolean)
+    .map((l) => JSON.parse(l));
 }
 
 // Start `claude -p` in `cwd` and wait for it. The stream-json lines are the transcript; the last one is the result.
-export function runClaude(o: { name: string; cwd: string; prompt: string; args: string[]; env?: Record<string, string | undefined>; live: boolean; timeoutMs?: number }): Run {
+export function runClaude(o: {
+  name: string;
+  cwd: string;
+  prompt: string;
+  args: string[];
+  env?: Record<string, string | undefined>;
+  live: boolean;
+  timeoutMs?: number;
+}): Run {
   if (!o.live) {
     const events = readRecording(o.name);
-    return { mode: "replay", events, result: events.findLast((e) => e.type === "result"), recording: o.name };
+    return {
+      mode: "replay",
+      events,
+      result: events.findLast((e) => e.type === "result"),
+      recording: o.name,
+    };
   }
   const p = Bun.spawnSync(["claude", "-p", o.prompt, ...HEADLESS, ...o.args], {
     cwd: o.cwd,
@@ -85,32 +127,70 @@ export function runClaude(o: { name: string; cwd: string; prompt: string; args: 
     timeout: o.timeoutMs ?? 600_000,
   });
   const out = p.stdout.toString();
-  const events = out.split("\n").filter((l) => l.startsWith("{")).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean) as Event[];
-  if (!events.length) throw new Error(`claude -p printed nothing it could read. Its error output:\n${p.stderr.toString().trim()}`);
+  const events = out
+    .split("\n")
+    .filter((l) => l.startsWith("{"))
+    .map((l) => {
+      try {
+        return JSON.parse(l);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean) as Event[];
+  if (!events.length)
+    throw new Error(
+      `claude -p printed nothing it could read. Its error output:\n${p.stderr.toString().trim()}`,
+    );
   if (process.env.CLAUDE_RECORD === "1") {
     const f = recordingPath(o.name);
     mkdirSync(dirname(f), { recursive: true });
     writeFileSync(f, redact(out));
   }
-  return { mode: "live", events, result: events.findLast((e) => e.type === "result"), recording: o.name };
+  return {
+    mode: "live",
+    events,
+    result: events.findLast((e) => e.type === "result"),
+    recording: o.name,
+  };
 }
 
 // The parts of a transcript a person reads: what was asked, what Claude Code said, each tool call and what came
 // back. Never the model's name, the session id or the cost.
-export type Line = { kind: "said" | "tool" | "result" | "blocked"; text: string; call?: { tool_name: string; tool_input: any } };
+export type Line = {
+  kind: "said" | "tool" | "result" | "blocked";
+  text: string;
+  call?: { tool_name: string; tool_input: any };
+};
 export function transcript(events: Event[]): Line[] {
   const out: Line[] = [];
   for (const e of events) {
     for (const c of e.message?.content ?? []) {
-      if (e.type === "assistant" && c.type === "text" && c.text.trim()) out.push({ kind: "said", text: c.text.trim() });
-      if (e.type === "assistant" && c.type === "tool_use") out.push({ kind: "tool", text: describe(c.name, c.input), call: { tool_name: c.name, tool_input: c.input } });
+      if (e.type === "assistant" && c.type === "text" && c.text.trim())
+        out.push({ kind: "said", text: c.text.trim() });
+      if (e.type === "assistant" && c.type === "tool_use")
+        out.push({
+          kind: "tool",
+          text: describe(c.name, c.input),
+          call: { tool_name: c.name, tool_input: c.input },
+        });
       if (e.type === "user" && c.type === "tool_result") {
-        const body = typeof c.content === "string" ? c.content : (c.content ?? []).map((x: any) => x.text ?? "").join("\n");
-        out.push({ kind: /Blocked by guard-infra|denied/i.test(body) && c.is_error ? "blocked" : "result", text: body.trim() });
+        const body =
+          typeof c.content === "string"
+            ? c.content
+            : (c.content ?? []).map((x: any) => x.text ?? "").join("\n");
+        out.push({
+          kind: /Blocked by guard-infra|denied/i.test(body) && c.is_error ? "blocked" : "result",
+          text: body.trim(),
+        });
       }
     }
   }
   return out;
 }
 const describe = (tool: string, input: any) =>
-  tool === "Bash" ? `Bash: ${input.command}` : input?.file_path ? `${tool}: ${input.file_path}` : `${tool}: ${JSON.stringify(input).slice(0, 120)}`;
+  tool === "Bash"
+    ? `Bash: ${input.command}`
+    : input?.file_path
+      ? `${tool}: ${input.file_path}`
+      : `${tool}: ${JSON.stringify(input).slice(0, 120)}`;
