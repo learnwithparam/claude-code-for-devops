@@ -14,6 +14,7 @@ export type Status = { installed: boolean; version: string | null; signedIn: boo
 
 // Ask `claude` itself: its version, and `claude auth status`. Never read a credentials file.
 export function claudeStatus(): Status {
+  if (!Bun.which("claude")) return { installed: false, version: null, signedIn: false, how: "not installed" };
   const v = Bun.spawnSync(["claude", "--version"], { stdout: "pipe", stderr: "pipe" });
   if (!v.success) return { installed: false, version: null, signedIn: false, how: "not installed" };
   const version = v.stdout.toString().match(/\d+\.\d+\.\d+/)?.[0] ?? null;
@@ -48,14 +49,16 @@ export const hasRecording = (name: string) => existsSync(recordingPath(name));
 // the course. Every other byte is what `claude -p` printed. Lines that are not JSON are dropped.
 export const MODEL_PLACEHOLDER = "account-default";
 export function redact(out: string): string {
+  // Any string under a key that names a model, and any object key that is a model id (usage is keyed by model).
+  const isId = (k: string) => /^claude-|^(opus|sonnet|haiku|fable)\b/i.test(k);
   const fix = (v: any): any => {
     if (Array.isArray(v)) return v.map(fix);
     if (!v || typeof v !== "object") return v;
     const o: any = {};
+    let n = 0;
     for (const [k, x] of Object.entries(v)) {
-      if (k === "model" && typeof x === "string") o[k] = MODEL_PLACEHOLDER;
-      else if (k === "modelUsage" && x && typeof x === "object") o[k] = Object.fromEntries(Object.values(x as object).map((u: any, i) => [i ? `${MODEL_PLACEHOLDER}-${i + 1}` : MODEL_PLACEHOLDER, fix({ ...u, canonicalModel: undefined })]));
-      else o[k] = fix(x);
+      const key = isId(k) ? (n++ ? `${MODEL_PLACEHOLDER}-${n}` : MODEL_PLACEHOLDER) : k;
+      o[key] = /model/i.test(k) && typeof x === "string" ? MODEL_PLACEHOLDER : fix(x);
     }
     return o;
   };

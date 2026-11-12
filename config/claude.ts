@@ -2,7 +2,8 @@
 // signed in with the learner's own Claude account (Pro, Max or Console). No model is named: the account picks it.
 
 // Read from the npm registry (@anthropic-ai/claude-code dist-tags). `oldest` is the stable channel the course
-// was last run on; `newest` is the latest release it was run on. `bun run doctor` warns below `oldest`.
+// was last run on; `newest` is the latest release it was run on (and the one the recordings were made with).
+// Both were run live end to end: bun run finished and bun run demo --live. `bun run doctor` warns below `oldest`.
 export const CLAUDE_CODE = { oldest: "2.1.311", newest: "2.1.322" } as const;
 
 // Flags for the headless runs the course makes. Read from `claude --help` and the headless docs

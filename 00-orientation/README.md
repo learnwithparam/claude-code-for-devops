@@ -24,8 +24,9 @@ Open a new terminal, run `claude`, type `/login` and sign in in the browser. The
 claude --version
 ```
 
-Expect: `(Claude Code)` after a version number. The course is tested on 2.1.311 to 2.1.322; an older one prints a
-`FIX` line below.
+Expect: `(Claude Code)` after a version number.
+
+The course is tested on Claude Code 2.1.311 to 2.1.322. The doctor below tells you if yours is older.
 
 Now set up the repo and the world:
 

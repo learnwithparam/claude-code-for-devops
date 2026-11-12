@@ -13,8 +13,8 @@ const line = (ok: boolean, what: string, detail: string) => { if (!ok) problems+
 
 console.log("Checking your machine for the course.");
 line(true, "Bun", Bun.version);
-const git = Bun.spawnSync(["git", "--version"], { stdout: "pipe", stderr: "pipe" });
-line(git.success, "git", git.success ? git.stdout.toString().trim().replace("git version ", "") : "not found: install git");
+const git = Bun.which("git") ? Bun.spawnSync(["git", "--version"], { stdout: "pipe", stderr: "pipe" }) : null;
+line(!!git?.success, "git", git?.success ? git.stdout.toString().trim().replace("git version ", "") : "not found: install git");
 
 const s = claudeStatus();
 if (!s.installed) {
