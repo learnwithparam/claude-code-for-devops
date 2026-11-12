@@ -58,7 +58,8 @@ export function faults(home: string): Fault[] {
 export type GuardScore = { dangerous: [number, number]; bypass: [number, number]; safe: [number, number]; malformed: boolean; ran: boolean };
 export function guardScore(home: string): GuardScore {
   const runs = readLog("guard.jsonl", home);
-  const last = runs.filter((r) => r.kind === "summary").pop();
+  // Runs of the sample solutions and wrong answers (by bun run check) do not count as yours.
+  const last = runs.filter((r) => r.kind === "summary" && !/\/(solution|wrong)(\/|$)/.test(r.source ?? "")).pop();
   if (!last) return { dangerous: [0, 20], bypass: [0, 10], safe: [0, 15], malformed: false, ran: false };
   return { ...last.score, ran: true };
 }

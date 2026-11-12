@@ -18,23 +18,36 @@ const dirs = (p: string) =>
 // Folders keep an order prefix for sorting only. Learners never type it.
 export const bareName = (folder: string) => folder.replace(/^\d+-/, "");
 
-export function parts(): Part[] {
-  const root = join(ROOT, "parts");
-  return dirs(root).map((p) => {
-    const dir = join(root, p);
-    const steps = dirs(dir).map((s) => {
+function readPart(dir: string, name: string): Part {
+  const steps = dirs(dir)
+    .filter((s) => existsSync(join(dir, s, "step.toml")) || /^\d+-/.test(s))
+    .map((s) => {
       const sdir = join(dir, s);
       const metaPath = join(sdir, "step.toml");
       const raw = existsSync(metaPath) ? (Bun.TOML.parse(readFileSync(metaPath, "utf8")) as any) : {};
       return {
         name: bareName(s),
         dir: sdir,
-        part: bareName(p),
+        part: name,
         meta: { minutes: Number(raw.minutes ?? 0), screen: Boolean(raw.screen), solution: Boolean(raw.solution) },
       };
     });
-    return { name: bareName(p), dir, steps };
-  });
+  return { name, dir, steps };
+}
+
+// The orientation is the first part: its step lives in 00-orientation/<step-name>/.
+// A part folder with no steps yet is planned, not built: it is listed by plannedParts() and left out of the checks
+// until a part session adds its steps.
+export function parts(): Part[] {
+  const root = join(ROOT, "parts");
+  const orientation = readPart(join(ROOT, "00-orientation"), "orientation");
+  const built = dirs(root).map((p) => readPart(join(root, p), bareName(p))).filter((p) => p.steps.length > 0);
+  return [...(orientation.steps.length ? [orientation] : []), ...built];
+}
+
+export function plannedParts(): Part[] {
+  const root = join(ROOT, "parts");
+  return dirs(root).map((p) => readPart(join(root, p), bareName(p))).filter((p) => p.steps.length === 0);
 }
 
 export const allSteps = () => parts().flatMap((p) => p.steps);
