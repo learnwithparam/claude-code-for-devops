@@ -1,0 +1,22 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.17.2",
+  "resource_changes": [
+    {
+      "address": "aws_iam_policy.ci_deploy",
+      "mode": "managed",
+      "type": "aws_iam_policy",
+      "name": "ci_deploy",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "ci-deploy",
+          "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"*\",\"Resource\":\"*\"}]}"
+        }
+      }
+    }
+  ]
+}

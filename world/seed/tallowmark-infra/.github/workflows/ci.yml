@@ -1,0 +1,15 @@
+# Practice CI for the Tallowmark infra repo. It runs locally with act, never on GitHub.
+name: ci
+on: [pull_request]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: terraform-linters/setup-tflint@main
+      - run: terraform -chdir=terraform/envs/dev init -backend=false
+      - run: terraform -chdir=terraform/envs/dev validate
+      - run: tflint --chdir=terraform/modules/scan-store

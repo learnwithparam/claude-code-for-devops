@@ -1,0 +1,32 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.17.2",
+  "resource_changes": [
+    {
+      "address": "module.scan_store.aws_s3_bucket_lifecycle_configuration.scan",
+      "mode": "managed",
+      "type": "aws_s3_bucket_lifecycle_configuration",
+      "name": "scan",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "bucket": "tallowmark-scan-archive",
+          "rule": [
+            {
+              "id": "expire-readings",
+              "status": "Enabled",
+              "expiration": [
+                {
+                  "days": 30
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
