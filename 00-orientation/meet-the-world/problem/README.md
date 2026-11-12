@@ -2,9 +2,13 @@
 
 ## The problem
 
-Before you let an agent into an infra repo, you need to know three things a new teammate would ask: which
-environment am I pointed at, what is already broken, and what must never run. Most laptops answer the first one badly.
-This repo's `.envrc` is one of them.
+Before you let an agent into an infra repo, ask what a new teammate would ask:
+
+1. Which environment am I pointed at?
+2. What is already broken?
+3. What must never run?
+
+Most laptops answer the first question badly. This repo's `.envrc` file is one of them.
 
 ```mermaid
 flowchart LR
@@ -17,7 +21,9 @@ flowchart LR
 
 ## Your challenge
 
-Explore `world/live/tallowmark-infra` with the world's tools on your PATH (from `bun run world`). Useful commands:
+You explore the world with Claude Code. Claude Code writes the note. You check that every line is true.
+
+First, look with your own eyes:
 
 ```bash
 cat world/live/tallowmark-infra/.envrc
@@ -26,11 +32,28 @@ bun run board
 
 Expect: the `.envrc` lines, then the board with five `RED` lines.
 
-Then fill in `notes/first-look.md` in this folder, under its three headings:
+For example, the `.envrc` has a line that starts with `export TALLOWMARK_ENV=`. The word after it is the
+environment your shell points at.
 
-1. **Where my shell points**: the one environment the repo's shell points at, and how you know.
-2. **The fault that worries me most**: one fault from the board, by name, and why.
-3. **A command I would never let an agent run**: one command, in backticks, that would change or delete something.
+Now start Claude Code in the root folder of this course repo, and give it this job:
+
+```text
+Read world/live/tallowmark-infra/.envrc and run bun run board.
+Then fill in 00-orientation/meet-the-world/problem/notes/first-look.md under its three headings:
+1. Where my shell points: the one environment the .envrc points at, and the line that shows it.
+2. The fault that worries me most: one fault from the board, by name, and why.
+3. A command I would never let an agent run: one command, in backticks, that changes or deletes something.
+Keep the headings exactly as they are.
+```
+
+Read the note before you go on. Check each line against what you saw:
+
+- Does the environment match the `TALLOWMARK_ENV` line? Claude Code may guess `dev`, because that is where people
+  test. Say no to a guess.
+- Is the fault one of the five `RED` lines on the board?
+- Does the command change or delete something? `terraform plan` only reads, so it is the wrong answer.
+
+The prompt that solves this step is in `../solution/prompts.md`. Read it after you try.
 
 ## Done when
 
@@ -49,14 +72,15 @@ Expect: `Done. All 4 rules pass.`
 
 ## If you get stuck
 
-| What you see | Fix |
+| What you see | What to ask Claude Code |
 |---|---|
-| `FAIL you found which environment the shell points at` | Read `TALLOWMARK_ENV` in `.envrc`. Name only that one. |
-| `FAIL the command you named is one the finished guard blocks` | `terraform plan` is safe. Pick one that applies, destroys or deletes. |
-| `FAIL notes/first-look.md has the three headings` | Keep the headings exactly as the starter has them. |
+| `FAIL you found which environment the shell points at` | "Read `TALLOWMARK_ENV` in `.envrc` and name only that one." |
+| `FAIL the command you named is one the finished guard blocks` | "`terraform plan` is safe. Pick a command that applies, destroys or deletes." |
+| `FAIL notes/first-look.md has the three headings` | "Put the three headings back exactly as the starter has them." |
 
 ## Words you will use
 
-- **Environment**: a full copy of the platform. `dev` is for trying things, `prod` is where fans buy tickets.
-- **Drift**: the cloud no longer matches the Terraform code, because someone changed it by hand.
-- **The board**: one screen with every fault and the guard score, read from the world's state and logs.
+- **Environment**: a full copy of the platform. `dev` is for trying things. `prod` is where fans buy tickets.
+- **Drift**: the cloud no longer matches the Terraform code. Someone changed the cloud directly, not through
+  Terraform.
+- **The board**: one screen with every fault and the guard score. It reads the world's state and logs.

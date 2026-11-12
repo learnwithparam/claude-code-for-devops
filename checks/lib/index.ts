@@ -1,6 +1,15 @@
-export * from "./settings";
-export * from "./guard";
-export * from "./files";
 export * from "./explain";
+export * from "./files";
+export * from "./guard";
 export { threeRuns } from "./repeat";
-export { ensureWorld, faults, guardScore, mutatingByAgent, readLog, plan, instance, WORLD } from "./world";
+export * from "./settings";
+export {
+  ensureWorld,
+  faults,
+  guardScore,
+  instance,
+  mutatingByAgent,
+  plan,
+  readLog,
+  WORLD,
+} from "./world";

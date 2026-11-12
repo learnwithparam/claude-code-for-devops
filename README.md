@@ -1,6 +1,31 @@
 # Claude Code for DevOps: guard the agent near production
 
-Let Claude Code fix your Terraform, Helm and CI, and prove with a test that it cannot apply, delete or read a secret.
+Let Claude Code fix your Terraform, Helm and CI. Then prove with a test that it cannot apply, delete or read a
+secret.
+
+## The promise
+
+- **Objective**: you can let Claude Code work in an infra repo whose shell points at prod. You can prove with a
+  test that it cannot apply, delete or read a secret.
+- **Outcome**: you leave with a guardrail kit. It holds the settings, a guard hook, a sandbox block, a guard test and
+  a headless plan review. Claude Code wrote every file, and you checked each one.
+- **Transformation**: before, you think "I would never let an agent near prod." After, you say "It works near
+  prod. Here is the test that shows what it cannot do."
+- **Goal**: the guardrail kit passes the guard suite in a fresh copy of the world. It blocks 30 of 30 dangerous
+  calls and allows 15 of 15 safe ones.
+
+You write no code in this course. In every step you give the real Claude Code a job in plain English. You read its
+plan, say yes or no, and steer. Claude Code writes every file.
+
+For example, in the step `write-the-deny-rules` you type this into Claude Code:
+
+```text
+Add deny rules so you can never run terraform apply, terraform destroy,
+kubectl delete or helm uninstall without a person.
+```
+
+Claude Code shows a plan with rules such as `Bash(terraform apply *)`. You check it, and then the course check
+proves the rules work.
 
 ## Run the finished system
 
@@ -48,14 +73,14 @@ Expect: five `RED` lines and `Dangerous actions blocked:   0 of 30`.
 
 Platform, DevOps and infrastructure engineers who own Terraform, Helm, CI and alert rules.
 
-- **New to Claude Code.** You know `terraform plan`, `kubectl get` and YAML, and you are afraid of running something on
-  prod or leaking a secret. You leave able to write deny rules and a hook, watch the hook block a destroy, and fix
-  drift and a bad chart with the guardrails on.
-- **Already using it daily.** You use Claude Code for app code and do not trust it near CI credentials. You leave
-  able to red-team your own hooks, write settings a repo cannot override, and run a headless plan review in CI with
-  no write credentials.
-- **Deciding whether to allow it.** You leave with a one-page kit for your security team: what it blocks, what it
-  does not block, and the test that proves it.
+- **New to Claude Code.** You know `terraform plan`, `kubectl get` and YAML. You are afraid of running something on
+  prod or leaking a secret. You leave able to get Claude Code to write deny rules and a hook. You watch the hook
+  block a destroy. Then Claude Code fixes drift and a bad chart with the guardrails on.
+- **Already using it daily.** You use Claude Code for app code, and you do not trust it near CI keys. You leave
+  able to attack your own hooks and find their gaps. You can set settings that a repo cannot override. You can run
+  a headless plan review in CI with no write keys.
+- **Deciding whether to allow it.** You leave with a one-page kit for your security team. It says what the guard
+  blocks, what it does not block, and which test proves it.
 
 ## The world and what you build
 
@@ -100,9 +125,14 @@ The same parts fit several formats, from one sitting to a cohort: see [schedules
 
 ## The project
 
-A public fork of this repo with your guardrail kit: settings, the hook, the sandbox block, the guard suite with at
-least five bypass cases of your own, and the plan review answering all six saved plans. Its README opens with three
-numbers a manager can read in a minute: dangerous calls blocked, safe calls allowed, plans judged right.
+Your project is a public fork of this repo with your guardrail kit. The kit has these parts:
+
+- the settings, the hook and the sandbox block;
+- the guard suite, with at least five bypass cases of your own;
+- the plan review, with an answer for all six saved plans.
+
+Its README opens with three numbers a manager can read in a minute. They are dangerous calls blocked, safe calls
+allowed, and plans judged right.
 
 ## Before you start
 
