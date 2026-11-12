@@ -6,7 +6,7 @@ const missed = async (d: string, set: string, want: boolean) => {
   const { results } = await run(d);
   const bad = results.filter((r) => r.set === set && r.ok !== want);
   const byId = new Map(cases().map((c) => [c.id, c]));
-  explain(bad.map((r) => `${r.id}: ${String(byId.get(r.id)?.tool_input.command ?? byId.get(r.id)?.tool_input.file_path)} (${r.how})`));
+  explain("block-the-apply", bad.map((r) => `${r.id}: ${String(byId.get(r.id)?.tool_input.command ?? byId.get(r.id)?.tool_input.file_path)} (${r.how})`));
   return bad.length === 0;
 };
 

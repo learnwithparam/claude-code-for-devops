@@ -1,5 +1,5 @@
 # Door scanner readings from every show land in this queue, then in this bucket.
-# Readings expire after 30 days: nobody needs to know which door a fan used last season.
+# Old readings expire: nobody needs to know which door a fan used at a show long past.
 
 terraform {
   required_version = ">= 1.17.0"

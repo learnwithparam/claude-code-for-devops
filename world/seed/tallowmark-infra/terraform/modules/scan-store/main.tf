@@ -1,5 +1,5 @@
 # Door scanner readings from every show land in this queue, then in this bucket.
-# The lifecycle rule that expired readings after 30 days used to live here.
+# The lifecycle rule that expired old readings used to live here.
 
 variable "env" {
   type = string

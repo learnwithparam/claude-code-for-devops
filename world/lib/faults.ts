@@ -43,7 +43,7 @@ export function faults(home: string): Fault[] {
   const lifecycle = /resource\s+"aws_s3_bucket_lifecycle_configuration"/.test(mod) && /days\s*=\s*([1-9]|[12]\d|30)\b/.test(mod);
   const hpa = yaml(join(repo, "k8s", "scan-telemetry-hpa.yaml"));
   const minR = Number(hpa?.spec?.minReplicas ?? 0);
-  const costProblems = [!lifecycle ? "no lifecycle rule expiring scan readings within 30 days" : "", minR > 3 ? `scan-telemetry autoscaler minimum is ${minR}` : ""].filter(Boolean);
+  const costProblems = [!lifecycle ? "no lifecycle rule expiring old scan readings" : "", minR > 3 ? `scan-telemetry autoscaler minimum is ${minR}` : ""].filter(Boolean);
   out.push({ id: "cost", name: "Cost spike on scan telemetry", part: "give-it-eyes", fixed: costProblems.length === 0, evidence: costProblems.join("; ") || "lifecycle rule in code and autoscaler minimum is 3 or less" });
 
   const ci = text(join(repo, ".github", "workflows", "ci.yml"));

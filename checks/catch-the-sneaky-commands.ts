@@ -6,7 +6,7 @@ const allOk = async (d: string, set: string) => {
   const { results } = await run(d);
   const bad = results.filter((r) => r.set === set && !r.ok);
   const byId = new Map(cases().map((c) => [c.id, c]));
-  explain(bad.map((r) => `${r.id}: ${String(byId.get(r.id)?.tool_input.command ?? byId.get(r.id)?.tool_input.file_path)}`));
+  explain("catch-the-sneaky-commands", bad.map((r) => `${r.id}: ${String(byId.get(r.id)?.tool_input.command ?? byId.get(r.id)?.tool_input.file_path)}`));
   return bad.length === 0;
 };
 // The bypass cases that really get past this learner's own deny rules, as Claude Code matches them.
@@ -21,7 +21,7 @@ export default [
   },
   {
     says: "every case the note names really gets past your deny rules",
-    test: (d) => { const wrong = named(d).filter((id) => !realGaps(d).includes(id)); explain(wrong.map((id) => `${id} is stopped by your deny rules already`)); return named(d).length > 0 && wrong.length === 0; },
+    test: (d) => { const wrong = named(d).filter((id) => !realGaps(d).includes(id)); explain("catch-the-sneaky-commands", wrong.map((id) => `${id} is stopped by your deny rules already`)); return named(d).length > 0 && wrong.length === 0; },
     tryNext: "Claude Code strips env and similar wrappers and splits && before matching, so those forms are not gaps",
   },
   { says: "the hook blocks all 10 bypass forms", test: (d) => allOk(d, "bypass"), tryNext: "split on && ; |, strip env and paths, unwrap bash -c, skip flags before the verb, and read script files" },

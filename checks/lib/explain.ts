@@ -1,3 +1,11 @@
-// Extra lines under a FAIL, only when a learner checks one step. Quiet during bun run check.
-const quiet = process.argv.some((a) => a === "--all" || a === "--report" || a === "part");
-export const explain = (lines: string[]) => { if (!quiet) for (const l of lines.slice(0, 6)) console.log(`        ${l}`); };
+// Extra lines under a FAIL, printed only when a learner checks that one step, and only once.
+const asked = process.argv[2];
+const printed = new Set<string>();
+export const explain = (step: string, lines: string[]) => {
+  if (asked !== step) return;
+  for (const l of lines.slice(0, 6)) {
+    if (printed.has(l)) continue;
+    printed.add(l);
+    console.log(`        ${l}`);
+  }
+};
