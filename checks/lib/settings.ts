@@ -35,11 +35,21 @@ export function ruleMatches(rule: string, tool: string, input: string): boolean 
   // Read and Edit use gitignore-style paths. We test the path forms a learner is likely to write.
   const glob = spec.replace(/^\.\//, "");
   const re = new RegExp(
-    "^" + glob.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*\*\/?/g, "\u0000").replace(/\*/g, "[^/]*").replace(/\u0000/g, "(.*/)?") + "$",
+    "^" + glob.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*\*\//g, "\u0000").replace(/\*\*$/, "\u0001").replace(/\*/g, "[^/]*").replace(/\u0000/g, "(.*/)?").replace(/\u0001/, ".*") + "$",
   );
   const forms = [input, input.replace(/^\.\//, ""), "/" + input.replace(/^\.\//, "")];
   return forms.some((f) => re.test(f) || re.test(f.replace(/^\//, "")));
 }
 
-export const denies = (s: Settings | null, tool: string, input: string) => (s?.permissions?.deny ?? []).some((r) => ruleMatches(r, tool, input));
+// Claude Code splits compound commands and strips simple wrappers before it matches a Bash rule.
+// It does not follow a full path, a shell -c string, a flag before the verb, another program name or a script file.
+export function bashParts(cmd: string): string[] {
+  return cmd.split(/&&|\|\||;|\|/).map((p) => {
+    let w = p.trim().split(/\s+/);
+    while (w.length && (/^\w+=/.test(w[0]) || ["env", "nohup", "nice", "timeout", "time"].includes(w[0]))) w = w.slice(1);
+    return w.join(" ");
+  }).filter(Boolean);
+}
+export const denies = (s: Settings | null, tool: string, input: string) =>
+  (tool === "Bash" ? bashParts(input) : [input]).some((part) => (s?.permissions?.deny ?? []).some((r) => ruleMatches(r, tool, part)));
 export const allows = (s: Settings | null, tool: string, input: string) => (s?.permissions?.allow ?? []).some((r) => ruleMatches(r, tool, input));
