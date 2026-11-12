@@ -42,7 +42,8 @@ export default [
     says: "the hook allows all 15 safe calls",
     test: (folder) => allRight(folder, "safe"),
     tryNext:
-      "a guard that blocks plan, get or lint is a guard people switch off; match the verb, not the program name",
+      "a guard that blocks plan, get or lint is a guard people switch off; match the verb, not " +
+      "the program name",
   },
   {
     says: "the hook blocks input it cannot read (fails closed)",

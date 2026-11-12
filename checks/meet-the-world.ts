@@ -54,12 +54,14 @@ function namesOnlyWorldEnv(folder: string): boolean {
 const finished = join(WORLD, "finished", "overlay");
 
 async function finishedGuardBlocks(command: string): Promise<boolean> {
+  // biome-ignore-start lint/style/useNamingConvention: a PreToolUse hook reads these exact names.
   const hookInput = JSON.stringify({
-    "hook_event_name": "PreToolUse",
-    "tool_name": "Bash",
-    "tool_input": { command },
+    hook_event_name: "PreToolUse",
+    tool_name: "Bash",
+    tool_input: { command },
     cwd: join(WORLD, "seed", "tallowmark-infra"),
   });
+  // biome-ignore-end lint/style/useNamingConvention: a PreToolUse hook reads these exact names.
   const decision = await decide(finished, "Bash", hookInput);
   return decision.blocked;
 }
@@ -78,7 +80,8 @@ export default [
     says: "you found which environment the shell points at",
     test: (folder) => namesOnlyWorldEnv(folder),
     tryNext:
-      "read .envrc in the world repo, or run aws sts get-caller-identity there, and name the one env",
+      "read .envrc in the world repo, or run aws sts get-caller-identity there, and name the one " +
+      "env",
   },
   {
     says: "you named one of the five faults on the board",
@@ -92,6 +95,7 @@ export default [
       return command !== "" && (await finishedGuardBlocks(command));
     },
     tryNext:
-      "put one command in backticks under the third heading; pick one that changes or deletes something on prod",
+      "put one command in backticks under the third heading; pick one that changes or deletes " +
+      "something on prod",
   },
 ] satisfies Rule[];

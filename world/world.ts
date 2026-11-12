@@ -22,9 +22,8 @@ function status() {
   const releaseCount = Object.keys(loadCluster("prod", home).releases).length;
   const openCount = worldFaults.filter((fault) => !fault.fixed).length;
   console.log(`World: Tallowmark Tickets, repo at ${shortPath(repo)}`);
-  console.log(
-    `Environments: dev and prod. prod holds ${bucketCount} buckets and ${releaseCount} Helm releases.`,
-  );
+  const prodContents = `${bucketCount} buckets and ${releaseCount} Helm releases`;
+  console.log(`Environments: dev and prod. prod holds ${prodContents}.`);
   console.log(`Faults still in place: ${openCount} of ${worldFaults.length}`);
   for (const fault of worldFaults) {
     const state = fault.fixed ? "fixed" : "OPEN ";

@@ -52,7 +52,8 @@ const portsDiffer = (ports: Ports) => Number(ports.probe?.port) !== Number(ports
 function chartProblems(values: ChartValues): string[] {
   const tag = values.image?.tag;
   const limits = values.resources?.limits;
-  const portProblem = `probe port ${values.probe?.port} is not container port ${values.containerPort}`;
+  const probePort = values.probe?.port;
+  const portProblem = `probe port ${probePort} is not container port ${values.containerPort}`;
   return realProblems([
     tag === "latest" || !tag ? "image tag is latest" : "",
     !limits?.memory || !limits?.cpu ? "no resource limits" : "",

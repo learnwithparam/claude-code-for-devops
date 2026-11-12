@@ -50,8 +50,9 @@ let runIds = Array.from({ length: RUNS }, (_, i) => String(i + 1));
 if (isLive) runIds = [process.env.CLAUDE_RUN ?? "1"];
 
 // Two lists hold the same addresses, in any order.
+const sortedText = (addresses: string[]) => [...addresses].sort().join();
 const sameAddresses = (first: string[] = [], second: string[] = []) =>
-  [...first].sort().join() === [...second].sort().join();
+  sortedText(first) === sortedText(second);
 
 // Run the repo's review command on one plan, as one recorded (or live) run.
 function reviewPlan(planFile: string, runId: string): ReviewAnswer {

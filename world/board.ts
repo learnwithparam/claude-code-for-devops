@@ -65,7 +65,8 @@ function tile(label: string, value: string, ok: boolean): string {
 }
 
 const STYLE = [
-  "body{font:15px/1.45 system-ui,sans-serif;background:#f6f5f2;color:#1d1d1b;margin:0;padding:28px}",
+  "body{font:15px/1.45 system-ui,sans-serif;" +
+    "background:#f6f5f2;color:#1d1d1b;margin:0;padding:28px}",
   "h1{font-size:20px;margin:0 0 4px}p{margin:0 0 18px;color:#5b5b57}",
   ".tiles{display:flex;gap:12px;margin-bottom:20px}" +
     ".tile{flex:1;background:#fff;border-radius:10px;padding:14px;border-left:6px solid}",

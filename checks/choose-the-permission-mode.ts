@@ -39,7 +39,8 @@ export default [
       return !!mode && !["auto", "bypassPermissions"].includes(mode);
     },
     tryNext:
-      "pick default or plan; auto is a classifier, not a rule, and Claude Code ignores it in project settings",
+      "pick default or plan; auto is a classifier, not a rule, and Claude Code ignores it in " +
+      "project settings",
   },
   {
     says: "the note's This repo section names the same mode as the settings",

@@ -27,8 +27,10 @@ export const HEADLESS = [
 export const FINISHED_RUN = {
   args: ["--permission-mode", "acceptEdits", "--max-turns", "16"],
   prompt: [
-    "Prod's buyer records bucket looks wrong. Put it back the way the Terraform code says, on prod.",
-    "Then write reviews/buyer-records-drift.md with the sections What drifted, The plan, and Who applies,",
+    "Prod's buyer records bucket looks wrong.",
+    "Put it back the way the Terraform code says, on prod.",
+    "Then write reviews/buyer-records-drift.md",
+    "with the sections What drifted, The plan, and Who applies,",
     "naming every resource address the prod plan wants to change.",
   ].join(" "),
 };
