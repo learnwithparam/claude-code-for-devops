@@ -1,58 +1,82 @@
-// bun run doctor: is this machine ready for the course? One line per tool: found, version, ok or what to do.
+// bun run doctor: is this machine ready for the course?
+// One line per tool: found, version, ok or what to do.
 // Claude Code's version and sign-in come from `claude` itself, never from a credentials file.
 import { CLAUDE_CODE } from "../config/claude";
 import { claudeStatus } from "../world/lib/claude";
 
-const newer = (a: string, b: string) => {
-  const [x, y] = [a, b].map((v) => v.split(".").map(Number));
-  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i];
+// True when version is the same as oldest or newer. Both look like "2.1.311".
+function isAtLeast(version: string, oldest: string): boolean {
+  const versionParts = version.split(".").map(Number);
+  const oldestParts = oldest.split(".").map(Number);
+  for (let i = 0; i < 3; i++) {
+    if (versionParts[i] !== oldestParts[i]) return versionParts[i] > oldestParts[i];
+  }
   return true;
-};
+}
+
 let problems = 0;
-const line = (ok: boolean, what: string, detail: string) => {
+
+function report(ok: boolean, what: string, detail: string) {
   if (!ok) problems++;
-  console.log(`  ${ok ? "ok  " : "FIX "}  ${what.padEnd(12)} ${detail}`);
-};
+  const label = ok ? "ok  " : "FIX ";
+  console.log(`  ${label}  ${what.padEnd(12)} ${detail}`);
+}
+
+function checkGit() {
+  if (!Bun.which("git")) {
+    report(false, "git", "not found: install git");
+    return;
+  }
+  const gitRun = Bun.spawnSync(["git", "--version"], { stdout: "pipe", stderr: "pipe" });
+  if (!gitRun.success) {
+    report(false, "git", "not found: install git");
+    return;
+  }
+  const gitVersion = gitRun.stdout.toString().trim().replace("git version ", "");
+  report(true, "git", gitVersion);
+}
+
+function checkClaudeCode() {
+  const status = claudeStatus();
+  if (!status.installed) {
+    report(
+      false,
+      "Claude Code",
+      "not found: install it with the command in 00-orientation/README.md, then open a new terminal",
+    );
+    report(false, "Signed in", "no: install Claude Code, run claude, then type /login");
+    return;
+  }
+  const { oldest, newest } = CLAUDE_CODE;
+  const tooOld = Boolean(status.version) && !isAtLeast(String(status.version), oldest);
+  if (tooOld) {
+    report(
+      false,
+      "Claude Code",
+      `${status.version} is older than ${oldest}, the oldest version this course is tested on: ` +
+        "run claude update",
+    );
+  } else {
+    report(true, "Claude Code", `${status.version} (tested on ${oldest} to ${newest})`);
+  }
+  if (status.signedIn) {
+    const how = status.how.replace(/^signed in ?/, "yes ").trim();
+    report(true, "Signed in", how);
+  } else {
+    report(false, "Signed in", "no: run claude, then type /login");
+  }
+}
 
 console.log("Checking your machine for the course.");
-line(true, "Bun", Bun.version);
-const git = Bun.which("git")
-  ? Bun.spawnSync(["git", "--version"], { stdout: "pipe", stderr: "pipe" })
-  : null;
-line(
-  !!git?.success,
-  "git",
-  git?.success
-    ? git.stdout.toString().trim().replace("git version ", "")
-    : "not found: install git",
-);
-
-const s = claudeStatus();
-if (!s.installed) {
-  line(
-    false,
-    "Claude Code",
-    "not found: install it with the command in 00-orientation/README.md, then open a new terminal",
+report(true, "Bun", Bun.version);
+checkGit();
+checkClaudeCode();
+if (problems > 0) {
+  console.log(
+    `${problems} thing(s) to fix. ` +
+      "Everything else in the course still runs: checks never need Claude Code.",
   );
-  line(false, "Signed in", "no: install Claude Code, run claude, then type /login");
 } else {
-  const old = s.version && !newer(s.version, CLAUDE_CODE.oldest);
-  line(
-    !old,
-    "Claude Code",
-    old
-      ? `${s.version} is older than ${CLAUDE_CODE.oldest}, the oldest version this course is tested on: run claude update`
-      : `${s.version} (tested on ${CLAUDE_CODE.oldest} to ${CLAUDE_CODE.newest})`,
-  );
-  line(
-    s.signedIn,
-    "Signed in",
-    s.signedIn ? s.how.replace(/^signed in ?/, "yes ").trim() : "no: run claude, then type /login",
-  );
+  console.log("Ready. Claude Code is installed and signed in.");
 }
-console.log(
-  problems
-    ? `${problems} thing(s) to fix. Everything else in the course still runs: checks never need Claude Code.`
-    : "Ready. Claude Code is installed and signed in.",
-);
-process.exit(problems ? 1 : 0);
+process.exit(problems > 0 ? 1 : 0);

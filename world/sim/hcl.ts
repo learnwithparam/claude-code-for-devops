@@ -4,138 +4,227 @@
 export type Block = { type: string; labels: string[]; body: Body };
 export type Body = { attrs: Record<string, unknown>; blocks: Block[] };
 
-type Tok = { t: "id" | "str" | "num" | "sym"; v: string };
+type TokenKind = "name" | "string" | "number" | "symbol";
+type Token = { kind: TokenKind; text: string };
 
-function lex(src: string): Tok[] {
-  const out: Tok[] = [];
-  let i = 0;
-  while (i < src.length) {
-    const c = src[i];
-    if (c === "#" || (c === "/" && src[i + 1] === "/")) {
-      while (i < src.length && src[i] !== "\n") i++;
-      continue;
-    }
-    if (c === "/" && src[i + 1] === "*") {
-      i = src.indexOf("*/", i + 2) + 2;
-      continue;
-    }
-    if (c === "\n") {
-      out.push({ t: "sym", v: "\n" });
-      i++;
-      continue;
-    }
-    if (/\s/.test(c)) {
-      i++;
-      continue;
-    }
-    if (c === '"') {
-      let j = i + 1,
-        s = "";
-      while (src[j] !== '"') {
-        if (src[j] === "\\") {
-          s += src[j + 1];
-          j += 2;
-        } else s += src[j++];
-      }
-      out.push({ t: "str", v: s });
-      i = j + 1;
-      continue;
-    }
-    if (/[0-9]/.test(c)) {
-      let j = i;
-      while (/[0-9.]/.test(src[j])) j++;
-      out.push({ t: "num", v: src.slice(i, j) });
-      i = j;
-      continue;
-    }
-    if (/[A-Za-z_]/.test(c)) {
-      let j = i;
-      while (/[A-Za-z0-9_.\-[\]*]/.test(src[j] ?? "")) j++;
-      out.push({ t: "id", v: src.slice(i, j) });
-      i = j;
-      continue;
-    }
-    out.push({ t: "sym", v: c });
-    i++;
+const KEYWORD_VALUES = new Map<string, unknown>([
+  ["true", true],
+  ["false", false],
+  ["null", null],
+]);
+
+function tokenize(source: string): Token[] {
+  const tokens: Token[] = [];
+  let position = 0;
+  while (position < source.length) {
+    position = readToken(source, position, tokens);
   }
-  return out;
+  return tokens;
 }
 
-export function parseHcl(src: string): Body {
-  const toks = lex(src);
-  let p = 0;
-  const peek = () => toks[p];
-  const skipNl = () => {
-    while (peek()?.v === "\n" || peek()?.v === ",") p++;
-  };
-  const expect = (v: string) => {
-    if (toks[p]?.v !== v) throw new Error(`expected "${v}" near token ${p} (${toks[p]?.v})`);
-    p++;
-  };
+// Reads one token, or skips one space or comment, and returns where the next one starts.
+function readToken(source: string, position: number, tokens: Token[]): number {
+  const character = source[position];
+  const nextCharacter = source[position + 1];
+  if (character === "#" || (character === "/" && nextCharacter === "/")) {
+    return endOfLine(source, position);
+  }
+  if (character === "/" && nextCharacter === "*") {
+    return source.indexOf("*/", position + 2) + 2;
+  }
+  if (character === "\n") {
+    // Line breaks are kept because they end an attribute, like a comma does.
+    tokens.push({ kind: "symbol", text: "\n" });
+    return position + 1;
+  }
+  if (/\s/.test(character)) {
+    return position + 1;
+  }
+  if (character === '"') {
+    return readString(source, position, tokens);
+  }
+  if (/[0-9]/.test(character)) {
+    return readWhile(source, { position, kind: "number", allowed: /[0-9.]/ }, tokens);
+  }
+  if (/[A-Za-z_]/.test(character)) {
+    const allowed = /[A-Za-z0-9_.\-[\]*]/;
+    return readWhile(source, { position, kind: "name", allowed }, tokens);
+  }
+  tokens.push({ kind: "symbol", text: character });
+  return position + 1;
+}
 
-  function value(): unknown {
-    skipNl();
-    const k = toks[p++];
-    if (k.t === "str") return k.v;
-    if (k.t === "num") return Number(k.v);
-    if (k.t === "id")
-      return k.v === "true" ? true : k.v === "false" ? false : k.v === "null" ? null : k.v;
-    if (k.v === "[") {
-      const arr: unknown[] = [];
-      skipNl();
-      while (peek().v !== "]") {
-        arr.push(value());
-        skipNl();
-      }
-      p++;
-      return arr;
+function endOfLine(source: string, position: number): number {
+  const lineBreak = source.indexOf("\n", position);
+  if (lineBreak === -1) {
+    return source.length;
+  }
+  return lineBreak;
+}
+
+function readString(source: string, openingQuote: number, tokens: Token[]): number {
+  let position = openingQuote + 1;
+  let text = "";
+  while (source[position] !== '"') {
+    if (source[position] === "\\") {
+      text += source[position + 1];
+      position += 2;
+    } else {
+      text += source[position];
+      position += 1;
     }
-    if (k.v === "{") {
-      const obj: Record<string, unknown> = {};
-      skipNl();
-      while (peek().v !== "}") {
-        const key = toks[p++].v;
-        expect("=");
-        obj[key] = value();
-        skipNl();
-      }
-      p++;
-      return obj;
-    }
-    throw new Error(`unexpected "${k.v}"`);
+  }
+  tokens.push({ kind: "string", text });
+  return position + 1;
+}
+
+type Run = { position: number; kind: TokenKind; allowed: RegExp };
+
+function readWhile(source: string, run: Run, tokens: Token[]): number {
+  let end = run.position;
+  while (run.allowed.test(source[end] ?? "")) {
+    end++;
+  }
+  tokens.push({ kind: run.kind, text: source.slice(run.position, end) });
+  return end;
+}
+
+// Walks the tokens once, from the first to the last, and builds the body they describe.
+class HclParser {
+  private readonly tokens: Token[];
+  private position = 0;
+
+  constructor(tokens: Token[]) {
+    this.tokens = tokens;
   }
 
-  function body(end: string | null): Body {
-    const b: Body = { attrs: {}, blocks: [] };
+  private peek(): Token {
+    return this.tokens[this.position];
+  }
+
+  private take(): Token {
+    const token = this.tokens[this.position];
+    this.position++;
+    return token;
+  }
+
+  // Line breaks and commas only separate things, so the parser steps over them.
+  private skipSeparators() {
+    while (this.peek()?.text === "\n" || this.peek()?.text === ",") {
+      this.position++;
+    }
+  }
+
+  private expect(text: string) {
+    const found = this.tokens[this.position]?.text;
+    if (found !== text) {
+      throw new Error(`expected "${text}" near token ${this.position} (${found})`);
+    }
+    this.position++;
+  }
+
+  value(): unknown {
+    this.skipSeparators();
+    const token = this.take();
+    if (token.kind === "string") {
+      return token.text;
+    }
+    if (token.kind === "number") {
+      return Number(token.text);
+    }
+    if (token.kind === "name") {
+      return this.nameValue(token.text);
+    }
+    if (token.text === "[") {
+      return this.listValue();
+    }
+    if (token.text === "{") {
+      return this.mapValue();
+    }
+    throw new Error(`unexpected "${token.text}"`);
+  }
+
+  private nameValue(name: string): unknown {
+    if (KEYWORD_VALUES.has(name)) {
+      return KEYWORD_VALUES.get(name);
+    }
+    return name;
+  }
+
+  private listValue(): unknown[] {
+    const items: unknown[] = [];
+    this.skipSeparators();
+    while (this.peek().text !== "]") {
+      items.push(this.value());
+      this.skipSeparators();
+    }
+    this.position++;
+    return items;
+  }
+
+  private mapValue(): Record<string, unknown> {
+    const entries: Record<string, unknown> = {};
+    this.skipSeparators();
+    while (this.peek().text !== "}") {
+      const key = this.take().text;
+      this.expect("=");
+      entries[key] = this.value();
+      this.skipSeparators();
+    }
+    this.position++;
+    return entries;
+  }
+
+  // Reads attributes and blocks until the closing text, or until the file ends when there is none.
+  body(closingText: string | null): Body {
+    const body: Body = { attrs: {}, blocks: [] };
     for (;;) {
-      skipNl();
-      if (p >= toks.length) {
-        if (end) throw new Error("missing }");
-        return b;
+      this.skipSeparators();
+      if (this.position >= this.tokens.length) {
+        if (closingText) {
+          throw new Error("missing }");
+        }
+        return body;
       }
-      if (peek().v === end) {
-        p++;
-        return b;
+      if (this.peek().text === closingText) {
+        this.position++;
+        return body;
       }
-      const name = toks[p++];
-      if (name.t !== "id") throw new Error(`unexpected "${name.v}"`);
-      if (peek().v === "=") {
-        p++;
-        b.attrs[name.v] = value();
-        continue;
-      }
-      const labels: string[] = [];
-      while (peek().t === "str") labels.push(toks[p++].v);
-      expect("{");
-      b.blocks.push({ type: name.v, labels, body: body("}") });
+      this.attributeOrBlock(body);
     }
   }
-  return body(null);
+
+  private attributeOrBlock(body: Body) {
+    const name = this.take();
+    if (name.kind !== "name") {
+      throw new Error(`unexpected "${name.text}"`);
+    }
+    if (this.peek().text === "=") {
+      this.position++;
+      body.attrs[name.text] = this.value();
+      return;
+    }
+    const labels: string[] = [];
+    while (this.peek().kind === "string") {
+      labels.push(this.take().text);
+    }
+    this.expect("{");
+    body.blocks.push({ type: name.text, labels, body: this.body("}") });
+  }
+}
+
+export function parseHcl(source: string): Body {
+  const parser = new HclParser(tokenize(source));
+  return parser.body(null);
 }
 
 // Turn a body into plain JSON: nested blocks become arrays of objects, as in Terraform's plan JSON.
-export function toJson(b: Body): Record<string, unknown> {
-  const o: Record<string, unknown> = { ...b.attrs };
-  for (const blk of b.blocks) ((o[blk.type] ??= []) as unknown[]).push(toJson(blk.body));
-  return o;
+export function toJson(body: Body): Record<string, unknown> {
+  const json: Record<string, unknown> = { ...body.attrs };
+  for (const block of body.blocks) {
+    const sameTypeBlocks = (json[block.type] ?? []) as unknown[];
+    sameTypeBlocks.push(toJson(block.body));
+    json[block.type] = sameTypeBlocks;
+  }
+  return json;
 }

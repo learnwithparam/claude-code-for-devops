@@ -1,11 +1,13 @@
 // Extra lines under a FAIL, printed only when a learner checks that one step, and only once.
-const asked = process.argv[2];
-const printed = new Set<string>();
+const askedStep = process.argv[2];
+const printedLines = new Set<string>();
+const MOST_LINES_SHOWN = 6;
+
 export const explain = (step: string, lines: string[]) => {
-  if (asked !== step) return;
-  for (const l of lines.slice(0, 6)) {
-    if (printed.has(l)) continue;
-    printed.add(l);
-    console.log(`        ${l}`);
+  if (askedStep !== step) return;
+  for (const line of lines.slice(0, MOST_LINES_SHOWN)) {
+    if (printedLines.has(line)) continue;
+    printedLines.add(line);
+    console.log(`        ${line}`);
   }
 };

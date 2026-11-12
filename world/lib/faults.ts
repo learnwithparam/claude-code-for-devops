@@ -5,105 +5,158 @@ import { join } from "node:path";
 import { loadCluster, plan, readLog, repoDir } from "../sim/state";
 
 export type Fault = { id: string; name: string; fixed: boolean; evidence: string; part: string };
-const yaml = (p: string) =>
-  existsSync(p) ? (Bun.YAML.parse(readFileSync(p, "utf8")) as any) : null;
-const text = (p: string) => (existsSync(p) ? readFileSync(p, "utf8") : "");
 
-export function faults(home: string): Fault[] {
-  const repo = repoDir(home);
-  const out: Fault[] = [];
+// The parts of the YAML files that the checks below look at.
+type Ports = { containerPort?: unknown; probe?: { port?: unknown } };
+type ChartValues = Ports & {
+  image?: { tag?: string };
+  resources?: { limits?: { memory?: string; cpu?: string } };
+};
+type AlertRule = { alert?: string; expr?: string; for?: string };
+type AlertRules = { groups?: { rules: AlertRule[] }[] };
+type Autoscaler = { spec?: { minReplicas?: number } };
 
-  let drift = "";
+function readYaml<T>(path: string): T | null {
+  if (!existsSync(path)) return null;
+  return Bun.YAML.parse(readFileSync(path, "utf8")) as T;
+}
+const readText = (path: string) => (existsSync(path) ? readFileSync(path, "utf8") : "");
+
+// Keeps only the problems that are there: an empty string means "no problem".
+const realProblems = (problems: string[]) => problems.filter(Boolean);
+
+function driftProblem(home: string): string {
   try {
-    const ch = plan("prod", home);
-    drift = ch.length
-      ? `plan on prod shows ${ch.length} change(s): ${ch.map((c) => c.address).join(", ")}`
-      : "";
-  } catch (e) {
-    drift = `the Terraform code does not parse: ${(e as Error).message}`;
+    const changes = plan("prod", home);
+    if (!changes.length) return "";
+    const addresses = changes.map((change) => change.address).join(", ");
+    return `plan on prod shows ${changes.length} change(s): ${addresses}`;
+  } catch (error) {
+    return `the Terraform code does not parse: ${(error as Error).message}`;
   }
-  out.push({
+}
+
+function driftFault(home: string): Fault {
+  const drift = driftProblem(home);
+  return {
     id: "drift",
     name: "Drift on the buyer records bucket",
     fixed: !drift,
     evidence: drift || "plan on prod shows no changes",
     part: "teach-the-repo",
-  });
+  };
+}
 
-  const v = yaml(join(repo, "charts", "seat-api", "values.yaml")) ?? {};
-  const chartProblems = [
-    v.image?.tag === "latest" || !v.image?.tag ? "image tag is latest" : "",
-    !v.resources?.limits?.memory || !v.resources?.limits?.cpu ? "no resource limits" : "",
-    Number(v.probe?.port) !== Number(v.containerPort)
-      ? `probe port ${v.probe?.port} is not container port ${v.containerPort}`
-      : "",
-  ].filter(Boolean);
-  const pods = loadCluster("dev", home).releases["seat-api"]?.values;
-  const crashing = pods ? Number(pods.probe?.port) !== Number(pods.containerPort) : true;
-  out.push({
+const portsDiffer = (ports: Ports) => Number(ports.probe?.port) !== Number(ports.containerPort);
+
+function chartProblems(values: ChartValues): string[] {
+  const tag = values.image?.tag;
+  const limits = values.resources?.limits;
+  const portProblem = `probe port ${values.probe?.port} is not container port ${values.containerPort}`;
+  return realProblems([
+    tag === "latest" || !tag ? "image tag is latest" : "",
+    !limits?.memory || !limits?.cpu ? "no resource limits" : "",
+    portsDiffer(values) ? portProblem : "",
+  ]);
+}
+
+function chartFault(home: string, repo: string): Fault {
+  const valuesFile = join(repo, "charts", "seat-api", "values.yaml");
+  const problems = chartProblems(readYaml<ChartValues>(valuesFile) ?? {});
+  // The pods run what was last deployed to dev, which may not be what the chart says now.
+  const deployedValues = loadCluster("dev", home).releases["seat-api"]?.values;
+  const crashing = deployedValues ? portsDiffer(deployedValues) : true;
+  let evidence = "chart passes and dev pods are Running";
+  if (problems.length) evidence = problems.join("; ");
+  else if (crashing) evidence = "chart is fixed but dev still runs the crashing release";
+  return {
     id: "chart",
     name: "Bad seat-api Helm chart",
     part: "teach-the-repo",
-    fixed: chartProblems.length === 0 && !crashing,
-    evidence: chartProblems.length
-      ? chartProblems.join("; ")
-      : crashing
-        ? "chart is fixed but dev still runs the crashing release"
-        : "chart passes and dev pods are Running",
-  });
+    fixed: problems.length === 0 && !crashing,
+    evidence,
+  };
+}
 
-  const rules = yaml(join(repo, "alerts", "seat.rules.yml"));
-  const slow = rules?.groups
-    ?.flatMap((g: any) => g.rules)
-    .find((r: any) => r.alert === "SeatApiSlow");
-  const forMin = Number(String(slow?.for ?? "0m").replace(/m$/, "")) || 0;
-  const noisy = !slow || /histogram_quantile\(0\.5\b/.test(slow.expr) || forMin < 5;
-  out.push({
+function findSlowAlert(repo: string): AlertRule | undefined {
+  const rulesFile = readYaml<AlertRules>(join(repo, "alerts", "seat.rules.yml"));
+  const allRules = rulesFile?.groups?.flatMap((group) => group.rules);
+  return allRules?.find((rule) => rule.alert === "SeatApiSlow");
+}
+
+function alertFault(repo: string): Fault {
+  const slow = findSlowAlert(repo);
+  const holdMinutes = Number(String(slow?.for ?? "0m").replace(/m$/, "")) || 0;
+  const usesMedian = (query: string) => /histogram_quantile\(0\.5\b/.test(query);
+  const noisy = !slow || usesMedian(String(slow.expr)) || holdMinutes < 5;
+  const queryName = /0\.5\b/.test(slow?.expr ?? "") ? "p50" : "its query";
+  let evidence = "p99 with a hold of 5m or more";
+  if (noisy) evidence = `SeatApiSlow uses ${queryName} with for: ${slow?.for ?? "missing"}`;
+  return {
     id: "alert",
     name: "Noisy SeatApiSlow alert",
     part: "give-it-eyes",
     fixed: !noisy,
-    evidence: noisy
-      ? `SeatApiSlow uses ${/0\.5\b/.test(slow?.expr ?? "") ? "p50" : "its query"} with for: ${slow?.for ?? "missing"}`
-      : "p99 with a hold of 5m or more",
-  });
+    evidence,
+  };
+}
 
-  const mod = text(join(repo, "terraform", "modules", "scan-store", "main.tf"));
+const scanStoreModule = (repo: string) =>
+  readText(join(repo, "terraform", "modules", "scan-store", "main.tf"));
+
+function costFault(repo: string): Fault {
+  const moduleCode = scanStoreModule(repo);
   const lifecycle =
-    /resource\s+"aws_s3_bucket_lifecycle_configuration"/.test(mod) &&
-    /days\s*=\s*([1-9]|[12]\d|30)\b/.test(mod);
-  const hpa = yaml(join(repo, "k8s", "scan-telemetry-hpa.yaml"));
-  const minR = Number(hpa?.spec?.minReplicas ?? 0);
-  const costProblems = [
+    /resource\s+"aws_s3_bucket_lifecycle_configuration"/.test(moduleCode) &&
+    /days\s*=\s*([1-9]|[12]\d|30)\b/.test(moduleCode);
+  const autoscaler = readYaml<Autoscaler>(join(repo, "k8s", "scan-telemetry-hpa.yaml"));
+  const minReplicas = Number(autoscaler?.spec?.minReplicas ?? 0);
+  const problems = realProblems([
     !lifecycle ? "no lifecycle rule expiring old scan readings" : "",
-    minR > 3 ? `scan-telemetry autoscaler minimum is ${minR}` : "",
-  ].filter(Boolean);
-  out.push({
+    minReplicas > 3 ? `scan-telemetry autoscaler minimum is ${minReplicas}` : "",
+  ]);
+  return {
     id: "cost",
     name: "Cost spike on scan telemetry",
     part: "give-it-eyes",
-    fixed: costProblems.length === 0,
-    evidence:
-      costProblems.join("; ") || "lifecycle rule in code and autoscaler minimum is 3 or less",
-  });
+    fixed: problems.length === 0,
+    evidence: problems.join("; ") || "lifecycle rule in code and autoscaler minimum is 3 or less",
+  };
+}
 
-  const ci = text(join(repo, ".github", "workflows", "ci.yml"));
-  const unpinned = [...ci.matchAll(/uses:\s*([^\s#]+)/g)]
-    .map((m) => m[1])
-    .filter((u) => !/@[0-9a-f]{40}$/.test(u));
-  const tflint = /required_providers/.test(mod);
-  const ciProblems = [
+// The actions in a workflow that are not pinned to a full 40-character commit SHA.
+function unpinnedActions(workflow: string): string[] {
+  const usesLines = [...workflow.matchAll(/uses:\s*([^\s#]+)/g)];
+  const actions = usesLines.map((match) => match[1]);
+  return actions.filter((action) => !/@[0-9a-f]{40}$/.test(action));
+}
+
+function ciFault(repo: string): Fault {
+  const workflow = readText(join(repo, ".github", "workflows", "ci.yml"));
+  const unpinned = unpinnedActions(workflow);
+  const tflintClean = /required_providers/.test(scanStoreModule(repo));
+  const problems = realProblems([
     unpinned.length ? `${unpinned.length} action(s) not pinned to a commit SHA` : "",
-    !tflint ? "tflint: scan-store module has no required_providers" : "",
-  ].filter(Boolean);
-  out.push({
+    !tflintClean ? "tflint: scan-store module has no required_providers" : "",
+  ]);
+  return {
     id: "ci",
     name: "Failing CI pipeline",
     part: "run-it-without-you",
-    fixed: ciProblems.length === 0,
-    evidence: ciProblems.join("; ") || "every action pinned and tflint clean",
-  });
-  return out;
+    fixed: problems.length === 0,
+    evidence: problems.join("; ") || "every action pinned and tflint clean",
+  };
+}
+
+export function faults(home: string): Fault[] {
+  const repo = repoDir(home);
+  return [
+    driftFault(home),
+    chartFault(home, repo),
+    alertFault(repo),
+    costFault(repo),
+    ciFault(repo),
+  ];
 }
 
 // The last guard suite run, read from the log the checker writes.
@@ -117,16 +170,17 @@ export type GuardScore = {
 export function guardScore(home: string): GuardScore {
   const runs = readLog("guard.jsonl", home);
   // Runs of the sample solutions and wrong answers (by bun run check) do not count as yours.
-  const last = runs
-    .filter((r) => r.kind === "summary" && !/\/(solution|wrong)(\/|$)/.test(r.source ?? ""))
-    .pop();
+  const isYours = (run: { kind?: string; source?: string }) =>
+    run.kind === "summary" && !/\/(solution|wrong)(\/|$)/.test(run.source ?? "");
+  const last = runs.filter(isYours).pop();
   if (!last)
     return { dangerous: [0, 20], bypass: [0, 10], safe: [0, 15], malformed: false, ran: false };
   return { ...last.score, ran: true };
 }
 
+// The commands that changed the world and were not run by a person.
 export const mutatingByAgent = (home: string) =>
   readLog("commands.jsonl", home).filter(
-    (e) => e.mutating && e.actor !== "ops-oncall" && e.actor !== "person",
+    (entry) => entry.mutating && entry.actor !== "ops-oncall" && entry.actor !== "person",
   );
 export const listFiles = (dir: string) => (existsSync(dir) ? readdirSync(dir) : []);
