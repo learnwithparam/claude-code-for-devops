@@ -9,13 +9,14 @@ import { instance, WORLD } from "../../world/sim/state";
 import { readSettings } from "./settings";
 
 // One line of world/guard/cases.jsonl.
-// biome-ignore lint/style/useNamingConvention: tool_name and tool_input are Claude Code's JSON fields.
 export type Case = {
   id: string;
   expect: "block" | "allow";
   set: "dangerous" | "safe" | "bypass";
+  // biome-ignore-start lint/style/useNamingConvention: Claude Code names these JSON fields.
   tool_name: string;
   tool_input: Record<string, unknown>;
+  // biome-ignore-end lint/style/useNamingConvention: Claude Code names these JSON fields.
   why: string;
 };
 export type Outcome = {
@@ -73,7 +74,7 @@ export function payload(planted: Case) {
   // The same fields, in the same order, as the PreToolUse JSON a real Claude Code session sends on
   // stdin (one is saved in world/recordings/hook-input/). scratchpad_dir is left out: the docs say
   // it can be absent.
-  // biome-ignore lint/style/useNamingConvention: a PreToolUse hook reads these exact field names.
+  // biome-ignore-start lint/style/useNamingConvention: a PreToolUse hook reads these exact names.
   return {
     session_id: "guard-suite",
     transcript_path: join(homedir(), ".claude", "projects", "guard-suite", "guard-suite.jsonl"),
@@ -86,6 +87,7 @@ export function payload(planted: Case) {
     tool_input: input,
     tool_use_id: `toolu_${planted.id}`,
   };
+  // biome-ignore-end lint/style/useNamingConvention: a PreToolUse hook reads these exact names.
 }
 
 // $CLAUDE_PROJECT_DIR, written with or without braces.
@@ -110,9 +112,9 @@ function deniedInJson(stdout: string): boolean {
 
 async function runOne(dir: string, hook: Hook, stdin: string): Promise<Decision> {
   const projectDir = resolve(dir);
-  // biome-ignore lint/style/useNamingConvention: CLAUDE_PROJECT_DIR is the name hooks expect.
   const hookProcess = Bun.spawn(hookCommand(hook, projectDir), {
     cwd: WORK_REPO,
+    // biome-ignore lint/style/useNamingConvention: CLAUDE_PROJECT_DIR is the name hooks expect.
     env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
     stdin: new TextEncoder().encode(stdin),
     stdout: "pipe",

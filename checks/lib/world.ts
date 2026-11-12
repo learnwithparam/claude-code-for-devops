@@ -1,4 +1,5 @@
-// What a check may read about the world: its state, its logs and its plan output. Never a chat transcript.
+// What a check may read about the world: its state, its logs and its plan output.
+// Never a chat transcript.
 import { join } from "node:path";
 import { faults, guardScore, mutatingByAgent } from "../../world/lib/faults";
 import { isSeeded, seedInstance } from "../../world/lib/seed";
@@ -30,4 +31,4 @@ export {
   repoDir,
   WORLD,
 };
-export const livePath = (...p: string[]) => join(instance(), ...p);
+export const livePath = (...pathParts: string[]) => join(instance(), ...pathParts);

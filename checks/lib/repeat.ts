@@ -1,7 +1,7 @@
 // Behaviour that varies from run to run (did Claude Code make the right file, give the right
 // verdict) is judged over 3 recorded runs of the real `claude -p`. All three must pass.
-// `run(i)` is handed the run number (1 to 3). CLAUDE_RUN tells a learner's command which recording to replay, and
-// CLAUDE_REPLAY=1 keeps a check from going live.
+// `run(i)` is handed the run number (1 to 3). CLAUDE_RUN tells a learner's command which
+// recording to replay, and CLAUDE_REPLAY=1 keeps a check from going live.
 import { RUNS } from "../../config/claude";
 
 // Put an environment variable back the way it was before the runs.
