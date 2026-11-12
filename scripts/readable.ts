@@ -11,7 +11,8 @@ const LONGEST_LINE = 100;
 const MOST_CALLS_IN_ONE_LINE = 3;
 
 const CODE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".mjs", ".py", ".go", ".rs", ".sh"]);
-const SKIPPED_FOLDERS = new Set(["node_modules", ".git", ".venv", "recordings"]);
+// ".finished" and "live" hold copies the world builds from tracked files; git ignores them.
+const SKIPPED_FOLDERS = new Set(["node_modules", ".git", ".venv", "recordings", ".finished", "live"]);
 
 // Short names a beginner already knows. Everything else is a whole word.
 const ALLOWED_SHORT_NAMES = new Set(["i", "j", "id", "ok", "db", "fs", "os", "io", "ui"]);
