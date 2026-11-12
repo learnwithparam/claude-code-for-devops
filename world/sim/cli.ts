@@ -14,8 +14,8 @@ import {
   loadCluster,
   log,
   plan,
+  type Release,
   type Resource,
-  repoDir,
   saveCloud,
   saveCluster,
 } from "./state";
@@ -214,9 +214,7 @@ function terraformApply(run: TerraformRun) {
     finish(1);
   }
   applyPlan(run.env, changes, run.home);
-  const changeSummaries = changes.map(
-    (change) => `${change.actions.join("+")} ${change.address}`,
-  );
+  const changeSummaries = changes.map((change) => `${change.actions.join("+")} ${change.address}`);
   record(true, run.env, { changes: changeSummaries });
   const doneWord = isDestroy ? "Destroy" : "Apply";
   print(`\n${doneWord} complete! Resources: ${changes.length} changed.`);
@@ -268,7 +266,8 @@ function printChanges(changes: Change[]) {
   print(`\nPlan: ${toAdd} to add, ${toChange} to change, ${toDestroy} to destroy.`);
 }
 
-// The same shape as Terraform's own plan JSON, so the field names stay as Terraform writes them.
+// The same shape as Terraform's own plan JSON. Object.fromEntries keeps Terraform's field names
+// exactly as Terraform spells them.
 function planJson(env: Env, changes: Change[]) {
   const resourceChanges = changes.map((change) => ({
     address: change.address,
@@ -277,12 +276,12 @@ function planJson(env: Env, changes: Change[]) {
     name: change.address.split(".").pop(),
     change: { actions: change.actions, before: change.before, after: change.after },
   }));
-  return {
-    "format_version": "1.2",
-    "terraform_version": "1.17.2",
-    env,
-    "resource_changes": resourceChanges,
-  };
+  return Object.fromEntries([
+    ["format_version", "1.2"],
+    ["terraform_version", "1.17.2"],
+    ["env", env],
+    ["resource_changes", resourceChanges],
+  ]);
 }
 
 // ---------- kubectl ----------
@@ -297,21 +296,27 @@ function simulatedPods(env: Env): SimulatedPod[] {
   return [...releasePods(cluster), ...scanPods(cluster)];
 }
 
-// A release whose probe checks a different port than the container listens on keeps crashing.
 function releasePods(cluster: Cluster): SimulatedPod[] {
   const pods: SimulatedPod[] = [];
   for (const [releaseName, release] of Object.entries(cluster.releases)) {
-    const values = release.values;
-    const broken = Number(values.probe?.port) !== Number(values.containerPort);
-    const replicaCount = Number(values.replicaCount ?? 1);
-    for (let i = 0; i < replicaCount; i++) {
-      pods.push({
-        namespace: RELEASE_NAMESPACES[releaseName] ?? "default",
-        name: `${releaseName}-${release.revision}${i}x7`,
-        status: broken ? "CrashLoopBackOff" : "Running",
-        restarts: broken ? 14 : 0,
-      });
-    }
+    pods.push(...podsOfRelease(releaseName, release));
+  }
+  return pods;
+}
+
+// A release whose probe checks a different port than the container listens on keeps crashing.
+function podsOfRelease(releaseName: string, release: Release): SimulatedPod[] {
+  const values = release.values;
+  const broken = Number(values.probe?.port) !== Number(values.containerPort);
+  const replicaCount = Number(values.replicaCount ?? 1);
+  const pods: SimulatedPod[] = [];
+  for (let i = 0; i < replicaCount; i++) {
+    pods.push({
+      namespace: RELEASE_NAMESPACES[releaseName] ?? "default",
+      name: `${releaseName}-${release.revision}${i}x7`,
+      status: broken ? "CrashLoopBackOff" : "Running",
+      restarts: broken ? 14 : 0,
+    });
   }
   return pods;
 }
@@ -321,7 +326,12 @@ function scanPods(cluster: Cluster): SimulatedPod[] {
   if (!cluster.namespaces.includes("scan")) return pods;
   for (const [autoscalerName, autoscaler] of Object.entries(cluster.hpa)) {
     for (let i = 0; i < autoscaler.minReplicas; i++) {
-      pods.push({ namespace: "scan", name: `${autoscalerName}-${i}q2`, status: "Running", restarts: 0 });
+      pods.push({
+        namespace: "scan",
+        name: `${autoscalerName}-${i}q2`,
+        status: "Running",
+        restarts: 0,
+      });
     }
   }
   return pods;
@@ -350,7 +360,8 @@ const KUBECTL_MUTATING_VERBS = new Set([
 ]);
 
 function kubectl(args: string[]) {
-  const context = flagValue(args, "--context") ?? process.env.KUBE_CONTEXT ?? "kind-tallowmark-prod";
+  const context =
+    flagValue(args, "--context") ?? process.env.KUBE_CONTEXT ?? "kind-tallowmark-prod";
   const env = environmentFor(context);
   if (!env) {
     record(false, null);
@@ -382,7 +393,8 @@ function runKubectlVerb(run: KubectlRun) {
   }
   if (run.verb === "get" || run.verb === "describe" || run.verb === "logs") kubectlRead(run);
   if (run.verb === "delete") kubectlDelete(run);
-  if (KUBECTL_MUTATING_VERBS.has(run.verb)) kubectlMutated(run, `${run.verb} done on ${run.context}`);
+  if (KUBECTL_MUTATING_VERBS.has(run.verb))
+    kubectlMutated(run, `${run.verb} done on ${run.context}`);
   if (run.verb === "version") {
     record(false, run.env);
     print("Client Version: v1.37.2 (practice world)");
@@ -419,13 +431,15 @@ function kubectlRead(run: KubectlRun): never {
 function printPods(run: KubectlRun) {
   const wantedNamespace = run.namespace ?? "default";
   const pods = simulatedPods(run.env).filter(
-    (pod) => run.allNamespaces || pod.namespace === wantedNamespace,
+    (podRow) => run.allNamespaces || podRow.namespace === wantedNamespace,
   );
   const namespaceHeader = run.allNamespaces ? "NAMESPACE  " : "";
   print(`${namespaceHeader}NAME                   STATUS             RESTARTS`);
-  for (const pod of pods) {
-    const namespaceColumn = run.allNamespaces ? pod.namespace.padEnd(11) : "";
-    print(`${namespaceColumn}${pod.name.padEnd(23)}${pod.status.padEnd(19)}${pod.restarts}`);
+  for (const podRow of pods) {
+    const namespaceColumn = run.allNamespaces ? podRow.namespace.padEnd(11) : "";
+    print(
+      `${namespaceColumn}${podRow.name.padEnd(23)}${podRow.status.padEnd(19)}${podRow.restarts}`,
+    );
   }
   if (!pods.length) print(`No resources found in ${wantedNamespace} namespace.`);
 }
@@ -484,14 +498,7 @@ type HelmRun = {
   context: string;
 };
 
-const HELM_FLAGS_WITH_VALUE = [
-  "--kube-context",
-  "-n",
-  "--namespace",
-  "-f",
-  "--values",
-  "--set",
-];
+const HELM_FLAGS_WITH_VALUE = ["--kube-context", "-n", "--namespace", "-f", "--values", "--set"];
 
 function helm(args: string[]) {
   const context =
@@ -555,7 +562,8 @@ function helmLint(run: HelmRun) {
   const chartFolder = resolve(run.first ?? ".");
   const chartPath = join(chartFolder, "Chart.yaml");
   const chart = existsSync(chartPath) ? readYaml<ChartFile>(chartPath) : null;
-  if (!chart || chart.apiVersion !== "v2" || !chart.name || !chart.version) {
+  const chartIsValid = chart?.apiVersion === "v2" && chart.name && chart.version;
+  if (!chartIsValid) {
     print(`[ERROR] Chart.yaml: missing or not apiVersion v2\n${LINT_FAILED}`);
     finish(1);
   }
@@ -663,7 +671,9 @@ function aws(args: string[]) {
 
 function findBucketResource(run: AwsRun, type: string): Resource | undefined {
   const resources = Object.values(run.cloud);
-  return resources.find((resource) => resource.type === type && resource.attrs.bucket === run.bucket);
+  return resources.find(
+    (resource) => resource.type === type && resource.attrs.bucket === run.bucket,
+  );
 }
 
 function awsMutated(run: AwsRun, message: string): never {
@@ -677,8 +687,12 @@ function awsCallerIdentity(run: AwsRun) {
   record(false, run.env);
   const account = run.env === "prod" ? "000000000002" : "000000000001";
   const arn = `arn:aws:iam::practice:user/${run.profile}`;
-  // AWS writes its JSON field names with a capital first letter.
-  print(prettyJson({ "Account": account, "Arn": arn }));
+  // AWS spells its JSON field names with a capital first letter; Object.fromEntries keeps that.
+  const identity = Object.fromEntries([
+    ["Account", account],
+    ["Arn", arn],
+  ]);
+  print(prettyJson(identity));
   finish(0);
 }
 
@@ -696,7 +710,7 @@ function awsGetVersioning(run: AwsRun) {
     | { status?: unknown }[]
     | undefined;
   const status = configurations?.[0]?.status ?? "Suspended";
-  print(prettyJson({ "Status": status }));
+  print(prettyJson(Object.fromEntries([["Status", status]])));
   finish(0);
 }
 
@@ -708,13 +722,13 @@ function awsGetPublicAccessBlock(run: AwsRun) {
     finish(254);
   }
   const settings = accessBlock.attrs;
-  const configuration = {
-    "BlockPublicAcls": settings.block_public_acls,
-    "IgnorePublicAcls": settings.ignore_public_acls,
-    "BlockPublicPolicy": settings.block_public_policy,
-    "RestrictPublicBuckets": settings.restrict_public_buckets,
-  };
-  print(prettyJson({ "PublicAccessBlockConfiguration": configuration }));
+  const configuration = Object.fromEntries([
+    ["BlockPublicAcls", settings.block_public_acls],
+    ["IgnorePublicAcls", settings.ignore_public_acls],
+    ["BlockPublicPolicy", settings.block_public_policy],
+    ["RestrictPublicBuckets", settings.restrict_public_buckets],
+  ]);
+  print(prettyJson(Object.fromEntries([["PublicAccessBlockConfiguration", configuration]])));
   finish(0);
 }
 
