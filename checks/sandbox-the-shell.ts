@@ -48,8 +48,8 @@ export default [
     says: "the network allow list names hosts, not the whole internet",
     test: (folder) => namesHosts(folder),
     tryNext:
-      'list only the hosts the repo needs, such as "registry.terraform.io"; "*" lets a stolen ' +
-      "key leave",
+      'list only the hosts the repo needs, such as "registry.terraform.io"; ' +
+      '"*" lets a stolen key leave',
   },
   {
     says: "the hook from catch-the-sneaky-commands still passes the guard suite",

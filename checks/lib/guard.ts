@@ -144,7 +144,7 @@ export async function decide(dir: string, tool: string, stdin: string): Promise<
     if (decision.blocked) return decision;
   }
   // The text is split after "let" only so the readable check does not take "it" for a new name.
-  return { blocked: false, how: "every hook let" + " it through" };
+  return { blocked: false, how: "every hook let " + "it through" };
 }
 
 // [cases the hook got right, cases in the set] for one set.

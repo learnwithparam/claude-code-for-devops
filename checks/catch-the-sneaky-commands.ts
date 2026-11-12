@@ -47,8 +47,8 @@ export default [
       return namedInNote(folder).filter((id) => gaps.includes(id)).length >= 3;
     },
     tryNext:
-      "pick ids from world/guard/cases.jsonl (set bypass) and check each one against your deny " +
-      "list by hand",
+      "pick ids from world/guard/cases.jsonl (set bypass) " +
+      "and check each one against your deny list by hand",
   },
   {
     says: "every case the note names really gets past your deny rules",
@@ -63,15 +63,15 @@ export default [
       return named.length > 0 && notGaps.length === 0;
     },
     tryNext:
-      "Claude Code strips env and similar wrappers and splits && before matching, so those forms " +
-      "are not gaps",
+      "Claude Code strips env and similar wrappers and splits && before matching, " +
+      "so those forms are not gaps",
   },
   {
     says: "the hook blocks all 10 bypass forms",
     test: (folder) => allRight(folder, "bypass"),
     tryNext:
-      "split on && ; |, strip env and paths, unwrap bash -c, skip flags before the verb, and " +
-      "read script files",
+      "split on && ; |, strip env and paths, unwrap bash -c, " +
+      "skip flags before the verb, and read script files",
   },
   {
     says: "the hook still blocks all 20 dangerous calls",

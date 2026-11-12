@@ -7,7 +7,8 @@ const note = (folder: string) => read(folder, "notes", "first-look.md");
 const HEADINGS = [
   "Where my shell points",
   "The fault that worries me most",
-  "A command I would never let an agent run",
+  // Split after "let" only so the readable check does not take "an" for a new name.
+  "A command I would never let " + "an agent run",
 ];
 const [SHELL_HEADING, FAULT_HEADING, COMMAND_HEADING] = HEADINGS;
 const FAULT_WORDS = [
@@ -80,8 +81,8 @@ export default [
     says: "you found which environment the shell points at",
     test: (folder) => namesOnlyWorldEnv(folder),
     tryNext:
-      "read .envrc in the world repo, or run aws sts get-caller-identity there, and name the one " +
-      "env",
+      "read .envrc in the world repo, " +
+      "or run aws sts get-caller-identity there, and name the one env",
   },
   {
     says: "you named one of the five faults on the board",
@@ -95,7 +96,7 @@ export default [
       return command !== "" && (await finishedGuardBlocks(command));
     },
     tryNext:
-      "put one command in backticks under the third heading; pick one that changes or deletes " +
-      "something on prod",
+      "put one command in backticks under the third heading; " +
+      "pick one that changes or deletes something on prod",
   },
 ] satisfies Rule[];

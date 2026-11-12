@@ -15,8 +15,8 @@ export default [
     says: ".claude/settings.json exists and is valid JSON",
     test: (folder) => readSettings(folder) !== null,
     tryNext:
-      "create .claude/settings.json in the problem folder and check it has no comments or " +
-      "trailing commas",
+      "create .claude/settings.json in the problem folder " +
+      "and check it has no comments or trailing commas",
   },
   denyRule(
     "a deny rule stops terraform apply",
