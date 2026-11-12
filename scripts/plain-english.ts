@@ -11,7 +11,16 @@ import { ROOT } from "./structure";
 const DEFAULT_READING_GRADE = 8;
 const LONGEST_SENTENCE = 25;
 
-const SKIPPED_FOLDERS = new Set(["node_modules", ".git", ".venv", "recordings", "research"]);
+// ".finished" and "live" hold copies the world builds from tracked files; git ignores them.
+const SKIPPED_FOLDERS = new Set([
+  "node_modules",
+  ".git",
+  ".venv",
+  "recordings",
+  "research",
+  ".finished",
+  "live",
+]);
 
 // Pages for the people who build the course, not for learners.
 const AUTHOR_PAGES = new Set(["STANDARD.md", "SPEC.md", "PARTS.md"]);
@@ -67,7 +76,11 @@ export function proseOf(markdown: string): string {
   const proseLines: string[] = [];
   let insideCodeBlock = false;
   for (const line of markdown.split("\n")) {
-    if (line.trim().startsWith("```")) insideCodeBlock = !insideCodeBlock;
+    // A fence line is not prose. Counting its backticks would pair the inline code spans wrongly.
+    if (line.trim().startsWith("```")) {
+      insideCodeBlock = !insideCodeBlock;
+      continue;
+    }
     const isStructure = /^\s*(#|\||<|!\[|Expect:)/.test(line);
     if (!insideCodeBlock && !isStructure) proseLines.push(line);
   }

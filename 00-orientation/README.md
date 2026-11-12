@@ -1,7 +1,11 @@
 # Start here
 
-You set up the repo, meet Tallowmark Tickets, run the finished system and see the goal. Then you write three lines
-about what you saw, and the check reads them.
+This part sets up the **Goal** you will prove at the end: a guard that blocks 30 of 30 dangerous calls.
+
+You set up the repo, meet Tallowmark Tickets, run the finished system and see the goal. Then Claude Code writes
+three lines about what you saw. You check them, and the course check reads them.
+
+You write no code in this course. You type prompts into the real Claude Code, read its plan, and say yes or no.
 
 ## Setup
 
@@ -40,7 +44,8 @@ Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in`, then
 `The world is ready: Tallowmark Tickets with 5 faults planted.` and two `export PATH` and `cd` lines to copy.
 
 You can also work in Claude Code inside VS Code or JetBrains, or in the Code tab of Claude Desktop: open the world
-repo folder there. The settings, hooks and `CLAUDE.md` you write are the same files in every one of them.
+repo folder there. The settings, hooks and `CLAUDE.md` that Claude Code writes for you are the same files in every
+one of them.
 
 ## Meet the world
 
@@ -52,9 +57,12 @@ Tallowmark Tickets sells concert tickets. Its platform team of four owns one rep
 - the scan store: a bucket and a queue for door scanner readings from every show.
 - the buyer records bucket: names, emails and payment references. It must never be public.
 
-There are two environments, `dev` and `prod`. The `terraform`, `kubectl`, `helm` and `aws` in `world/bin` act on the
-world's own state, not a real cloud, so a destroy really destroys something you can see, and nothing real breaks.
-Every call is logged in `world/live/logs/commands.jsonl`.
+There are two environments, `dev` and `prod`. The programs `terraform`, `kubectl`, `helm` and `aws` in `world/bin`
+are not the real tools. They act on the world's own state, not a real cloud. So a destroy really destroys something
+you can see, and nothing real breaks. Every call is saved in `world/live/logs/commands.jsonl`.
+
+For example, run `terraform -chdir=terraform/envs/dev plan` in the world repo. It prints a plan for the world's dev
+state, and a new line appears in `commands.jsonl`.
 
 ```mermaid
 flowchart LR
@@ -110,8 +118,8 @@ Expect: `BLOCKED  Blocked by guard-infra: terraform apply changes real infrastru
 
 ## Walkthrough
 
-Your one step here is [meet-the-world](meet-the-world/problem/README.md). Write `notes/first-look.md` in its
-`problem/` folder, then:
+Your one step here is [meet-the-world](meet-the-world/problem/README.md). Get Claude Code to fill in
+`notes/first-look.md` in its `problem/` folder. Check the note, then run:
 
 ```bash
 bun run verify meet-the-world
@@ -119,6 +127,6 @@ bun run verify meet-the-world
 
 Expect: `1 of 4 rules pass.` while the note is still the starter.
 
-Once your note is written, the same command ends with `Done. All 4 rules pass.`
+Once the note is filled in and checked, the same command ends with `Done. All 4 rules pass.`
 
 When a command prints something you do not expect, look it up in [troubleshooting.md](troubleshooting.md).
