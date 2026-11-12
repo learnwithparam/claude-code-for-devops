@@ -26,8 +26,11 @@ const norm = (s: string) => s.replace(/\s+/g, " ");
 for (const file of ["00-orientation/README.md", "README.md"]) {
   test(`${file}: every command prints its Expect line`, () => {
     if (file === "00-orientation/README.md") rmSync(join(ROOT, "world", "live"), { recursive: true, force: true });
-    const env: Record<string, string | undefined> = { ...process.env, LLM_PROVIDER: "replay", TALLOWMARK_HOME: undefined };
+    const env: Record<string, string | undefined> = { ...process.env, CLAUDE_REPLAY: "1", TALLOWMARK_HOME: undefined };
+    // Commands that are Claude Code itself only run where it is installed; a fresh clone in CI has none.
+    const hasClaude = Bun.spawnSync(["sh", "-c", "command -v claude"]).success;
     for (const b of blocks(file)) {
+      if (!hasClaude && b.cmds.some((c) => /^claude\b/.test(c.trim()))) continue;
       let out = "";
       for (const c of b.cmds) {
         const r = Bun.spawnSync(["sh", "-c", c], { cwd: ROOT, env });

@@ -18,7 +18,7 @@ parts/NN-<verb-thing>/   README.md: the problem, its cost, a Mermaid diagram
     wrong/<mistake>/     at least one common mistake; CI proves the check rejects it
     images/expected.png  the expected result, for any step with something on screen
 checks/<step-name>.ts    the rules for one step
-config/models.ts         the only file that names a model
+config/claude.ts         how the course runs Claude Code: tested versions and headless flags; no model id
 schedules.toml           parts mapped onto formats
 ```
 
@@ -42,7 +42,7 @@ schedules.toml           parts mapped onto formats
 | `bun run verify --report` writes `verify-report.json` for cohort grading. | `verify.ts` | Exercism results.json, GitHub Classroom |
 | The README runs the finished system before any concept section. | `check.ts` 4 | Decoding AI courses, llm-twin #25 |
 | Every bash block is followed by an `Expect:` line. | `check.ts` 4 | live-labs walkthrough |
-| Model ids live only in `config/models`. Versions are pinned exactly. | `check.ts` 5 | anthropics/courses #71, philoagents #43 |
+| No model id in the repo (this course runs Claude Code, which picks the model from your account). Versions are pinned exactly. | `check.ts` 5 | anthropics/courses #71, philoagents #43 |
 | Every failure message a learner can see is in `00-orientation/troubleshooting.md`. | `check.ts` 5 | Langfuse workshop #30, philoagents #31 |
 | Every schedule covers every part, and its minutes add up. | `check.ts` 6 | RESEARCH.md |
 

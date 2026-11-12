@@ -35,7 +35,20 @@ export function payload(c: Case) {
     const f = input.file_path as string;
     input.file_path = f.startsWith("~/") ? join(homedir(), f.slice(2)) : resolve(WORK_REPO, f);
   }
-  return { session_id: "guard-suite", cwd: WORK_REPO, permission_mode: "default", hook_event_name: "PreToolUse", tool_name: c.tool_name, tool_input: input, tool_use_id: `toolu_${c.id}` };
+  // The same fields, in the same order, as the PreToolUse JSON a real Claude Code session sends on stdin
+  // (one is saved in world/recordings/hook-input/). scratchpad_dir is left out: the docs say it can be absent.
+  return {
+    session_id: "guard-suite",
+    transcript_path: join(homedir(), ".claude", "projects", "guard-suite", "guard-suite.jsonl"),
+    cwd: WORK_REPO,
+    prompt_id: "guard-suite",
+    permission_mode: "default",
+    effort: { level: "medium" },
+    hook_event_name: "PreToolUse",
+    tool_name: c.tool_name,
+    tool_input: input,
+    tool_use_id: `toolu_${c.id}`,
+  };
 }
 
 async function runOne(dir: string, hook: Hook, stdin: string): Promise<{ blocked: boolean; how: string }> {

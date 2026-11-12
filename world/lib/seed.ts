@@ -30,6 +30,14 @@ export function seedInstance(home: string, overlay?: string) {
   }
   writeFileSync(join(home, ".state", "seeded-from"), overlay ? "finished" : "seed");
 
+  // The infra repo is its own git repo, as it would be on a laptop, so Claude Code sees its history and not the
+  // course repo around it. .env stays out of git, like a real one.
+  writeFileSync(join(repo, ".gitignore"), ".env\n");
+  const git = (...a: string[]) => Bun.spawnSync(["git", "-c", "user.name=Tallowmark platform team", "-c", "user.email=platform@tallowmark.test", "-c", "init.defaultBranch=main", "-c", "commit.gpgsign=false", ...a], { cwd: repo });
+  git("init", "-q");
+  git("add", "-A");
+  git("commit", "-q", "-m", "tallowmark-infra as the platform team left it");
+
   // The drift: someone on call changed prod by hand with the AWS CLI, not through Terraform.
   if (!overlay) plantDrift(home, "prod");
 }

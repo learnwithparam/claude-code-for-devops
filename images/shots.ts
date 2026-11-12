@@ -6,7 +6,7 @@ import { mkdirSync } from "node:fs";
 import { ROOT, allSteps } from "../scripts/structure";
 
 const run = (cmd: string[], env: Record<string, string> = {}) => {
-  const p = Bun.spawnSync(cmd, { cwd: ROOT, env: { ...process.env, LLM_PROVIDER: "replay", ...env } });
+  const p = Bun.spawnSync(cmd, { cwd: ROOT, env: { ...process.env, CLAUDE_REPLAY: "1", ...env } });
   return (p.stdout.toString() + p.stderr.toString()).replace(/\x1b\[[0-9;]*m/g, "");
 };
 const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);

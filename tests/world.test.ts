@@ -43,10 +43,12 @@ test("apply without approval is refused, and destroy really empties the env", ()
   expect(readLog("commands.jsonl", home).at(-1)).toMatchObject({ mutating: true, env: "dev" });
 });
 
-test("the finished system is green with no key", () => {
-  const r = Bun.spawnSync(["bun", "run", "finished"], { cwd: join(import.meta.dir, ".."), env: { ...process.env, LLM_PROVIDER: "replay", TALLOWMARK_HOME: "" } });
+test("the finished system is green with no Claude Code: it replays real recorded runs", () => {
+  const r = Bun.spawnSync(["bun", "run", "finished"], { cwd: join(import.meta.dir, ".."), env: { ...process.env, CLAUDE_REPLAY: "1", TALLOWMARK_HOME: "" } });
   const out = r.stdout.toString();
   expect(out).toContain("blocked 30 of 30 dangerous calls, allowed 15 of 15 safe calls");
-  expect(out).toContain("6 of 6 saved plans judged right");
+  expect(out).toContain("Replaying recorded Claude Code runs from world/recordings");
+  expect(out).toContain("6 of 6 saved plans judged right, on all 3 recorded runs");
+  expect(out).toContain("3 of 3 recorded run(s) left prod for a person and wrote the review");
   expect(out).toContain("Everything is green.");
-});
+}, 120_000);

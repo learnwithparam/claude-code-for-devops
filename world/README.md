@@ -11,8 +11,7 @@ Tallowmark Tickets is a fictional concert ticketing platform. Its platform team 
 | `guard/cases.jsonl` | The guard suite: 20 dangerous, 10 bypass and 15 safe tool calls, each with a stable id |
 | `guard/plan-answers.json` | The answer key for the 6 saved plans in `plans/` |
 | `finished/overlay/` | The sample answers laid over the seed: the finished system |
-| `replay/` | Recorded model replies, so the course runs with no key |
-| `demo/session.json` | The recorded Claude Code session that `bun run demo` plays |
+| `recordings/` | Real `claude -p` runs: stream-json transcripts plus the files and logs each run produced. `bun run finished` and `bun run demo` replay them when Claude Code is not installed and signed in, or in CI. `RECORD.md` says how each was made |
 | `live/` | Your copy, made by `bun run world`. Git ignores it |
 
 ## The system of record

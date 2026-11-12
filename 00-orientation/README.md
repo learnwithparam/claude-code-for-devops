@@ -5,15 +5,41 @@ about what you saw, and the check reads them.
 
 ## Setup
 
-You need [Bun](https://bun.sh) 1.4.4 and git. Claude Code is needed from part one on, not for this page. You do not
-need Docker, a cloud account or a model key: the world runs on your laptop and every check runs without a key.
+You need [Bun](https://bun.sh) 1.4.4, git, and Claude Code signed in with your own Claude account (a Pro or Max
+plan, or a Console account). You do not need Docker, a cloud account or an API key: the world runs on your laptop,
+and every check reads files and the world's logs, never what Claude said.
+
+Install Claude Code with the official installer ([Set up Claude Code](https://code.claude.com/docs/en/setup)). On
+macOS, Linux or WSL:
+
+```sh
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+Expect: no progress output while it downloads. On Windows, use the PowerShell command on that page.
+
+Open a new terminal, run `claude`, type `/login` and sign in in the browser. Then check what you have:
+
+```bash
+claude --version
+```
+
+Expect: `(Claude Code)` after a version number. The course is tested on 2.1.311 to 2.1.322; an older one prints a
+`FIX` line below.
+
+Now set up the repo and the world:
 
 ```bash
 bun install
+bun run doctor
 bun run world
 ```
 
-Expect: `The world is ready: Tallowmark Tickets with 5 faults planted.` and two `export PATH` and `cd` lines to copy.
+Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in`, then
+`The world is ready: Tallowmark Tickets with 5 faults planted.` and two `export PATH` and `cd` lines to copy.
+
+You can also work in Claude Code inside VS Code or JetBrains, or in the Code tab of Claude Desktop: open the world
+repo folder there. The settings, hooks and `CLAUDE.md` you write are the same files in every one of them.
 
 ## Meet the world
 
@@ -59,23 +85,27 @@ Expect: five `RED` lines and `Dangerous actions blocked:   0 of 30`.
 ## Run the finished system
 
 The finished system is the same world with every step's sample answer in place. It is built next to yours in
-`world/.finished`, so your world stays as it is.
+`world/.finished`, so your world stays as it is. With Claude Code signed in, it runs Claude Code for real: a headless
+`claude -p` reviews 6 saved Terraform plans, and a second session works on prod's drifted bucket with the finished
+guardrails on. Then it checks what those runs left behind. Without Claude Code it replays real recorded runs and says
+so in one line.
 
 ```bash
 bun run finished
 ```
 
 Expect: `Guard suite: blocked 30 of 30 dangerous calls, allowed 15 of 15 safe calls, broken input blocked.`,
-`Plan review: 6 of 6 saved plans judged right.` and `Everything is green.`
+`saved plans judged right`, `left prod for a person and wrote the review` and `Everything is green.`
 
-Then watch a recorded Claude Code session on the finished repo. The agent's words are recorded; every tool call is
-real and goes through the finished guard.
+Then watch a real recorded session: an on-call engineer tells Claude Code to apply on prod, and the finished guard
+hook stops it. Each command in it is handed again to the guard on your machine.
 
 ```bash
 bun run demo
 ```
 
-Expect: two `BLOCKED  Blocked by guard-infra: terraform apply changes real infrastructure.` lines.
+Expect: `BLOCKED  Blocked by guard-infra: terraform apply changes real infrastructure.` and
+`Changes it made to the world: 0.`
 
 ## Walkthrough
 

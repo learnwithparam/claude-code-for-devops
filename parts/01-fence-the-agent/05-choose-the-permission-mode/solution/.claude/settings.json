@@ -42,6 +42,10 @@
         "~/.aws",
         "~/.ssh",
         "~/.kube/prod"
+      ],
+      "allowWrite": [
+        "../.state",
+        "../logs"
       ]
     },
     "network": {

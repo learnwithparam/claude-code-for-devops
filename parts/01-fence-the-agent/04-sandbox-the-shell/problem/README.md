@@ -30,6 +30,8 @@ Add a `sandbox` block to `.claude/settings.json`:
 3. Deny reads of `~/.aws` and `~/.ssh` (and `~/.kube/prod` if you like).
 4. Allow network access only to the hosts the repo needs: `registry.terraform.io` for providers and
    `registry.tallowmark.test` for images.
+5. Let the world's tools keep their records: add `"allowWrite": ["../.state", "../logs"]` under `filesystem`.
+   A sandboxed command may write only inside the repo by default, and the world keeps its state next to it.
 
 Keep your hook. The sandbox sits under it.
 
