@@ -46,12 +46,11 @@ Read the plan before you say yes. Check three things:
 - The `.env` rule is `Read(**/.env)`. A plain `Read(.env)` only covers the top folder.
 - The allow rule `Bash(terraform plan *)` is still there. Claude Code should look freely and change nothing.
 
-Path forms matter in Read rules. Ask Claude Code to explain the one it picked if you are not sure:
+Path forms matter in Read rules:
 
 | The rule says | It means |
 |---|---|
 | `Read(~/.aws/**)` | under your home folder |
-| `Read(//etc/secrets/**)` | an absolute path |
 | `Read(/terraform/**)` | relative to the project, not the disk root |
 | `Read(**/.env)` | `.env` in any folder of the project |
 
@@ -82,9 +81,8 @@ Each FAIL line has a Try next line. Give that line to Claude Code as your next p
 | `FAIL a deny rule stops reading ~/.aws` | "The ~/.aws rule must start with `~/`. Fix it." |
 | `FAIL terraform plan is still allowed` | "A deny rule is too broad and blocks plan. Make it name the verb, like apply." |
 
-To see the rules work, run `bun run world use write-the-deny-rules`. Then start Claude Code in
-`world/live/tallowmark-infra` and ask it to apply the prod plan. Next, ask it to run
-`/usr/bin/terraform apply`. The next steps explain why the second one is different.
+To see the rules work, run `bun run world use write-the-deny-rules`. Then ask Claude Code, in
+`world/live/tallowmark-infra`, to apply the prod plan.
 
 ## Words you will use
 

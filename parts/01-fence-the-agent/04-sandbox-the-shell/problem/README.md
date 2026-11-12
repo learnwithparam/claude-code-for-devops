@@ -42,9 +42,6 @@ Under filesystem, add "allowWrite": ["../.state", "../logs"] so the world's tool
 Keep my permissions and my hook as they are. Show me your plan first.
 ```
 
-The world keeps its state next to the repo. A sandboxed command may only write inside the repo by default. That is
-why it needs `allowWrite`.
-
 Read the plan before you say yes. Check these points:
 
 - `enabled` and `failIfUnavailable` are both `true`.

@@ -9,8 +9,7 @@ The script then ran `rm -rf` on a home folder.
 The permissions docs list the same gap. For example, `Bash(rm *)` stops `rm -rf build/`. It does not stop
 `/bin/rm -rf build/` or `bash -c 'rm -rf build/'`.
 
-The world repo has one of these ready. `scripts/rotate-logs.sh` says it rotates logs. Its last line destroys part
-of prod.
+The world repo has one: `scripts/rotate-logs.sh`. Its last line destroys part of prod.
 
 ```mermaid
 flowchart LR
@@ -23,11 +22,7 @@ flowchart LR
 
 ## Your challenge
 
-First you find the gaps in your own deny rules. Then you get Claude Code to close them in the hook.
-
-The 10 cases with set `bypass` in `world/guard/cases.jsonl` are the sneaky forms. For example, case `b03-chdir` is
-`terraform -chdir=terraform/envs/prod apply -auto-approve`. The flag sits between `terraform` and `apply`, so the
-rule `Bash(terraform apply *)` never sees it.
+The 10 cases with set `bypass` in `world/guard/cases.jsonl` are the sneaky forms.
 
 Start Claude Code in the root folder of this course repo. First, ask it to think with you:
 
@@ -78,8 +73,7 @@ Expect: `Done. All 6 rules pass.`
 | `b08-cat-credentials` gets through | "Check every Bash command for secret paths, not only the Read tool." |
 | `FAIL every case the note names really gets past your deny rules` | "b07 and b10 are stopped by `Bash(terraform apply *)`. Take them out of the note." |
 
-A hook that reads text always has gaps. That is why the next step adds the sandbox. The operating system enforces
-the sandbox.
+A hook that reads text always has gaps. So the next step adds the sandbox.
 
 ## Words you will use
 

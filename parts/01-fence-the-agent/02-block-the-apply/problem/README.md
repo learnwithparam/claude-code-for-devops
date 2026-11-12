@@ -16,8 +16,7 @@ The deal between Claude Code and the hook is small:
 - Exit 0 lets the normal rules decide.
 - Exit 1 does not block. Claude Code treats it as a hook error and runs the call anyway.
 
-For example, when Claude Code wants to run `terraform apply`, the hook gets this line on stdin:
-`{"tool_name":"Bash","tool_input":{"command":"terraform apply"}}`. A good hook exits 2. The apply never runs.
+For example, the diagram below shows what the hook gets on stdin for `terraform apply`. A good hook exits 2.
 
 ```mermaid
 sequenceDiagram
@@ -30,10 +29,7 @@ sequenceDiagram
 
 ## Your challenge
 
-The starter already connects `.claude/hooks/guard-infra.ts` to the Bash tool. Right now the hook lets everything
-through. Your job is to get Claude Code to turn it into a guard. You write no code: you write the prompt and check
-the plan.
-
+The starter hook `.claude/hooks/guard-infra.ts` lets everything through. Get Claude Code to turn it into a guard.
 Start Claude Code in the root folder of this course repo, and give it this job:
 
 ```text
@@ -50,9 +46,8 @@ Keep my deny rules. Show me your plan first.
 Read the plan before you say yes. Check these points:
 
 - It blocks with exit 2, never exit 1.
-- It matches the verb, like `apply` or `delete`, not the whole program. Blocking every `terraform` call also
-  blocks `terraform plan`, which is safe.
-- It wraps the JSON reading in a try block, and blocks in the catch. This is called failing closed.
+- It matches the verb, like `apply`, not the whole program. `terraform plan` is safe.
+- It blocks when the JSON cannot be read. This is called failing closed.
 - The matcher in `settings.json` becomes `Bash|Read|Edit|Write`.
 
 The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
@@ -81,17 +76,8 @@ Expect: `Done. All 6 rules pass.` Each call that gets through is listed by its i
 | `FAIL the same hook also sees the Read tool` | "Set the matcher to `Bash\|Read\|Edit\|Write`." |
 | `FAIL ... fails closed` | "Read the JSON in a try block, and exit 2 in the catch." |
 
-You can send one test call to the hook from the repo root:
-
-```bash
-echo '{"tool_name":"Bash","tool_input":{"command":"terraform apply"}}' | bun parts/01-fence-the-agent/02-block-the-apply/problem/.claude/hooks/guard-infra.ts; echo "exit $?"
-```
-
-Expect: `exit 2` once the hook blocks it, and `exit 0` on the starter.
-
 ## Words you will use
 
 - **Hook**: a program Claude Code runs at a fixed point. Here it runs before each tool call.
 - **PreToolUse**: the hook event that runs before a tool runs. It can block the tool.
 - **Fail closed**: when in doubt, block. The opposite, fail open, lets doubtful calls through.
-- **Guard suite**: the test calls in `world/guard/cases.jsonl`. Each one has a fixed id.
