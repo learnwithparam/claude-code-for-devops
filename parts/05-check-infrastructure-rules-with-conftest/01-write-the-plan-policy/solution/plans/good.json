@@ -1,0 +1,25 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.17.2",
+  "resource_changes": [
+    {
+      "address": "module.scan_store.aws_sqs_queue.scan",
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "scan",
+      "change": {
+        "actions": ["update"],
+        "before": {
+          "name": "tallowmark-scan-readings",
+          "tags": {}
+        },
+        "after": {
+          "name": "tallowmark-scan-readings",
+          "tags": {
+            "team": "platform"
+          }
+        }
+      }
+    }
+  ]
+}

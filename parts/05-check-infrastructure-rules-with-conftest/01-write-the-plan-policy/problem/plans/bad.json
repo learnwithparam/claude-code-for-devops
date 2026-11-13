@@ -1,0 +1,36 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.17.2",
+  "resource_changes": [
+    {
+      "address": "aws_db_instance.orders",
+      "mode": "managed",
+      "type": "aws_db_instance",
+      "name": "orders",
+      "change": {
+        "actions": ["delete"],
+        "before": {
+          "identifier": "tallowmark-prod-orders",
+          "instance_class": "db.r6g.large",
+          "deletion_protection": false
+        },
+        "after": null
+      }
+    },
+    {
+      "address": "aws_s3_bucket.buyer_records",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "buyer_records",
+      "change": {
+        "actions": ["no-op"],
+        "before": {
+          "bucket": "tallowmark-prod-buyer-records"
+        },
+        "after": {
+          "bucket": "tallowmark-prod-buyer-records"
+        }
+      }
+    }
+  ]
+}

@@ -4,3 +4,5 @@ node_modules
 world/live
 world/.finished
 test-results
+.cache
+assignment/result.json

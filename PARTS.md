@@ -9,6 +9,7 @@ What is built, what is left, and what each step's check reads. A part session st
 | `parts/02-teach-the-repo/` | skeleton | `write-the-repo-memory` (15), `fix-the-drift` (20), `fix-the-helm-chart` (20), `write-a-runbook-skill` (20) | 75 |
 | `parts/03-give-it-eyes/` | skeleton | `connect-the-cluster-read-only` (25), `quiet-the-noisy-alert` (20), `split-the-cost-hunt` (30) | 75 |
 | `parts/04-run-it-without-you/` | skeleton | `review-the-plan-headless` (30), `wire-the-plan-review` (25), `fix-the-failing-pipeline` (20), `seal-the-devcontainer` (25), `ship-the-guardrail-kit` (20) | 120 |
+| `parts/05-check-infrastructure-rules-with-conftest/` | built | `write-the-plan-policy` (20) | 20 |
 
 Total: 375 minutes. `schedules.toml` maps these onto the delivery formats.
 

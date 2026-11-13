@@ -1,0 +1,2 @@
+# This assignment needs no containers: Conftest is one command line binary.
+services: {}
