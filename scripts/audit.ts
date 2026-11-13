@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ROOT } from "./structure";
 
-// CI runs bun run check without an install step, so the audit gets its own packages and browser first.
+// CI has no install step, so the audit installs its own packages and browser first.
 const packages = Bun.spawnSync(["bun", "install", "--frozen-lockfile"], { cwd: ROOT });
 if (packages.exitCode !== 0) {
   console.error("Could not install the packages. Try next: run bun install, then rerun.");
