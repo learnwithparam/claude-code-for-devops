@@ -1,0 +1,25 @@
+# Kubeconfig for the claude-reader ServiceAccount on both practice clusters.
+# The token is a practice value. A real one comes from: kubectl create token claude-reader -n ops
+apiVersion: v1
+kind: Config
+clusters:
+  - name: kind-tallowmark-dev
+    cluster:
+      server: https://127.0.0.1:6443
+  - name: kind-tallowmark-prod
+    cluster:
+      server: https://127.0.0.1:7443
+users:
+  - name: claude-reader
+    user:
+      token: practice-only-reader-token
+contexts:
+  - name: kind-tallowmark-dev
+    context:
+      cluster: kind-tallowmark-dev
+      user: claude-reader
+  - name: kind-tallowmark-prod
+    context:
+      cluster: kind-tallowmark-prod
+      user: claude-reader
+current-context: kind-tallowmark-dev
