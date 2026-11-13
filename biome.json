@@ -28,6 +28,7 @@
     }
   },
   "linter": {
+    "domains": { "playwright": "none" },
     "rules": {
       "preset": "recommended",
       "complexity": {

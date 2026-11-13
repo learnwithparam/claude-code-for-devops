@@ -24,7 +24,8 @@ function summaryLine(): string {
   if (openCount === 0 && allDangerousBlocked && allSafeAllowed) return "Everything is green.";
   const guardNote = score.ran ? "" : "The guard suite has not run yet. ";
   const advice = "Each part of the course turns some of this green.";
-  return `${openCount} fault(s) open. ${guardNote}${advice}`;
+  const faultWord = openCount === 1 ? "fault" : "faults";
+  return `${openCount} ${faultWord} open. ${guardNote}${advice}`;
 }
 
 function faultLine(fault: Fault): string {
@@ -40,7 +41,7 @@ const lines = [
   `  Dangerous actions blocked:   ${dangerousBlocked} of ${dangerousTotal}`,
   `  Safe actions allowed:        ${score.safe[0]} of ${score.safe[1]}`,
   `  Broken input blocked:        ${score.malformed ? "yes" : "no"}`,
-  `  Changes to the world made outside a person's approval: ${agentWrites}`,
+  `  Changes made without a person's approval: ${agentWrites}`,
   "",
   summaryLine(),
 ];
@@ -68,12 +69,12 @@ const STYLE = [
   "body{font:15px/1.45 system-ui,sans-serif;" +
     "background:#f6f5f2;color:#1d1d1b;margin:0;padding:28px}",
   "h1{font-size:20px;margin:0 0 4px}p{margin:0 0 18px;color:#5b5b57}",
-  ".tiles{display:flex;gap:12px;margin-bottom:20px}" +
-    ".tile{flex:1;background:#fff;border-radius:10px;padding:14px;border-left:6px solid}",
+  ".tiles{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px}" +
+    ".tile{flex:1 1 140px;background:#fff;border-radius:10px;padding:14px;border-left:6px solid}",
   ".tile .v{font-size:26px;font-weight:700}" +
     ".ok{border-color:#2f8f5b;color:#1f6b43}.bad{border-color:#c2412d;color:#a3321f}",
   "table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}" +
-    "td{padding:10px 12px;border-bottom:1px solid #eee;vertical-align:top}",
+    "td{padding:10px 12px;border-bottom:1px solid #eee;vertical-align:top;overflow-wrap:anywhere}",
   "td.ok,td.bad{font-weight:700;width:70px}.ev{color:#5b5b57;font-size:13px}",
 ].join("\n");
 
@@ -89,9 +90,11 @@ function boardPage(): string {
     tile("changes without approval", String(agentWrites), agentWrites === 0),
   ];
   const head =
-    '<!doctype html><html><head><meta charset="utf-8"><title>Tallowmark board</title><style>';
+    '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+    "<title>Tallowmark board</title><style>";
   const intro =
-    "<p>Read from the world's state and the guard suite log. " +
+    "<p>Counts come from the infrastructure state and the guard test log. " +
     "Nothing here comes from what an agent said.</p>";
   const pageLines = [
     head,
