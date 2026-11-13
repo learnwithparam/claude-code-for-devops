@@ -22,6 +22,15 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 Expect: no progress output while it downloads. On Windows, use the PowerShell command on that page.
 
+On Linux or WSL, also install the two programs the Claude Code sandbox needs. Later steps turn the sandbox on, and
+Claude Code will not start without them:
+
+```sh
+sudo apt-get install bubblewrap socat
+```
+
+Expect: apt prints the packages it installs. On macOS, skip this: the sandbox is built in.
+
 Open a new terminal, run `claude`, type `/login` and sign in in the browser. Then check what you have:
 
 ```bash
@@ -40,7 +49,7 @@ bun run doctor
 bun run world
 ```
 
-Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in`, then
+Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in` (and `Sandbox` on Linux), then
 `The world is ready: Tallowmark Tickets with 5 faults planted.` and two `export PATH` and `cd` lines to copy.
 
 You can also work in Claude Code inside VS Code or JetBrains, or in the Code tab of Claude Desktop: open the world

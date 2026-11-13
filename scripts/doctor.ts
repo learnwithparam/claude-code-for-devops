@@ -68,10 +68,32 @@ function checkClaudeCode() {
   }
 }
 
+// On Linux and WSL the sandbox needs two programs. Without them, the finished settings
+// (sandbox with failIfUnavailable) stop Claude Code before it starts.
+function checkSandbox() {
+  if (process.platform !== "linux") return;
+  // Each program, and the package name you install it by.
+  const needed = [
+    { program: "bwrap", packageName: "bubblewrap" },
+    { program: "socat", packageName: "socat" },
+  ];
+  const missing = needed.filter((tool) => !Bun.which(tool.program)).map((tool) => tool.packageName);
+  if (missing.length === 0) {
+    report(true, "Sandbox", "bubblewrap and socat found");
+    return;
+  }
+  report(
+    false,
+    "Sandbox",
+    `${missing.join(" and ")} not found: sudo apt-get install bubblewrap socat`,
+  );
+}
+
 console.log("Checking your machine for the course.");
 report(true, "Bun", Bun.version);
 checkGit();
 checkClaudeCode();
+checkSandbox();
 if (problems > 0) {
   console.log(
     `${problems} thing(s) to fix. ` +

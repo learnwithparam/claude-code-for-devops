@@ -154,7 +154,7 @@ Nothing in this repo calls a model API or asks for a key. Every run is the real 
 bun run doctor
 ```
 
-Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in`.
+Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in`, and a `Sandbox` line on Linux.
 
 `bun run record` makes every recording again on your own signed-in Claude Code; `world/recordings/RECORD.md` lists
 each one.
