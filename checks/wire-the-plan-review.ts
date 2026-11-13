@@ -46,10 +46,10 @@ const claudeStep = (flow: Workflow | null) =>
   allSteps(flow).find((step) => step.uses?.startsWith(CLAUDE_ACTION));
 
 function triggers(flow: Workflow | null): string[] {
-  const on = flow?.on;
-  if (typeof on === "string") return [on];
-  if (Array.isArray(on)) return on.map(String);
-  return Object.keys((on as object) ?? {});
+  const events = flow?.on;
+  if (typeof events === "string") return [events];
+  if (Array.isArray(events)) return events.map(String);
+  return Object.keys((events as object) ?? {});
 }
 
 // Exactly contents: read and pull-requests: write, and no job asks for more.

@@ -54,7 +54,8 @@ export function reviewOnePlan(folder: string, planFile: string, extraEnv = {}): 
   try {
     return { plan, runNumber, ...JSON.parse(printed) };
   } catch {
-    const lastError = review.stderr.toString().trim().split("\n").pop();
+    const errorLines = review.stderr.toString().trim().split("\n");
+    const lastError = errorLines.pop();
     const problem = printed ? "it printed text, not one JSON object" : `no output (${lastError})`;
     return { plan, runNumber, problem };
   }
