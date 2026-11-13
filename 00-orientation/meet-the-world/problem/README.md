@@ -74,7 +74,7 @@ Expect: `Done. All 4 rules pass.`
 
 | What you see | What to ask Claude Code |
 |---|---|
-| `FAIL you found which environment the shell points at` | "Read `TALLOWMARK_ENV` in `.envrc` and name only that one." |
+| `FAIL you found which environment the shell points at` | "Read `TALLOWMARK_ENV` in `.envrc`. Name only that one, and do not name the other environment at all." |
 | `FAIL the command you named is one the finished guard blocks` | "`terraform plan` is safe. Pick a command that applies, destroys or deletes." |
 | `FAIL notes/first-look.md has the three headings` | "Put the three headings back exactly as the starter has them." |
 

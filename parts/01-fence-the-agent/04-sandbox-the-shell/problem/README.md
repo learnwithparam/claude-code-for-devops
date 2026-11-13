@@ -28,7 +28,7 @@ flowchart TB
 
 ## Your challenge
 
-Get Claude Code to add a `sandbox` block to the settings. You do not write the JSON.
+Get Claude Code to add a `sandbox` block to the settings.
 
 Start Claude Code in the root folder of this course repo, and give it this job:
 
@@ -41,6 +41,9 @@ Allow the network only to registry.terraform.io and registry.tallowmark.test.
 Under filesystem, add "allowWrite": ["../.state", "../logs"] so the world's tools can save their records.
 Keep my permissions and my hook as they are. Show me your plan first.
 ```
+
+Why `../.state` and `../logs`? The practice tools save their records one folder above the world repo, in
+`world/live/`. The sandbox blocks that without these two lines.
 
 Read the plan before you say yes. Check these points:
 

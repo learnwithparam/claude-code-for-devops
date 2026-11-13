@@ -166,6 +166,21 @@ type RunOptions = {
 
 const lastResult = (events: Event[]) => events.findLast((event) => event.type === "result");
 
+// When Claude Code stops before its first turn, it says why in the result's errors list.
+// Show that reason, so a learner can look it up in 00-orientation/troubleshooting.md.
+// It goes to stderr, so a command that prints only JSON on stdout stays clean.
+function explainFailedStart(result: Event | undefined) {
+  const errors = Array.isArray(result?.errors) ? (result.errors as unknown[]) : [];
+  for (const error of errors) console.error(`Claude Code stopped: ${String(error)}`);
+  const sandboxIsMissing = errors.some((error) => /sandbox/i.test(String(error)));
+  if (sandboxIsMissing) {
+    console.error(
+      "The finished settings need the sandbox. On Linux or WSL, install it with: " +
+        "sudo apt-get install bubblewrap socat",
+    );
+  }
+}
+
 // Start `claude -p` in `cwd` and wait for it.
 // The stream-json lines are the transcript; the last one is the result.
 export function runClaude(options: RunOptions): Run {
@@ -187,6 +202,7 @@ export function runClaude(options: RunOptions): Run {
     const errorOutput = claudeRun.stderr.toString().trim();
     throw new Error(`claude -p printed nothing it could read. Its error output:\n${errorOutput}`);
   }
+  explainFailedStart(lastResult(events));
   if (process.env.CLAUDE_RECORD === "1") {
     const savedFile = recordingPath(options.name);
     mkdirSync(dirname(savedFile), { recursive: true });

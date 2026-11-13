@@ -60,7 +60,8 @@ kubectl get pods -n seat --context kind-tallowmark-dev
 
 Expect: three `seat-api` pods in `CrashLoopBackOff`.
 
-Now start Claude Code in this folder with `claude`, and give it the job in each step's README. Check each step
+Now start Claude Code in the root folder of this course repo with `claude`, and give it the job in each step's
+README. Check each step
 when Claude Code is done. Each prints PASS or FAIL lines, and a Try next line under every FAIL.
 
 ```bash
