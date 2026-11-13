@@ -1,0 +1,4 @@
+{"seq":1,"actor":"ops-oncall","tool":"aws","env":"prod","mutating":true,"cwd":".","args":["s3api","put-bucket-versioning","--bucket","tallowmark-prod-buyer-records","--versioning-configuration","Status=Suspended"]}
+{"seq":2,"actor":"ops-oncall","tool":"aws","env":"prod","mutating":true,"cwd":".","args":["s3api","delete-public-access-block","--bucket","tallowmark-prod-buyer-records"]}
+{"seq":3,"actor":"agent-or-you","tool":"kubectl","args":["get","pods","-n","scan","--context","kind-tallowmark-prod"],"cwd":"tallowmark-infra","env":"prod","mutating":false,"context":"kind-tallowmark-prod"}
+{"seq":4,"actor":"agent-or-you","tool":"kubectl","args":["scale","deployment","scan-telemetry","--replicas=3","-n","scan","--context","kind-tallowmark-prod"],"cwd":"tallowmark-infra","env":"prod","mutating":true,"context":"kind-tallowmark-prod"}

@@ -1,0 +1,11 @@
+# Recorded p99 and p50 latency for seat-api, in seconds, one sample per minute.
+# Three short spikes that fans never noticed, then one slowdown that cost sales.
+interval: 1m
+series:
+  short_spikes:
+    - { start_minute: 10, minutes: 2, p50: 0.45, p99: 0.9 }
+    - { start_minute: 40, minutes: 1, p50: 0.5, p99: 1.1 }
+    - { start_minute: 70, minutes: 2, p50: 0.42, p99: 0.95 }
+  sustained:
+    - { start_minute: 100, minutes: 15, p50: 0.6, p99: 2.4 }
+  should_fire_only_on: sustained
