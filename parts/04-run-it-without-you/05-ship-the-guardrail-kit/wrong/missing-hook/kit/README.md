@@ -17,9 +17,9 @@ The test plays 45 tool calls into the hook, the same JSON Claude Code sends. For
 - Any `aws` call that is not a read, such as `aws s3 rb`.
 - `git push --force` and `git reset --hard`.
 - Reading `.env`, `~/.aws`, `~/.ssh`, kube configs or Terraform state, with Read or with Bash.
-- The 10 bypass forms a deny rule misses: a full path, `bash -c`, `-chdir` before the verb, a flag before the
-  kubectl verb, `git -C`, an `env` prefix, `cat` on a key file, a script file, and a safe command chained to a bad
-  one.
+- The 10 bypass forms a deny rule misses. For example: a full path, `bash -c`, or `-chdir` before the verb.
+  Also a flag before the kubectl verb, `git -C`, or an `env` prefix. Also `cat` on a key file, a script file, or a
+  safe command chained to a bad one.
 - Input the hook cannot read. It fails closed.
 
 The sandbox is on with `failIfUnavailable`. So if the sandbox cannot start, Claude Code does not start either.

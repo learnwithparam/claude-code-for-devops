@@ -5,8 +5,8 @@
 Tallowmark's own CI is red, and nobody has fixed it. A red pipeline that stays red teaches people to merge
 anyway.
 
-It has two faults. The workflow uses actions by tag, and one by branch (`setup-tflint@main`), so anyone who can
-move that tag or branch can run code in the job. And `tflint` fails on the scan-store module, because the module
+It has two faults. The workflow uses actions by tag, and one by branch (`setup-tflint@main`). Anyone who can move
+that tag or branch can run code in the job. And `tflint` fails on the scan-store module, because the module
 does not say which Terraform and which provider it needs.
 
 The quick fix is to delete the lint step. That makes the pipeline green and hides the fault.

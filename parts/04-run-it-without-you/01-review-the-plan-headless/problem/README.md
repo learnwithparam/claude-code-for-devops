@@ -2,8 +2,8 @@
 
 ## The problem
 
-A Terraform plan says what will change before anything changes. A person reads it and says yes or no. A plan
-review in CI does the same job on every pull request, with no person at the keyboard.
+A Terraform plan says what will change, before anything changes. A plan review in CI reads it on every pull
+request, with no person at the keyboard.
 
 Claude Code can run headless. `claude -p` takes one prompt, works, and prints an answer. With `--json-schema` the
 answer is JSON in a fixed shape, so a script can read it.
@@ -46,16 +46,15 @@ Read the plan before you say yes. Check these points:
 
 - The lists come from the plan, not from Claude Code's answer.
 - The block for destroys and replaces is an `if` in code, after Claude Code answers.
-- The script prints JSON and nothing else.
-- Nothing in it runs `terraform apply`.
+- It prints JSON and nothing else, and never runs `terraform apply`.
 
-The check replays the 3 recorded `claude -p` runs for each plan, so it needs no Claude Code and no key.
+The check replays 3 recorded `claude -p` runs per plan. It needs no Claude Code and no key.
 
 The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
 
 ## Done when
 
-- `review.config.json` names a command, and that command never applies anything.
+- `review.config.json` names a command that never applies anything.
 - On all 6 saved plans it prints one JSON object with the four fields.
 - `destroys` and `replaces` match each plan exactly.
 - Every plan that destroys or replaces data is blocked on all 3 recorded runs.
@@ -76,10 +75,9 @@ Expect: `Done. All 6 rules pass.`
 | `destroy-orders-db, run 1: verdict needs-human` | "Force block in code when destroys or replaces is not empty." |
 | `FAIL destroys and replaces match the plan exactly` | "A replace has delete and create. Only a lone delete is a destroy." |
 | `it printed text, not one JSON object` | "Print only the JSON object. No other lines." |
-| `no output (No recording at ...)` | "Name the run plan-review/<plan>/run-<CLAUDE_RUN>, as the finished review does." |
 
 ## Words you will use
 
 - **Headless**: Claude Code runs with no person at the keyboard. `claude -p` is headless mode.
 - **JSON schema**: a description of the shape an answer must have. Claude Code fills it in.
-- **Replay**: the check reads a saved `claude -p` run instead of making a new one.
+- **Replay**: the check reads a saved `claude -p` run.

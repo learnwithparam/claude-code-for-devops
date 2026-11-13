@@ -33,7 +33,9 @@ The words change from run to run. A good plan has these points:
 - Each SHA matches `git ls-remote --tags` on that action's repo. In one run Claude Code wrote a SHA from memory.
   You asked it to look each one up instead.
 - `PR_BODY` comes in through `env:`. The text `${{ github.event.pull_request.body }}` never sits inside `run:`.
-- There is no AWS key. The `wrong/api-key-and-aws-keys` answer adds the deploy user's keys "for the plan".
+- There is no AWS key. The `wrong/aws-keys-in-ci` answer adds the deploy user's keys "for the plan".
+- The token comes from `secrets.`. The `wrong/token-in-the-file` answer pastes it into the workflow, where every
+  reader of the repo can see it.
 - The trigger is `pull_request`. The `wrong/pull-request-target` answer checks out fork code with the secrets.
 - The `wrong/pinned-to-tags` answer uses `@v1`, which can move.
 

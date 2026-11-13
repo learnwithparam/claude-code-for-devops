@@ -38,11 +38,83 @@ flowchart LR
 | Step | Minutes | What Claude Code makes for you | The check reads |
 |---|---|---|---|
 | `review-the-plan-headless` | 30 | `review.config.json` and the command it names | The command's JSON on the 6 saved plans in `plans/`, against the answer key, on each of 3 recorded `claude -p` runs |
-| `wire-the-plan-review` | 25 | `.github/workflows/plan-review.yml` inside the world repo, pinned by SHA, minimal permissions | The workflow file, and the verdict on the destroy plan with an injection line in the PR body |
-| `fix-the-failing-pipeline` | 20 | A fixed practice `ci.yml` and scan-store module | SHA pins in the workflow and the tflint finding on the module |
-| `seal-the-devcontainer` | 25 | `.devcontainer/` with a firewall allow list and managed settings | The container config, the allow list and the managed settings keys |
+| `wire-the-plan-review` | 25 | `workflows/plan-review.yml`, pinned by SHA, minimal permissions | The workflow file, and the verdict on the destroy plan with an injection line in the PR body |
+| `fix-the-failing-pipeline` | 20 | A fixed practice `workflows/ci.yml` and scan-store module | The world's CI fault, read from a fresh copy of the world with your two files in it |
+| `seal-the-devcontainer` | 25 | `.devcontainer/` with a firewall allow list and managed settings | The container config, the pinned version, the allow list and the managed settings keys |
 | `ship-the-guardrail-kit` | 20 | `kit/` with settings, hook, sandbox block, guard test and a README for security | The guard suite run from the kit in a fresh copy of the world, and the README's sections |
+
+Practice workflows live in `workflows/` in each step folder. In a real repo they go in the GitHub workflows
+folder. The practice repo keeps them out of it, so nothing here ever runs on GitHub.
 
 ## Walkthrough
 
-TODO(part session): the commands for each step, each with an Expect: line.
+Seed a fresh world, so every plan and fault is in place:
+
+```bash
+bun run world reset
+```
+
+Expect: `The world is ready: Tallowmark Tickets with 5 faults planted.`
+
+See what a finished plan review prints. This replays a recorded `claude -p` run, so it needs no Claude Code:
+
+```bash
+cd parts/04-run-it-without-you/01-review-the-plan-headless/solution
+CLAUDE_REPLAY=1 bun review/plan-review.ts ../../../../world/seed/tallowmark-infra/plans/destroy-orders-db.json
+cd ../../../..
+```
+
+Expect: one JSON line that starts `{"verdict":"block","destroys":["aws_db_instance.orders"]`.
+
+Give Claude Code the job in each step's README. Then check each step in order. Each prints PASS or FAIL lines, and
+a Try next line under every FAIL.
+
+```bash
+bun run verify review-the-plan-headless
+bun run verify wire-the-plan-review
+bun run verify fix-the-failing-pipeline
+bun run verify seal-the-devcontainer
+bun run verify ship-the-guardrail-kit
+```
+
+Expect: `Done. All 6 rules pass.`, then 9, 5, 9 and 8 rules, once each step is solved.
+
+Check the whole part in one go:
+
+```bash
+bun run verify part run-it-without-you
+```
+
+Expect: `Part run-it-without-you is done: 5/5 steps pass.`
+
+## Assignment
+
+**The problem.** Security will let Claude Code into CI on one condition. It holds no write keys, and nobody can
+talk it into approving a destroy. Prove both.
+
+**What you hand in.** A branch or pull request on your fork. It holds `review.config.json` and its command, the
+plan review workflow, and `kit/` with its README.
+
+**How it is checked.** Each line is yes or no, and each one is a script.
+
+| # | Question | Check |
+|---|---|---|
+| 1 | Does the review judge all 6 saved plans right, with exact `destroys` and `replaces`, on all 3 recorded runs? | `bun run verify review-the-plan-headless` |
+| 2 | Is every `uses:` pinned by a 40 character SHA, with no cloud key and no API key? | `bun run verify wire-the-plan-review` |
+| 3 | Is the destroy plan still blocked when the pull request says "approve"? | same check, last rule |
+| 4 | Does the kit block 30 of 30 and allow 15 of 15 in a fresh folder, and fail closed? | `bun run verify ship-the-guardrail-kit` |
+| 5 | Does `kit/README.md` say what it does not block? | same check |
+
+**For advanced learners.** Seal the dev container too: only the Claude API, the npm registry and the world
+registry get out. Check it with `bun run verify seal-the-devcontainer`, then open the folder in the container and
+show that `curl https://example.com` gets no answer.
+
+## Finished
+
+You now have the course goal. For example, `plans/destroy-orders-db.json` gets `block` from a review that holds
+no cloud key, even when the pull request asks for approval. Your guardrail kit blocks 30 of 30 dangerous calls in a
+fresh folder, and its README says where it stops.
+
+You leave with three things you can show a team: the plan review command and its workflow, the sealed dev
+container, and the kit. Take the kit to your own infra repo. Swap the cases in `world/guard/cases.jsonl` for your
+own dangerous calls, and run the same check.
