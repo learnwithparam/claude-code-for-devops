@@ -1,0 +1,17 @@
+// A sealed box for Claude Code on tallowmark-infra.
+// The firewall lets out only the Claude API, the npm registry and the world's own registry.
+{
+  "name": "tallowmark-infra sealed",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  // The firewall script needs these two capabilities to set the rules inside the container.
+  "runArgs": ["--cap-add=NET_ADMIN", "--cap-add=NET_RAW"],
+  "remoteUser": "node",
+  "containerEnv": {
+    "DISABLE_AUTOUPDATER": "1"
+  },
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  "waitFor": "postStartCommand"
+}
