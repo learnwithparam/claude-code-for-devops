@@ -50,7 +50,7 @@ export PATH="$PWD/world/bin:$PATH"
 terraform -chdir=world/live/tallowmark-infra/terraform/envs/prod plan -detailed-exitcode
 ```
 
-Expect: `Plan: 0 to add, 2 to change, 0 to destroy.` This is the drift you fix in `fix-the-drift`.
+Expect: `Plan: 0 to add, 2 to change, 0 to destroy.` This is the drift you fix in the second step.
 
 Look at the crashing chart on dev:
 
