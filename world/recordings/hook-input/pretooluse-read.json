@@ -1,0 +1,17 @@
+{
+  "session_id": "d49e6bb9-fe14-4114-b7c0-60a7b24eaa4b",
+  "transcript_path": "/root/.claude/projects/-home-user-claude-code-for-devops-world--finished-hook-probe-tallowmark-infra/d49e6bb9-fe14-4114-b7c0-60a7b24eaa4b.jsonl",
+  "cwd": "/home/user/claude-code-for-devops/world/.finished/hook-probe/tallowmark-infra",
+  "scratchpad_dir": "/tmp/claude-0/-home-user-claude-code-for-devops-world--finished-hook-probe-tallowmark-infra/d49e6bb9-fe14-4114-b7c0-60a7b24eaa4b/scratchpad",
+  "prompt_id": "52fd47ac-3ff8-434c-8ce6-7b730ed71b06",
+  "permission_mode": "default",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Read",
+  "tool_input": {
+    "file_path": "/home/user/claude-code-for-devops/world/.finished/hook-probe/tallowmark-infra/README.md"
+  },
+  "tool_use_id": "toolu_01NTNhdKMBqopcojYta2P7Rf"
+}

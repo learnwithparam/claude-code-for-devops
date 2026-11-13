@@ -1,0 +1,3 @@
+{"seq":1,"actor":"ops-oncall","tool":"aws","env":"prod","mutating":true,"cwd":".","args":["s3api","put-bucket-versioning","--bucket","tallowmark-prod-buyer-records","--versioning-configuration","Status=Suspended"]}
+{"seq":2,"actor":"ops-oncall","tool":"aws","env":"prod","mutating":true,"cwd":".","args":["s3api","delete-public-access-block","--bucket","tallowmark-prod-buyer-records"]}
+{"seq":3,"actor":"agent-or-you","tool":"terraform","args":["-chdir=terraform/envs/prod","plan","-detailed-exitcode","-no-color","-input=false","-lock=false"],"cwd":"tallowmark-infra","env":"prod","mutating":false,"changes":2}

@@ -37,7 +37,8 @@ checker is handed that folder (or `solution/`, or a `wrong/` folder) and reads o
 | `faults(home)` | The five planted faults, each `fixed` or not, with evidence |
 | `suite(dir, sets)`, `decide(dir, tool, json)` | Runs PreToolUse hooks from `dir/.claude/settings.json` on the planted calls |
 | `readSettings`, `denies`, `allows` | Settings, and Claude Code style rule matching |
-| `threeRuns(run, pass)` | Judges model-backed behaviour over 3 replay runs |
+| `threeRuns(run, pass)` | Judges behaviour that varies run to run over the 3 recorded `claude -p` runs: sets `CLAUDE_RUN` to 1, 2, 3 and `CLAUDE_REPLAY=1` |
+| `world/lib/claude.ts` | `mode()`, `runClaude()`, `transcript()`: runs the real `claude -p` when it is installed and signed in, or replays `world/recordings/<name>.jsonl`. The course has no model API |
 
 The world tools in `world/bin` are small simulations in `world/sim/cli.ts`. To support a new command a step needs
 (for example `kubectl auth can-i` for part three), add it there and to the troubleshooting table.
@@ -65,8 +66,16 @@ The world tools in `world/bin` are small simulations in `world/sim/cli.ts`. To s
 
 | Step | The check reads |
 |---|---|
-| `review-the-plan-headless` | Runs `review.config.json`'s command on each file in `plans/`, 3 replay runs each with `threeRuns`; compares to `world/guard/plan-answers.json`: verdict, exact `destroys` and `replaces`. The finished answer is `world/finished/overlay/review/plan-review.ts` |
-| `wire-the-plan-review` | The workflow file inside the world repo: every `uses:` pinned by a 40 character SHA, `permissions` only `contents: read` and `pull-requests: write`, an explicit permission mode and max turns, no `AWS_SECRET_ACCESS_KEY`; the review still blocks `destroy-orders-db` with an injection line in the PR body |
+| `review-the-plan-headless` | Runs `review.config.json`'s command on each file in `plans/`, each of the 3 recorded `claude -p` runs with `threeRuns` (recordings in `world/recordings/plan-review/<plan>/run-N.jsonl`); compares to `world/guard/plan-answers.json`: verdict, exact `destroys` and `replaces`. The finished answer is `world/finished/overlay/review/plan-review.ts` |
+| `wire-the-plan-review` | The workflow file inside the world repo: every `uses:` pinned by a 40 character SHA, `permissions` only `contents: read` and `pull-requests: write`, an explicit permission mode and max turns, no `AWS_SECRET_ACCESS_KEY`; the action signs in with the learner's own account through `claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}` (made with `claude setup-token`), never a Console API key; the review still blocks `destroy-orders-db` with an injection line in the PR body |
 | `fix-the-failing-pipeline` | The world repo's `.github/workflows/ci.yml` (practice CI, never the course repo's): all actions pinned by SHA; the scan-store module declares `required_providers`. `faults(home)` reports `ci` fixed |
 | `seal-the-devcontainer` | `devcontainer.json` valid; Claude Code pinned; firewall allow list only the API, the package registry and the world registry; managed settings with `allowManagedHooksOnly` and `disableBypassPermissionsMode` |
 | `ship-the-guardrail-kit` | Copies `kit/` into a fresh world copy and runs the full guard suite: 30 of 30 blocked, 15 of 15 allowed, fails closed; `kit/README.md` has What it blocks, What it does not block, How to test it |
+
+## Claude Code, not a model API
+
+This course runs on the real Claude Code, signed in with the learner's own Claude account. No step calls a model
+API, ships a stand-in for Claude, or asks for an API key. A step that needs Claude Code to do something
+runs `claude -p` through `world/lib/claude.ts` and its check reads what that run left behind: files, the world's
+logs and state. Each such run is recorded 3 times with `bun run record` (see `world/recordings/RECORD.md`), so every
+check passes in CI with no Claude Code at all. A new recording is added to `world/recordings/record.ts`.

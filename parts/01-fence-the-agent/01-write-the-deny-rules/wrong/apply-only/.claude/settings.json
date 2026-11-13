@@ -9,8 +9,6 @@
       "Bash(helm template *)",
       "Bash(helm lint *)"
     ],
-    "deny": [
-      "Bash(terraform apply *)"
-    ]
+    "deny": ["Bash(terraform apply *)"]
   }
 }

@@ -1,1 +1,0 @@
-{"text": "{\"verdict\":\"block\",\"reasons\":[\"Deletes the orders database, which holds every ticket sale.\"]}"}

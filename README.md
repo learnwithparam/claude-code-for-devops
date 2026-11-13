@@ -1,11 +1,37 @@
 # Claude Code for DevOps: guard the agent near production
 
-Let Claude Code fix your Terraform, Helm and CI, and prove with a test that it cannot apply, delete or read a secret.
+Let Claude Code fix your Terraform, Helm and CI. Then prove with a test that it cannot apply, delete or read a
+secret.
+
+## The promise
+
+- **Objective**: you can let Claude Code work in an infra repo whose shell points at prod. You can prove with a
+  test that it cannot apply, delete or read a secret.
+- **Outcome**: you leave with a guardrail kit. It holds the settings, a guard hook, a sandbox block, a guard test and
+  a headless plan review. Claude Code wrote every file, and you checked each one.
+- **Transformation**: before, you think "I would never let an agent near prod." After, you say "It works near
+  prod. Here is the test that shows what it cannot do."
+- **Goal**: the guardrail kit passes the guard suite in a fresh copy of the world. It blocks 30 of 30 dangerous
+  calls and allows 15 of 15 safe ones.
+
+You write no code in this course. In every step you give the real Claude Code a job in plain English. You read its
+plan, say yes or no, and steer. Claude Code writes every file.
+
+For example, in the step `write-the-deny-rules` you type this into Claude Code:
+
+```text
+Add deny rules so you can never run terraform apply, terraform destroy,
+kubectl delete or helm uninstall without a person.
+```
+
+Claude Code shows a plan with rules such as `Bash(terraform apply *)`. You check it, and then the course check
+proves the rules work.
 
 ## Run the finished system
 
-You need [Bun](https://bun.sh) 1.4.4. No cloud account, no Docker and no model key: the world runs on your laptop and
-every model call is replayed from a recording.
+You need [Bun](https://bun.sh) 1.4.4 and git. No cloud account, no Docker and no API key. The course runs on the real
+Claude Code, signed in with your own Claude account: the `claude` CLI, Claude Code in your editor, or the Code tab of
+Claude Desktop. [00-orientation](00-orientation/README.md) installs it and signs you in.
 
 ```bash
 bun install
@@ -13,19 +39,26 @@ bun run finished
 ```
 
 Expect: `Guard suite: blocked 30 of 30 dangerous calls, allowed 15 of 15 safe calls, broken input blocked.`,
-`Plan review: 6 of 6 saved plans judged right.` and `Everything is green.`
+`saved plans judged right`, `left prod for a person and wrote the review` and `Everything is green.`
+
+With Claude Code signed in, that runs it for real: a headless `claude -p` reviews 6 saved Terraform plans, and a
+second session works on prod's drifted bucket with the finished guardrails on. The checks then read only what the
+runs left behind: the verdicts, the world's command log, prod's state and the review file. Without Claude Code, or in
+CI, it replays 3 real recorded runs from `world/recordings/` and says so in one line.
 
 ![The finished system's board: every fault fixed, 30 of 30 dangerous calls blocked, 15 of 15 safe calls allowed](images/finished-system.png)
 
-Now watch a recorded Claude Code session on the finished repo. Every tool call in it is real and goes through the
-finished guard hook:
+Now watch a real recorded session: an on-call engineer tells Claude Code to apply on prod, and the finished guard
+hook stops it. Each command in it is handed again to the guard on your machine:
 
 ```bash
 bun run demo
 ```
 
-Expect: `BLOCKED  Blocked by guard-infra: terraform apply changes real infrastructure.` for a plain apply and again
-for the same apply wrapped in `bash -c`.
+Expect: `BLOCKED  Blocked by guard-infra: terraform apply changes real infrastructure.` and
+`Changes it made to the world: 0.`
+
+Add `--live` to run the same session on your own Claude Code.
 
 Your own copy of the world starts with every fault open:
 
@@ -40,14 +73,14 @@ Expect: five `RED` lines and `Dangerous actions blocked:   0 of 30`.
 
 Platform, DevOps and infrastructure engineers who own Terraform, Helm, CI and alert rules.
 
-- **New to Claude Code.** You know `terraform plan`, `kubectl get` and YAML, and you are afraid of running something on
-  prod or leaking a secret. You leave able to write deny rules and a hook, watch the hook block a destroy, and fix
-  drift and a bad chart with the guardrails on.
-- **Already using it daily.** You use Claude Code for app code and do not trust it near CI credentials. You leave
-  able to red-team your own hooks, write settings a repo cannot override, and run a headless plan review in CI with
-  no write credentials.
-- **Deciding whether to allow it.** You leave with a one-page kit for your security team: what it blocks, what it
-  does not block, and the test that proves it.
+- **New to Claude Code.** You know `terraform plan`, `kubectl get` and YAML. You are afraid of running something on
+  prod or leaking a secret. You leave able to get Claude Code to write deny rules and a hook. You watch the hook
+  block a destroy. Then Claude Code fixes drift and a bad chart with the guardrails on.
+- **Already using it daily.** You use Claude Code for app code, and you do not trust it near CI keys. You leave
+  able to attack your own hooks and find their gaps. You can set settings that a repo cannot override. You can run
+  a headless plan review in CI with no write keys.
+- **Deciding whether to allow it.** You leave with a one-page kit for your security team. It says what the guard
+  blocks, what it does not block, and which test proves it.
 
 ## The world and what you build
 
@@ -92,9 +125,14 @@ The same parts fit several formats, from one sitting to a cohort: see [schedules
 
 ## The project
 
-A public fork of this repo with your guardrail kit: settings, the hook, the sandbox block, the guard suite with at
-least five bypass cases of your own, and the plan review answering all six saved plans. Its README opens with three
-numbers a manager can read in a minute: dangerous calls blocked, safe calls allowed, plans judged right.
+Your project is a public fork of this repo with your guardrail kit. The kit has these parts:
+
+- the settings, the hook and the sandbox block;
+- the guard suite, with at least five bypass cases of your own;
+- the plan review, with an answer for all six saved plans.
+
+Its README opens with three numbers a manager can read in a minute. They are dangerous calls blocked, safe calls
+allowed, and plans judged right.
 
 ## Before you start
 
@@ -107,16 +145,19 @@ Read these, about 40 minutes in all:
 3. [tj-actions/changed-files advisory](https://github.com/advisories/GHSA-mrrh-fwg8-r2c3). Why this course pins
    every action and version.
 
-## Using a live model
+## Claude Code, not a model API
 
-Everything runs in replay mode. To use a real provider, copy `.env.example` to `.env`, set `LLM_PROVIDER` to
-`anthropic`, `openrouter` or `openai` and fill in that one key. Models are named by role in `config/models.ts` only.
+Nothing in this repo calls a model API or asks for a key. Every run is the real `claude` CLI, started by
+`world/lib/claude.ts` with the flags in `config/claude.ts`. Check your setup with:
 
 ```bash
-bun run models
+bun run doctor
 ```
 
-Expect: `Provider: replay` and `Every role answers.`
+Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in`.
+
+`bun run record` makes every recording again on your own signed-in Claude Code; `world/recordings/RECORD.md` lists
+each one.
 
 The rules every course repo follows, and the check behind each, are in [STANDARD.md](STANDARD.md). What is built and
 what each remaining part's checks read is in [PARTS.md](PARTS.md).

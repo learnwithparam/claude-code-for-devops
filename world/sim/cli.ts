@@ -1,306 +1,792 @@
-// The practice world's terraform, tofu, kubectl, helm and aws. Each acts on the world's state, not a real cloud.
-// Run through the shims in world/bin. Every call is logged; calls that change state are marked mutating.
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { join, resolve, relative, basename } from "node:path";
+// The practice world's terraform, tofu, kubectl, helm and aws.
+// Each acts on the world's state, not a real cloud. Run through the shims in world/bin.
+// Every call is logged; calls that change state are marked mutating.
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
 import {
-  ENVS, type Env, type Change, instance, repoDir, plan, applyPlan, loadCloud, saveCloud, loadCluster, saveCluster, log,
+  applyPlan,
+  type Change,
+  type Cloud,
+  type Cluster,
+  type Env,
+  instance,
+  loadCloud,
+  loadCluster,
+  log,
+  plan,
+  type Release,
+  type Resource,
+  saveCloud,
+  saveCluster,
 } from "./state";
 
-const [tool, ...argv] = process.argv.slice(2);
-const out = (s = "") => console.log(s);
-const err = (s: string) => console.error(s);
-const done = (code: number): never => process.exit(code);
-const record = (mutating: boolean, env: Env | null, extra: Record<string, unknown> = {}) =>
-  log({ tool, args: argv, cwd: relative(instance(), process.cwd()) || ".", env, mutating, ...extra });
+const [tool, ...toolArguments] = process.argv.slice(2);
 
-const flag = (args: string[], ...names: string[]) => {
+function print(text = "") {
+  console.log(text);
+}
+
+function printError(text: string) {
+  console.error(text);
+}
+
+function finish(exitCode: number): never {
+  return process.exit(exitCode);
+}
+
+function record(mutating: boolean, env: Env | null, details: Record<string, unknown> = {}) {
+  log({
+    tool,
+    args: toolArguments,
+    cwd: relative(instance(), process.cwd()) || ".",
+    env,
+    mutating,
+    ...details,
+  });
+}
+
+// The value after a flag, written either as "--name value" or as "--name=value".
+function flagValue(args: string[], ...names: string[]): string | undefined {
   for (let i = 0; i < args.length; i++) {
-    for (const n of names) {
-      if (args[i] === n) return args[i + 1];
-      if (args[i].startsWith(n + "=")) return args[i].slice(n.length + 1);
+    for (const name of names) {
+      if (args[i] === name) return args[i + 1];
+      if (args[i].startsWith(`${name}=`)) return args[i].slice(name.length + 1);
     }
   }
   return undefined;
-};
-const has = (args: string[], ...names: string[]) => args.some((a) => names.includes(a));
-const positional = (args: string[], takesValue: string[] = []) => {
-  const p: string[] = [];
+}
+
+function hasFlag(args: string[], ...names: string[]): boolean {
+  return args.some((argument) => names.includes(argument));
+}
+
+// The arguments that are not flags. Flags named in flagsWithValue also skip the word after them.
+function positionalArguments(args: string[], flagsWithValue: string[] = []): string[] {
+  const positional: string[] = [];
   for (let i = 0; i < args.length; i++) {
-    if (args[i].startsWith("-")) { if (takesValue.includes(args[i])) i++; continue; }
-    p.push(args[i]);
+    if (args[i].startsWith("-")) {
+      if (flagsWithValue.includes(args[i])) i++;
+      continue;
+    }
+    positional.push(args[i]);
   }
-  return p;
-};
-const envOf = (s: string | undefined): Env | null => (s?.includes("dev") ? "dev" : s?.includes("prod") ? "prod" : null);
+  return positional;
+}
+
+// A context or profile name says which environment it points at.
+function environmentFor(name: string | undefined): Env | null {
+  if (name?.includes("dev")) return "dev";
+  if (name?.includes("prod")) return "prod";
+  return null;
+}
+
+function prettyJson(content: unknown): string {
+  return JSON.stringify(content, null, 2);
+}
 
 // ---------- terraform and tofu ----------
-function terraform(args: string[]) {
-  let cwd = process.cwd();
-  const chdir = args.find((a) => a.startsWith("-chdir="));
-  if (chdir) { cwd = resolve(cwd, chdir.slice(7)); args = args.filter((a) => a !== chdir); }
-  const [cmd, ...rest] = args;
-  const m = cwd.match(/terraform\/envs\/(dev|prod)\/?$/);
-  const env = (m?.[1] as Env) ?? null;
-  const tfName = tool === "tofu" ? "OpenTofu" : "Terraform";
-  if (!cmd || cmd === "version" || cmd === "-version") { out(`${tfName} v1.17.2 (practice world)`); return done(0); }
+
+type TerraformRun = {
+  command: string;
+  options: string[];
+  env: Env;
+  home: string;
+  folder: string;
+  productName: string;
+};
+
+function terraform(givenArguments: string[]) {
+  let args = givenArguments;
+  let folder = process.cwd();
+  const chdir = args.find((argument) => argument.startsWith("-chdir="));
+  if (chdir) {
+    folder = resolve(folder, chdir.slice("-chdir=".length));
+    args = args.filter((argument) => argument !== chdir);
+  }
+  const [command, ...options] = args;
+  const envMatch = folder.match(/terraform\/envs\/(dev|prod)\/?$/);
+  const env = (envMatch?.[1] as Env) ?? null;
+  const productName = tool === "tofu" ? "OpenTofu" : "Terraform";
+  if (!command || command === "version" || command === "-version") {
+    print(`${productName} v1.17.2 (practice world)`);
+    return finish(0);
+  }
   if (!env) {
     record(false, null);
-    err(`Error: No configuration files. Run ${tool} from terraform/envs/dev or terraform/envs/prod, or pass -chdir.`);
-    return done(1);
+    printError(
+      `Error: No configuration files. Run ${tool} from terraform/envs/dev or ` +
+        "terraform/envs/prod, or pass -chdir.",
+    );
+    return finish(1);
   }
-  const home = instance();
-  const show = (changes: Change[]) => {
-    for (const c of changes) {
-      const verb = c.actions.includes("delete") ? "will be destroyed" : c.actions.includes("create") ? "will be created" : "will be updated in-place";
-      const mark = c.actions.includes("delete") ? "-" : c.actions.includes("create") ? "+" : "~";
-      out(`  # ${c.address} ${verb}`);
-      for (const d of c.diff) out(`      ${mark} ${d}`);
-      if (!c.diff.length) out(`    ${mark} resource "${c.type}"`);
-    }
-    const n = (a: string) => changes.filter((c) => c.actions.includes(a)).length;
-    out(changes.length ? `\nPlan: ${n("create")} to add, ${n("update")} to change, ${n("delete")} to destroy.` : "No changes. Your infrastructure matches the configuration.");
-  };
-  const planJson = (changes: Change[]) => ({
-    format_version: "1.2",
-    terraform_version: "1.17.2",
-    env,
-    resource_changes: changes.map((c) => ({ address: c.address, mode: "managed", type: c.type, name: c.address.split(".").pop(), change: { actions: c.actions, before: c.before, after: c.after } })),
-  });
-  try {
-    switch (cmd) {
-      case "init": record(false, env); out(`${tfName} has been successfully initialized!`); return done(0);
-      case "validate": record(false, env); plan(env, home); out("Success! The configuration is valid."); return done(0);
-      case "fmt": record(false, env); return done(0);
-      case "plan": {
-        const changes = plan(env, home, has(rest, "-destroy"));
-        const logs = join(home, "logs");
-        mkdirSync(logs, { recursive: true });
-        writeFileSync(join(logs, `plan-${env}.json`), JSON.stringify(planJson(changes), null, 2) + "\n");
-        const o = rest.find((a) => a.startsWith("-out="));
-        if (o) writeFileSync(resolve(cwd, o.slice(5)), JSON.stringify(planJson(changes), null, 2) + "\n");
-        record(false, env, { changes: changes.length });
-        show(changes);
-        return done(has(rest, "-detailed-exitcode") && changes.length ? 2 : 0);
-      }
-      case "show": {
-        record(false, env);
-        const f = positional(rest)[0];
-        if (!f || !existsSync(resolve(cwd, f))) { err("Error: no saved plan file given"); return done(1); }
-        out(readFileSync(resolve(cwd, f), "utf8").trim());
-        return done(0);
-      }
-      case "apply":
-      case "destroy": {
-        const changes = plan(env, home, cmd === "destroy");
-        show(changes);
-        const yes = has(rest, "-auto-approve") || process.env.TALLOWMARK_CONFIRM === "yes";
-        if (!yes) { record(false, env, { refused: "no approval" }); out(`\nApply cancelled. Run with -auto-approve, or type yes when a person approves.`); return done(1); }
-        applyPlan(env, changes, home);
-        record(true, env, { changes: changes.map((c) => `${c.actions.join("+")} ${c.address}`) });
-        out(`\n${cmd === "destroy" ? "Destroy" : "Apply"} complete! Resources: ${changes.length} changed.`);
-        return done(0);
-      }
-      case "state": {
-        const [sub, addr] = rest;
-        if (sub === "list") { record(false, env); for (const a of Object.keys(loadCloud(env, home))) out(a); return done(0); }
-        if (sub === "rm" && addr) {
-          const c = loadCloud(env, home); delete c[addr]; saveCloud(env, c, home);
-          record(true, env); out(`Removed ${addr}`); return done(0);
-        }
-        break;
-      }
-    }
-  } catch (e) {
-    record(false, env, { error: (e as Error).message });
-    err(`Error: ${(e as Error).message}`);
-    return done(1);
-  }
+  const run: TerraformRun = { command, options, env, home: instance(), folder, productName };
+  runTerraformCommand(run);
   record(false, env);
-  err(`${tool} ${cmd}: not part of the practice world. Supported: init, validate, fmt, plan, show, apply, destroy, state list, state rm.`);
-  return done(1);
+  printError(
+    `${tool} ${command}: not part of the practice world. Supported: init, validate, fmt, ` +
+      "plan, show, apply, destroy, state list, state rm.",
+  );
+  return finish(1);
+}
+
+// Runs the command and exits. Returns only when the command is not one the world supports.
+function runTerraformCommand(run: TerraformRun) {
+  const handler = TERRAFORM_COMMANDS.get(run.command);
+  if (!handler) return;
+  try {
+    handler(run);
+  } catch (error) {
+    const message = (error as Error).message;
+    record(false, run.env, { error: message });
+    printError(`Error: ${message}`);
+    finish(1);
+  }
+}
+
+const TERRAFORM_COMMANDS = new Map<string, (run: TerraformRun) => void>([
+  ["init", terraformInit],
+  ["validate", terraformValidate],
+  ["fmt", terraformFormat],
+  ["plan", terraformPlan],
+  ["show", terraformShow],
+  ["apply", terraformApply],
+  ["destroy", terraformApply],
+  ["state", terraformState],
+]);
+
+function terraformInit(run: TerraformRun) {
+  record(false, run.env);
+  print(`${run.productName} has been successfully initialized!`);
+  finish(0);
+}
+
+function terraformValidate(run: TerraformRun) {
+  record(false, run.env);
+  plan(run.env, run.home);
+  print("Success! The configuration is valid.");
+  finish(0);
+}
+
+function terraformFormat(run: TerraformRun) {
+  record(false, run.env);
+  finish(0);
+}
+
+function terraformPlan(run: TerraformRun) {
+  const changes = plan(run.env, run.home, hasFlag(run.options, "-destroy"));
+  const planText = `${prettyJson(planJson(run.env, changes))}\n`;
+  const logsFolder = join(run.home, "logs");
+  mkdirSync(logsFolder, { recursive: true });
+  writeFileSync(join(logsFolder, `plan-${run.env}.json`), planText);
+  const outOption = run.options.find((option) => option.startsWith("-out="));
+  if (outOption) {
+    writeFileSync(resolve(run.folder, outOption.slice("-out=".length)), planText);
+  }
+  record(false, run.env, { changes: changes.length });
+  printChanges(changes);
+  const wantsDetailedExitCode = hasFlag(run.options, "-detailed-exitcode");
+  // With -detailed-exitcode, exit code 2 means "the plan has changes", as in real Terraform.
+  if (wantsDetailedExitCode && changes.length) finish(2);
+  finish(0);
+}
+
+function terraformShow(run: TerraformRun) {
+  record(false, run.env);
+  const planFile = positionalArguments(run.options)[0];
+  if (!planFile || !existsSync(resolve(run.folder, planFile))) {
+    printError("Error: no saved plan file given");
+    finish(1);
+  }
+  const savedPlan = readFileSync(resolve(run.folder, planFile), "utf8");
+  print(savedPlan.trim());
+  finish(0);
+}
+
+function terraformApply(run: TerraformRun) {
+  const isDestroy = run.command === "destroy";
+  const changes = plan(run.env, run.home, isDestroy);
+  printChanges(changes);
+  const approved =
+    hasFlag(run.options, "-auto-approve") || process.env.TALLOWMARK_CONFIRM === "yes";
+  if (!approved) {
+    record(false, run.env, { refused: "no approval" });
+    print(`\nApply cancelled. Run with -auto-approve, or type yes when a person approves.`);
+    finish(1);
+  }
+  applyPlan(run.env, changes, run.home);
+  const changeSummaries = changes.map((change) => `${change.actions.join("+")} ${change.address}`);
+  record(true, run.env, { changes: changeSummaries });
+  const doneWord = isDestroy ? "Destroy" : "Apply";
+  print(`\n${doneWord} complete! Resources: ${changes.length} changed.`);
+  finish(0);
+}
+
+// Supports "state list" and "state rm <address>". Anything else returns to the caller.
+function terraformState(run: TerraformRun) {
+  const [subcommand, address] = run.options;
+  if (subcommand === "list") {
+    record(false, run.env);
+    for (const resourceAddress of Object.keys(loadCloud(run.env, run.home))) {
+      print(resourceAddress);
+    }
+    finish(0);
+  }
+  if (subcommand === "rm" && address) {
+    const cloud = loadCloud(run.env, run.home);
+    delete cloud[address];
+    saveCloud(run.env, cloud, run.home);
+    record(true, run.env);
+    print(`Removed ${address}`);
+    finish(0);
+  }
+}
+
+function changeLabel(change: Change): { sentence: string; mark: string } {
+  if (change.actions.includes("delete")) return { sentence: "will be destroyed", mark: "-" };
+  if (change.actions.includes("create")) return { sentence: "will be created", mark: "+" };
+  return { sentence: "will be updated in-place", mark: "~" };
+}
+
+function printChanges(changes: Change[]) {
+  for (const change of changes) {
+    const { sentence, mark } = changeLabel(change);
+    print(`  # ${change.address} ${sentence}`);
+    for (const difference of change.diff) print(`      ${mark} ${difference}`);
+    if (!change.diff.length) print(`    ${mark} resource "${change.type}"`);
+  }
+  if (!changes.length) {
+    print("No changes. Your infrastructure matches the configuration.");
+    return;
+  }
+  const countOf = (action: string) =>
+    changes.filter((change) => change.actions.includes(action)).length;
+  const toAdd = countOf("create");
+  const toChange = countOf("update");
+  const toDestroy = countOf("delete");
+  print(`\nPlan: ${toAdd} to add, ${toChange} to change, ${toDestroy} to destroy.`);
+}
+
+// The same shape as Terraform's own plan JSON. Object.fromEntries keeps Terraform's field names
+// exactly as Terraform spells them.
+function planJson(env: Env, changes: Change[]) {
+  const resourceChanges = changes.map((change) => ({
+    address: change.address,
+    mode: "managed",
+    type: change.type,
+    name: change.address.split(".").pop(),
+    change: { actions: change.actions, before: change.before, after: change.after },
+  }));
+  return Object.fromEntries([
+    ["format_version", "1.2"],
+    ["terraform_version", "1.17.2"],
+    ["env", env],
+    ["resource_changes", resourceChanges],
+  ]);
 }
 
 // ---------- kubectl ----------
-const NS: Record<string, string> = { "seat-api": "seat", "waiting-room": "queue" };
-function pods(env: Env) {
-  const cl = loadCluster(env);
-  const rows: { ns: string; name: string; status: string; restarts: number }[] = [];
-  for (const [name, r] of Object.entries(cl.releases)) {
-    const v = r.values;
-    const broken = Number(v.probe?.port) !== Number(v.containerPort);
-    for (let i = 0; i < Number(v.replicaCount ?? 1); i++)
-      rows.push({ ns: NS[name] ?? "default", name: `${name}-${r.revision}${i}x7`, status: broken ? "CrashLoopBackOff" : "Running", restarts: broken ? 14 : 0 });
-  }
-  for (const [name, h] of Object.entries(cl.hpa))
-    if (cl.namespaces.includes("scan")) for (let i = 0; i < h.minReplicas; i++) rows.push({ ns: "scan", name: `${name}-${i}q2`, status: "Running", restarts: 0 });
-  return rows;
+
+// The namespace each Helm release runs in.
+const RELEASE_NAMESPACES: Record<string, string> = { "seat-api": "seat", "waiting-room": "queue" };
+
+type SimulatedPod = { namespace: string; name: string; status: string; restarts: number };
+
+function simulatedPods(env: Env): SimulatedPod[] {
+  const cluster = loadCluster(env);
+  return [...releasePods(cluster), ...scanPods(cluster)];
 }
-function kubectl(args: string[]) {
-  const ctx = flag(args, "--context") ?? process.env.KUBE_CONTEXT ?? "kind-tallowmark-prod";
-  const env = envOf(ctx);
-  if (!env) { record(false, null); err(`error: context "${ctx}" does not exist. Use kind-tallowmark-dev or kind-tallowmark-prod.`); return done(1); }
-  const p = positional(args, ["--context", "-n", "--namespace", "-l", "-o", "--replicas"]);
-  const ns = flag(args, "-n", "--namespace");
-  const all = has(args, "-A", "--all-namespaces");
-  const [verb, kind, name] = p;
-  const cl = loadCluster(env);
-  const mutate = (what: string) => { record(true, env, { context: ctx }); out(what); return done(0); };
-  switch (verb) {
-    case "config":
-      record(false, env); out(ctx); return done(0);
-    case "get":
-    case "describe":
-    case "logs":
-      record(false, env, { context: ctx });
-      if (kind === "nodes") { out("NAME                         STATUS   ROLES           VERSION"); out(`tallowmark-${env}-control-plane   Ready    control-plane   v1.37.2`); return done(0); }
-      if (kind === "ns" || kind === "namespaces") { out("NAME     STATUS"); for (const n of cl.namespaces) out(`${n.padEnd(8)} Active`); return done(0); }
-      if (verb === "logs") { out("listening on :8080"); return done(0); }
-      {
-        const rows = pods(env).filter((r) => all || r.ns === (ns ?? "default"));
-        out(`${all ? "NAMESPACE  " : ""}NAME                   STATUS             RESTARTS`);
-        for (const r of rows) out(`${all ? r.ns.padEnd(11) : ""}${r.name.padEnd(23)}${r.status.padEnd(19)}${r.restarts}`);
-        if (!rows.length) out(`No resources found in ${ns ?? "default"} namespace.`);
-        return done(0);
-      }
-    case "delete":
-      if (kind === "ns" || kind === "namespace") {
-        cl.namespaces = cl.namespaces.filter((n) => n !== name);
-        for (const [r] of Object.entries(cl.releases)) if (NS[r] === name) delete cl.releases[r];
-        if (name === "scan") cl.hpa = {};
-        saveCluster(env, cl);
-        return mutate(`namespace "${name}" deleted`);
-      }
-      return mutate(`${kind} "${name ?? "selected"}" deleted`);
-    case "scale": case "drain": case "apply": case "patch": case "edit": case "cordon": case "rollout": case "exec":
-      return mutate(`${verb} done on ${ctx}`);
-    case "version":
-      record(false, env); out("Client Version: v1.37.2 (practice world)"); return done(0);
+
+function releasePods(cluster: Cluster): SimulatedPod[] {
+  const pods: SimulatedPod[] = [];
+  for (const [releaseName, release] of Object.entries(cluster.releases)) {
+    pods.push(...podsOfRelease(releaseName, release));
   }
+  return pods;
+}
+
+// A release whose probe checks a different port than the container listens on keeps crashing.
+function podsOfRelease(releaseName: string, release: Release): SimulatedPod[] {
+  const values = release.values;
+  const broken = Number(values.probe?.port) !== Number(values.containerPort);
+  const replicaCount = Number(values.replicaCount ?? 1);
+  const pods: SimulatedPod[] = [];
+  for (let i = 0; i < replicaCount; i++) {
+    pods.push({
+      namespace: RELEASE_NAMESPACES[releaseName] ?? "default",
+      name: `${releaseName}-${release.revision}${i}x7`,
+      status: broken ? "CrashLoopBackOff" : "Running",
+      restarts: broken ? 14 : 0,
+    });
+  }
+  return pods;
+}
+
+function scanPods(cluster: Cluster): SimulatedPod[] {
+  const pods: SimulatedPod[] = [];
+  if (!cluster.namespaces.includes("scan")) return pods;
+  for (const [autoscalerName, autoscaler] of Object.entries(cluster.hpa)) {
+    for (let i = 0; i < autoscaler.minReplicas; i++) {
+      pods.push({
+        namespace: "scan",
+        name: `${autoscalerName}-${i}q2`,
+        status: "Running",
+        restarts: 0,
+      });
+    }
+  }
+  return pods;
+}
+
+type KubectlRun = {
+  verb: string;
+  kind: string;
+  name: string;
+  env: Env;
+  context: string;
+  namespace: string | undefined;
+  allNamespaces: boolean;
+};
+
+const KUBECTL_FLAGS_WITH_VALUE = ["--context", "-n", "--namespace", "-l", "-o", "--replicas"];
+const KUBECTL_MUTATING_VERBS = new Set([
+  "scale",
+  "drain",
+  "apply",
+  "patch",
+  "edit",
+  "cordon",
+  "rollout",
+  "exec",
+]);
+
+function kubectl(args: string[]) {
+  const context =
+    flagValue(args, "--context") ?? process.env.KUBE_CONTEXT ?? "kind-tallowmark-prod";
+  const env = environmentFor(context);
+  if (!env) {
+    record(false, null);
+    printError(
+      `error: context "${context}" does not exist. ` +
+        "Use kind-tallowmark-dev or kind-tallowmark-prod.",
+    );
+    return finish(1);
+  }
+  const [verb, kind, name] = positionalArguments(args, KUBECTL_FLAGS_WITH_VALUE);
+  const namespace = flagValue(args, "-n", "--namespace");
+  const allNamespaces = hasFlag(args, "-A", "--all-namespaces");
+  const run: KubectlRun = { verb, kind, name, env, context, namespace, allNamespaces };
+  runKubectlVerb(run);
   record(false, env);
-  err(`kubectl ${verb ?? ""}: not part of the practice world. Supported: get, describe, logs, delete, scale, drain, apply, config.`);
-  return done(1);
+  printError(
+    `kubectl ${verb ?? ""}: not part of the practice world. ` +
+      "Supported: get, describe, logs, delete, scale, drain, apply, config.",
+  );
+  return finish(1);
+}
+
+// Runs the verb and exits. Returns only when the verb is not one the world supports.
+function runKubectlVerb(run: KubectlRun) {
+  if (run.verb === "config") {
+    record(false, run.env);
+    print(run.context);
+    finish(0);
+  }
+  if (run.verb === "get" || run.verb === "describe" || run.verb === "logs") kubectlRead(run);
+  if (run.verb === "delete") kubectlDelete(run);
+  if (KUBECTL_MUTATING_VERBS.has(run.verb))
+    kubectlMutated(run, `${run.verb} done on ${run.context}`);
+  if (run.verb === "version") {
+    record(false, run.env);
+    print("Client Version: v1.37.2 (practice world)");
+    finish(0);
+  }
+}
+
+function kubectlMutated(run: KubectlRun, message: string): never {
+  record(true, run.env, { context: run.context });
+  print(message);
+  return finish(0);
+}
+
+function kubectlRead(run: KubectlRun): never {
+  record(false, run.env, { context: run.context });
+  if (run.kind === "nodes") {
+    print("NAME                         STATUS   ROLES           VERSION");
+    print(`tallowmark-${run.env}-control-plane   Ready    control-plane   v1.37.2`);
+    return finish(0);
+  }
+  if (run.kind === "ns" || run.kind === "namespaces") {
+    print("NAME     STATUS");
+    for (const namespace of loadCluster(run.env).namespaces) print(`${namespace.padEnd(8)} Active`);
+    return finish(0);
+  }
+  if (run.verb === "logs") {
+    print("listening on :8080");
+    return finish(0);
+  }
+  printPods(run);
+  return finish(0);
+}
+
+function printPods(run: KubectlRun) {
+  const wantedNamespace = run.namespace ?? "default";
+  const pods = simulatedPods(run.env).filter(
+    (podRow) => run.allNamespaces || podRow.namespace === wantedNamespace,
+  );
+  const namespaceHeader = run.allNamespaces ? "NAMESPACE  " : "";
+  print(`${namespaceHeader}NAME                   STATUS             RESTARTS`);
+  for (const podRow of pods) {
+    const namespaceColumn = run.allNamespaces ? podRow.namespace.padEnd(11) : "";
+    print(
+      `${namespaceColumn}${podRow.name.padEnd(23)}${podRow.status.padEnd(19)}${podRow.restarts}`,
+    );
+  }
+  if (!pods.length) print(`No resources found in ${wantedNamespace} namespace.`);
+}
+
+// Deleting a namespace also removes the releases in it, and the scan autoscaler with "scan".
+function kubectlDelete(run: KubectlRun): never {
+  if (run.kind !== "ns" && run.kind !== "namespace") {
+    return kubectlMutated(run, `${run.kind} "${run.name ?? "selected"}" deleted`);
+  }
+  const cluster = loadCluster(run.env);
+  cluster.namespaces = cluster.namespaces.filter((namespace) => namespace !== run.name);
+  for (const releaseName of Object.keys(cluster.releases)) {
+    if (RELEASE_NAMESPACES[releaseName] === run.name) delete cluster.releases[releaseName];
+  }
+  if (run.name === "scan") cluster.hpa = {};
+  saveCluster(run.env, cluster);
+  return kubectlMutated(run, `namespace "${run.name}" deleted`);
 }
 
 // ---------- helm ----------
-const yaml = (p: string) => Bun.YAML.parse(readFileSync(p, "utf8")) as any;
-export function renderChart(chartDir: string, values = yaml(join(chartDir, "values.yaml"))): string {
-  const tpl = readFileSync(join(chartDir, "templates", "deployment.yaml"), "utf8");
-  const get = (path: string) => path.split(".").filter(Boolean).reduce((o: any, k) => o?.[k], values);
-  return tpl
-    .replace(/\{\{\s*toYaml \.Values\.([\w.]+)\s*\|\s*nindent \d+\s*\}\}/g, (_, k) => JSON.stringify(get(k) ?? {}))
-    .replace(/\{\{\s*\.Values\.([\w.]+)\s*\}\}/g, (_, k) => String(get(k)));
+
+type ChartFile = { apiVersion?: unknown; name?: unknown; version?: unknown };
+
+function readYaml<T>(path: string): T {
+  return Bun.YAML.parse(readFileSync(path, "utf8")) as T;
 }
+
+function valueAtPath(values: unknown, path: string): unknown {
+  const keys = path.split(".").filter(Boolean);
+  let current = values;
+  for (const key of keys) current = (current as Record<string, unknown> | undefined)?.[key];
+  return current;
+}
+
+// Fills in the two template forms the practice charts use: {{ .Values.x }} and toYaml ... nindent.
+export function renderChart(
+  chartDir: string,
+  values: unknown = readYaml(join(chartDir, "values.yaml")),
+): string {
+  const template = readFileSync(join(chartDir, "templates", "deployment.yaml"), "utf8");
+  const toYamlPattern = /\{\{\s*toYaml \.Values\.([\w.]+)\s*\|\s*nindent \d+\s*\}\}/g;
+  const valuePattern = /\{\{\s*\.Values\.([\w.]+)\s*\}\}/g;
+  const withBlocks = template.replace(toYamlPattern, (_match, path: string) =>
+    JSON.stringify(valueAtPath(values, path) ?? {}),
+  );
+  return withBlocks.replace(valuePattern, (_match, path: string) =>
+    String(valueAtPath(values, path)),
+  );
+}
+
+type HelmRun = {
+  verb: string;
+  first: string;
+  second: string;
+  env: Env;
+  context: string;
+};
+
+const HELM_FLAGS_WITH_VALUE = ["--kube-context", "-n", "--namespace", "-f", "--values", "--set"];
+
 function helm(args: string[]) {
-  const ctx = flag(args, "--kube-context") ?? process.env.KUBE_CONTEXT ?? "kind-tallowmark-prod";
-  const env = envOf(ctx);
-  if (!env) { record(false, null); err(`Error: context "${ctx}" does not exist`); return done(1); }
-  const p = positional(args, ["--kube-context", "-n", "--namespace", "-f", "--values", "--set"]);
-  const [verb, a, b] = p;
-  const cl = loadCluster(env);
-  switch (verb) {
-    case "version": record(false, env); out("v4.3.1 (practice world)"); return done(0);
-    case "list": case "ls":
-      record(false, env, { context: ctx });
-      out("NAME          NAMESPACE  REVISION  CHART");
-      for (const [n, r] of Object.entries(cl.releases)) out(`${n.padEnd(14)}${(NS[n] ?? "default").padEnd(11)}${String(r.revision).padEnd(10)}${r.chart}`);
-      return done(0);
-    case "lint": {
-      record(false, env);
-      const dir = resolve(a ?? ".");
-      const chart = existsSync(join(dir, "Chart.yaml")) ? yaml(join(dir, "Chart.yaml")) : null;
-      if (!chart || chart.apiVersion !== "v2" || !chart.name || !chart.version) { out(`[ERROR] Chart.yaml: missing or not apiVersion v2\nError: 1 chart(s) linted, 1 chart(s) failed`); return done(1); }
-      try { yaml(join(dir, "values.yaml")); } catch (e) { out(`[ERROR] values.yaml: ${(e as Error).message}\nError: 1 chart(s) linted, 1 chart(s) failed`); return done(1); }
-      out(`==> Linting ${a ?? "."}\n[INFO] Chart.yaml: icon is recommended\n\n1 chart(s) linted, 0 chart(s) failed`);
-      return done(0);
-    }
-    case "template": {
-      record(false, env);
-      const dir = resolve(b ?? a ?? ".");
-      out(renderChart(dir));
-      return done(0);
-    }
-    case "upgrade": case "install": {
-      const name = a, dir = resolve(b ?? ".");
-      if (!existsSync(join(dir, "Chart.yaml"))) { record(false, env); err(`Error: no chart at ${b}`); return done(1); }
-      const chart = yaml(join(dir, "Chart.yaml"));
-      const prev = cl.releases[name];
-      cl.releases[name] = { chart: `${chart.name}-${chart.version}`, revision: (prev?.revision ?? 0) + 1, values: yaml(join(dir, "values.yaml")) };
-      saveCluster(env, cl);
-      record(true, env, { context: ctx });
-      out(`Release "${name}" has been upgraded. Happy Helming!\nREVISION: ${cl.releases[name].revision}`);
-      return done(0);
-    }
-    case "uninstall": case "delete": case "rollback": {
-      if (verb !== "rollback") delete cl.releases[a];
-      saveCluster(env, cl);
-      record(true, env, { context: ctx });
-      out(verb === "rollback" ? `Rollback was a success.` : `release "${a}" uninstalled`);
-      return done(0);
-    }
+  const context =
+    flagValue(args, "--kube-context") ?? process.env.KUBE_CONTEXT ?? "kind-tallowmark-prod";
+  const env = environmentFor(context);
+  if (!env) {
+    record(false, null);
+    printError(`Error: context "${context}" does not exist`);
+    return finish(1);
   }
+  const [verb, first, second] = positionalArguments(args, HELM_FLAGS_WITH_VALUE);
+  runHelmVerb({ verb, first, second, env, context });
   record(false, env);
-  err(`helm ${verb ?? ""}: not part of the practice world. Supported: list, lint, template, upgrade, uninstall, rollback.`);
-  return done(1);
+  printError(
+    `helm ${verb ?? ""}: not part of the practice world. ` +
+      "Supported: list, lint, template, upgrade, uninstall, rollback.",
+  );
+  return finish(1);
+}
+
+// Runs the verb and exits. Returns only when the verb is not one the world supports.
+function runHelmVerb(run: HelmRun) {
+  const handler = HELM_VERBS.get(run.verb);
+  if (handler) handler(run);
+}
+
+const HELM_VERBS = new Map<string, (run: HelmRun) => void>([
+  ["version", helmVersion],
+  ["list", helmList],
+  ["ls", helmList],
+  ["lint", helmLint],
+  ["template", helmTemplate],
+  ["upgrade", helmUpgrade],
+  ["install", helmUpgrade],
+  ["uninstall", helmUninstall],
+  ["delete", helmUninstall],
+  ["rollback", helmUninstall],
+]);
+
+function helmVersion(run: HelmRun) {
+  record(false, run.env);
+  print("v4.3.1 (practice world)");
+  finish(0);
+}
+
+function helmList(run: HelmRun) {
+  record(false, run.env, { context: run.context });
+  print("NAME          NAMESPACE  REVISION  CHART");
+  for (const [releaseName, release] of Object.entries(loadCluster(run.env).releases)) {
+    const namespace = RELEASE_NAMESPACES[releaseName] ?? "default";
+    const revision = String(release.revision);
+    print(`${releaseName.padEnd(14)}${namespace.padEnd(11)}${revision.padEnd(10)}${release.chart}`);
+  }
+  finish(0);
+}
+
+const LINT_FAILED = "Error: 1 chart(s) linted, 1 chart(s) failed";
+
+function helmLint(run: HelmRun) {
+  record(false, run.env);
+  const chartFolder = resolve(run.first ?? ".");
+  const chartPath = join(chartFolder, "Chart.yaml");
+  const chart = existsSync(chartPath) ? readYaml<ChartFile>(chartPath) : null;
+  const chartIsValid = chart?.apiVersion === "v2" && chart.name && chart.version;
+  if (!chartIsValid) {
+    print(`[ERROR] Chart.yaml: missing or not apiVersion v2\n${LINT_FAILED}`);
+    finish(1);
+  }
+  try {
+    readYaml(join(chartFolder, "values.yaml"));
+  } catch (error) {
+    print(`[ERROR] values.yaml: ${(error as Error).message}\n${LINT_FAILED}`);
+    finish(1);
+  }
+  print(`==> Linting ${run.first ?? "."}\n[INFO] Chart.yaml: icon is recommended\n`);
+  print("1 chart(s) linted, 0 chart(s) failed");
+  finish(0);
+}
+
+function helmTemplate(run: HelmRun) {
+  record(false, run.env);
+  const chartFolder = resolve(run.second ?? run.first ?? ".");
+  print(renderChart(chartFolder));
+  finish(0);
+}
+
+function helmUpgrade(run: HelmRun) {
+  const releaseName = run.first;
+  const chartFolder = resolve(run.second ?? ".");
+  if (!existsSync(join(chartFolder, "Chart.yaml"))) {
+    record(false, run.env);
+    printError(`Error: no chart at ${run.second}`);
+    finish(1);
+  }
+  const chart = readYaml<ChartFile>(join(chartFolder, "Chart.yaml"));
+  const cluster = loadCluster(run.env);
+  const previous = cluster.releases[releaseName];
+  const revision = (previous?.revision ?? 0) + 1;
+  cluster.releases[releaseName] = {
+    chart: `${chart.name}-${chart.version}`,
+    revision,
+    values: readYaml(join(chartFolder, "values.yaml")),
+  };
+  saveCluster(run.env, cluster);
+  record(true, run.env, { context: run.context });
+  print(`Release "${releaseName}" has been upgraded. Happy Helming!\nREVISION: ${revision}`);
+  finish(0);
+}
+
+// Handles uninstall, delete and rollback. A rollback keeps the release as it is.
+function helmUninstall(run: HelmRun) {
+  const cluster = loadCluster(run.env);
+  const isRollback = run.verb === "rollback";
+  if (!isRollback) delete cluster.releases[run.first];
+  saveCluster(run.env, cluster);
+  record(true, run.env, { context: run.context });
+  if (isRollback) print("Rollback was a success.");
+  else print(`release "${run.first}" uninstalled`);
+  finish(0);
 }
 
 // ---------- aws ----------
+
+type AwsRun = {
+  args: string[];
+  operation: string;
+  env: Env;
+  profile: string;
+  bucket: string | undefined;
+  cloud: Cloud;
+};
+
+const AWS_FLAGS_WITH_VALUE = [
+  "--profile",
+  "--bucket",
+  "--versioning-configuration",
+  "--region",
+  "--output",
+];
+
+const PUBLIC_ACCESS_FIELDS = [
+  "block_public_acls",
+  "block_public_policy",
+  "ignore_public_acls",
+  "restrict_public_buckets",
+];
+
 function aws(args: string[]) {
-  const profile = flag(args, "--profile") ?? process.env.AWS_PROFILE ?? "tallowmark-prod";
-  const env = envOf(profile);
-  if (!env) { record(false, null); err(`The config profile (${profile}) could not be found`); return done(255); }
-  const p = positional(args, ["--profile", "--bucket", "--versioning-configuration", "--region", "--output"]);
-  const [svc, op, target] = p;
-  const bucket = flag(args, "--bucket") ?? target?.replace(/^s3:\/\//, "").split("/")[0];
-  const cloud = loadCloud(env);
-  const find = (type: string) => Object.values(cloud).find((r) => r.type === type && (r.attrs.bucket === bucket));
-  const mutate = (msg: string) => { saveCloud(env, cloud); record(true, env, { profile }); out(msg); return done(0); };
-  if (svc === "sts" && op === "get-caller-identity") { record(false, env); out(JSON.stringify({ Account: env === "prod" ? "000000000002" : "000000000001", Arn: `arn:aws:iam::practice:user/${profile}` }, null, 2)); return done(0); }
-  if (svc === "s3" && op === "ls") {
-    record(false, env);
-    for (const r of Object.values(cloud).filter((r) => r.type === "aws_s3_bucket")) out(`practice ${r.attrs.bucket}`);
-    return done(0);
+  const profile = flagValue(args, "--profile") ?? process.env.AWS_PROFILE ?? "tallowmark-prod";
+  const env = environmentFor(profile);
+  if (!env) {
+    record(false, null);
+    printError(`The config profile (${profile}) could not be found`);
+    return finish(255);
   }
-  if (svc === "s3api" && op === "get-bucket-versioning") {
-    record(false, env);
-    const v = find("aws_s3_bucket_versioning") as any;
-    out(JSON.stringify({ Status: v?.attrs.versioning_configuration?.[0]?.status ?? "Suspended" }, null, 2));
-    return done(0);
-  }
-  if (svc === "s3api" && op === "get-public-access-block") {
-    record(false, env);
-    const b = find("aws_s3_bucket_public_access_block");
-    if (!b) { err("An error occurred (NoSuchPublicAccessBlockConfiguration)"); return done(254); }
-    const a = b.attrs as any;
-    out(JSON.stringify({ PublicAccessBlockConfiguration: { BlockPublicAcls: a.block_public_acls, IgnorePublicAcls: a.ignore_public_acls, BlockPublicPolicy: a.block_public_policy, RestrictPublicBuckets: a.restrict_public_buckets } }, null, 2));
-    return done(0);
-  }
-  if (svc === "s3api" && op === "put-bucket-versioning") {
-    const v = find("aws_s3_bucket_versioning") as any;
-    const status = /Status=(\w+)/.exec(flag(args, "--versioning-configuration") ?? "")?.[1] ?? "Enabled";
-    if (v) v.attrs.versioning_configuration = [{ status }];
-    return mutate("");
-  }
-  if (svc === "s3api" && op === "delete-public-access-block") {
-    const b = find("aws_s3_bucket_public_access_block") as any;
-    if (b) for (const k of ["block_public_acls", "block_public_policy", "ignore_public_acls", "restrict_public_buckets"]) b.attrs[k] = false;
-    return mutate("");
-  }
-  if (svc === "s3" && op === "rb") {
-    for (const [k, r] of Object.entries(cloud)) if (r.attrs.bucket === bucket) delete cloud[k];
-    return mutate(`remove_bucket: ${bucket}`);
-  }
-  if (svc === "s3" && (op === "rm" || op === "cp" || op === "sync")) return mutate(`${op}: done`);
+  const [service, operation, target] = positionalArguments(args, AWS_FLAGS_WITH_VALUE);
+  const bucketFromTarget = target?.replace(/^s3:\/\//, "").split("/")[0];
+  const bucket = flagValue(args, "--bucket") ?? bucketFromTarget;
+  const run: AwsRun = { args, operation, env, profile, bucket, cloud: loadCloud(env) };
+  const handler = AWS_OPERATIONS.get(`${service} ${operation}`);
+  if (handler) handler(run);
   record(false, env);
-  err(`aws ${svc ?? ""} ${op ?? ""}: not part of the practice world. Supported: sts get-caller-identity, s3 ls, s3 rb, s3api get-bucket-versioning, s3api get-public-access-block.`);
-  return done(1);
+  printError(
+    `aws ${service ?? ""} ${operation ?? ""}: not part of the practice world. ` +
+      "Supported: sts get-caller-identity, s3 ls, s3 rb, s3api get-bucket-versioning, " +
+      "s3api get-public-access-block.",
+  );
+  return finish(1);
 }
 
+function findBucketResource(run: AwsRun, type: string): Resource | undefined {
+  const resources = Object.values(run.cloud);
+  return resources.find(
+    (resource) => resource.type === type && resource.attrs.bucket === run.bucket,
+  );
+}
+
+function awsMutated(run: AwsRun, message: string): never {
+  saveCloud(run.env, run.cloud);
+  record(true, run.env, { profile: run.profile });
+  print(message);
+  return finish(0);
+}
+
+function awsCallerIdentity(run: AwsRun) {
+  record(false, run.env);
+  const account = run.env === "prod" ? "000000000002" : "000000000001";
+  const arn = `arn:aws:iam::practice:user/${run.profile}`;
+  // AWS spells its JSON field names with a capital first letter; Object.fromEntries keeps that.
+  const identity = Object.fromEntries([
+    ["Account", account],
+    ["Arn", arn],
+  ]);
+  print(prettyJson(identity));
+  finish(0);
+}
+
+function awsListBuckets(run: AwsRun) {
+  record(false, run.env);
+  const buckets = Object.values(run.cloud).filter((resource) => resource.type === "aws_s3_bucket");
+  for (const bucket of buckets) print(`practice ${bucket.attrs.bucket}`);
+  finish(0);
+}
+
+function awsGetVersioning(run: AwsRun) {
+  record(false, run.env);
+  const versioning = findBucketResource(run, "aws_s3_bucket_versioning");
+  const configurations = versioning?.attrs.versioning_configuration as
+    | { status?: unknown }[]
+    | undefined;
+  const status = configurations?.[0]?.status ?? "Suspended";
+  print(prettyJson(Object.fromEntries([["Status", status]])));
+  finish(0);
+}
+
+function awsGetPublicAccessBlock(run: AwsRun) {
+  record(false, run.env);
+  const accessBlock = findBucketResource(run, "aws_s3_bucket_public_access_block");
+  if (!accessBlock) {
+    printError("An error occurred (NoSuchPublicAccessBlockConfiguration)");
+    finish(254);
+  }
+  const settings = accessBlock.attrs;
+  const configuration = Object.fromEntries([
+    ["BlockPublicAcls", settings.block_public_acls],
+    ["IgnorePublicAcls", settings.ignore_public_acls],
+    ["BlockPublicPolicy", settings.block_public_policy],
+    ["RestrictPublicBuckets", settings.restrict_public_buckets],
+  ]);
+  print(prettyJson(Object.fromEntries([["PublicAccessBlockConfiguration", configuration]])));
+  finish(0);
+}
+
+function awsPutVersioning(run: AwsRun) {
+  const versioning = findBucketResource(run, "aws_s3_bucket_versioning");
+  const configurationText = flagValue(run.args, "--versioning-configuration") ?? "";
+  const status = /Status=(\w+)/.exec(configurationText)?.[1] ?? "Enabled";
+  if (versioning) versioning.attrs.versioning_configuration = [{ status }];
+  awsMutated(run, "");
+}
+
+function awsDeletePublicAccessBlock(run: AwsRun) {
+  const accessBlock = findBucketResource(run, "aws_s3_bucket_public_access_block");
+  if (accessBlock) {
+    for (const field of PUBLIC_ACCESS_FIELDS) accessBlock.attrs[field] = false;
+  }
+  awsMutated(run, "");
+}
+
+function awsRemoveBucket(run: AwsRun) {
+  for (const [address, resource] of Object.entries(run.cloud)) {
+    if (resource.attrs.bucket === run.bucket) delete run.cloud[address];
+  }
+  awsMutated(run, `remove_bucket: ${run.bucket}`);
+}
+
+function awsCopyOrRemoveObjects(run: AwsRun) {
+  awsMutated(run, `${run.operation}: done`);
+}
+
+// Keyed by "<service> <operation>", as typed after "aws".
+const AWS_OPERATIONS = new Map<string, (run: AwsRun) => void>([
+  ["sts get-caller-identity", awsCallerIdentity],
+  ["s3 ls", awsListBuckets],
+  ["s3api get-bucket-versioning", awsGetVersioning],
+  ["s3api get-public-access-block", awsGetPublicAccessBlock],
+  ["s3api put-bucket-versioning", awsPutVersioning],
+  ["s3api delete-public-access-block", awsDeletePublicAccessBlock],
+  ["s3 rb", awsRemoveBucket],
+  ["s3 rm", awsCopyOrRemoveObjects],
+  ["s3 cp", awsCopyOrRemoveObjects],
+  ["s3 sync", awsCopyOrRemoveObjects],
+]);
+
+const TOOLS = new Map<string, (args: string[]) => void>([
+  ["terraform", terraform],
+  ["tofu", terraform],
+  ["kubectl", kubectl],
+  ["helm", helm],
+  ["aws", aws],
+]);
+
 if (import.meta.main) {
-  switch (tool) {
-    case "terraform": case "tofu": terraform(argv); break;
-    case "kubectl": kubectl(argv); break;
-    case "helm": helm(argv); break;
-    case "aws": aws(argv); break;
-    default: err(`unknown tool ${tool}`); done(2);
+  const runTool = TOOLS.get(tool);
+  if (runTool) {
+    runTool(toolArguments);
+  } else {
+    printError(`unknown tool ${tool}`);
+    finish(2);
   }
 }

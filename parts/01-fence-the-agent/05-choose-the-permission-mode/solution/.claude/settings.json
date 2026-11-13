@@ -38,18 +38,11 @@
     "failIfUnavailable": true,
     "allowUnsandboxedCommands": false,
     "filesystem": {
-      "denyRead": [
-        "~/.aws",
-        "~/.ssh",
-        "~/.kube/prod"
-      ]
+      "denyRead": ["~/.aws", "~/.ssh", "~/.kube/prod"],
+      "allowWrite": ["../.state", "../logs"]
     },
     "network": {
-      "allowedDomains": [
-        "registry.terraform.io",
-        "registry.tallowmark.test",
-        "api.anthropic.com"
-      ]
+      "allowedDomains": ["registry.terraform.io", "registry.tallowmark.test", "api.anthropic.com"]
     }
   }
 }
