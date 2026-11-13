@@ -1,0 +1,5 @@
+{"seq":1,"actor":"ops-oncall","tool":"aws","env":"prod","mutating":true,"cwd":".","args":["s3api","put-bucket-versioning","--bucket","tallowmark-prod-buyer-records","--versioning-configuration","Status=Suspended"]}
+{"seq":2,"actor":"ops-oncall","tool":"aws","env":"prod","mutating":true,"cwd":".","args":["s3api","delete-public-access-block","--bucket","tallowmark-prod-buyer-records"]}
+{"seq":3,"actor":"agent-or-you","tool":"terraform","args":["plan"],"cwd":"tallowmark-infra/terraform/envs/prod","env":"prod","mutating":false,"changes":2}
+{"seq":4,"actor":"agent-or-you","tool":"terraform","args":["plan"],"cwd":"tallowmark-infra/terraform/envs/prod","env":"prod","mutating":false,"changes":2}
+{"seq":5,"actor":"agent-or-you","tool":"terraform","args":["apply","-auto-approve"],"cwd":"tallowmark-infra/terraform/envs/prod","env":"prod","mutating":true,"changes":["update aws_s3_bucket_versioning.buyer_records","update aws_s3_bucket_public_access_block.buyer_records"]}
