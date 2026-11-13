@@ -114,7 +114,7 @@ function isDenied(folder: string, tool: string): boolean {
 
 export default [
   {
-    says: "k8s/claude-reader.yaml makes the claude-reader ServiceAccount and binds it to a ClusterRole",
+    says: "k8s/claude-reader.yaml makes the claude-reader ServiceAccount, bound to a ClusterRole",
     test: (folder) => {
       const manifests = readManifests(folder);
       return Boolean(readerAccount(manifests)) && readerRoles(manifests).length > 0;

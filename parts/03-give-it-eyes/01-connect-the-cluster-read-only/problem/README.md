@@ -2,7 +2,7 @@
 
 ## The problem
 
-Claude Code finds the cause of a problem faster when it can look at the clusters itself. An MCP server gives it
+Claude Code finds a cause faster when it can look at the clusters itself. An MCP server gives it
 that view. But the view must not come with hands.
 
 The Kubernetes MCP server has a `read_only` setting. Its own docs say this setting is "best-effort". The access
@@ -48,7 +48,7 @@ Work in parts/03-give-it-eyes/01-connect-the-cluster-read-only/problem/.
 Show me your plan first.
 ```
 
-Read the plan. Look hard at the ClusterRole. Does any line say `"*"`? Then ask Claude Code what the reader can do:
+Read the plan. Does any line of the ClusterRole say `"*"`? Then ask what the reader can do:
 
 ```bash
 bun parts/03-give-it-eyes/helpers/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/problem delete pods
