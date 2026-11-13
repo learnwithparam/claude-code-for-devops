@@ -9,6 +9,7 @@
 
 import { existsSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { stopWritingGuardLog } from "../checks/lib/guard";
 import { allSteps, findStep, parts, ROOT, type Step } from "./structure";
 
 export type Rule = {
@@ -134,6 +135,8 @@ async function checkProblems(step: Step): Promise<string[]> {
 }
 
 async function checkEveryCheck(): Promise<never> {
+  // CI runs of starters, solutions and wrong answers are not your work, so the board ignores them.
+  stopWritingGuardLog();
   const problems: string[] = [];
   for (const step of allSteps()) problems.push(...(await checkProblems(step)));
   for (const problem of problems) console.log(`  ${problem}`);
@@ -215,6 +218,8 @@ async function verifyStep(stepName: string | undefined, which: string | undefine
   }
   if (!asSolution) {
     // Done is recomputed from the checks every time, never read from a saved flag.
+    // The other steps' starters are not your work, so their guard runs stay out of the board.
+    stopWritingGuardLog();
     const everyResult = await workOnEveryStep();
     console.log(`Progress: ${passCount(everyResult)}/${everyResult.length} steps pass.`);
   }

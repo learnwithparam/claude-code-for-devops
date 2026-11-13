@@ -179,8 +179,17 @@ export async function runSuite(dir: string, sets: Case["set"][]) {
   return { results, score };
 }
 
+// When false, suite runs are not written to the hook log.
+// bun run verify turns it off while it only counts progress over every step's starter,
+// so the board shows your own last run, not a later step's starter.
+let logRuns = true;
+export function stopWritingGuardLog() {
+  logRuns = false;
+}
+
 // The hook log the board and the cohort report read. One line per case, then a summary.
 function writeLog(dir: string, results: Outcome[], score: unknown) {
+  if (!logRuns) return;
   const logPath = join(instance(), "logs", "guard.jsonl");
   mkdirSync(dirname(logPath), { recursive: true });
   const source = relative(resolve(WORLD, ".."), resolve(dir));
