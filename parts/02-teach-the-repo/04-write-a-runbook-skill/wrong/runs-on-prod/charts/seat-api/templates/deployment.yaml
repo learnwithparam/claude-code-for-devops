@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seat-api
+  labels:
+    app: seat-api
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: seat-api
+  template:
+    metadata:
+      labels:
+        app: seat-api
+    spec:
+      containers:
+        - name: seat-api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probe.path }}
+              port: {{ .Values.probe.port }}
+          resources: {{ toYaml .Values.resources | nindent 12 }}

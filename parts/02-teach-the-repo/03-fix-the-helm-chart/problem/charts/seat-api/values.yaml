@@ -1,0 +1,9 @@
+replicaCount: 3
+image:
+  repository: registry.tallowmark.test/seat-api
+  tag: latest
+containerPort: 8080
+probe:
+  path: /healthz
+  port: 9090
+resources: {}

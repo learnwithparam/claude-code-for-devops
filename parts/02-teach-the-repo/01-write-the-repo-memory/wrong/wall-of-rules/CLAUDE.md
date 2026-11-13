@@ -1,0 +1,202 @@
+# tallowmark-infra
+
+This repo runs Tallowmark Tickets: seat holds and checkout, the waiting room, door scanner readings and
+the buyer records bucket. Four people on the platform team own it.
+
+## Environments
+
+- There are two: `dev` and `prod`.
+- Your shell starts on prod. The file `.envrc` sets `TALLOWMARK_ENV=prod`, `AWS_PROFILE=tallowmark-prod`
+  and `KUBE_CONTEXT=kind-tallowmark-prod`.
+- Say which environment you are in before you run a command.
+- Work on dev first. Prod changes go through a person.
+
+## Commands
+
+- Plan: `terraform -chdir=terraform/envs/<env> plan -detailed-exitcode`
+- Check a chart: `helm lint charts/<name>` and `helm template <name> charts/<name>`
+- Look at pods: `kubectl get pods -A --context kind-tallowmark-dev`
+- Look at a bucket: `aws s3api get-bucket-versioning --bucket <name>`
+
+## Never
+
+- Never change real infrastructure yourself. A person runs every change.
+- Never read `.env`, `~/.aws` or a Terraform state file.
+- A hook in `.claude/hooks/guard-infra.ts` blocks these. This list is a reminder, not the guard.
+
+## Done means
+
+- `terraform plan -detailed-exitcode` exits 0 on the env you changed, after a person applies.
+- `helm lint` passes, and the dev pods are Running.
+- You wrote down what you changed and why, with the resource addresses.
+
+## More rules
+
+- Check the buyer records bucket on dev before you change it.
+- Read the buyer records bucket on dev before you change it.
+- Look at the buyer records bucket on dev before you change it.
+- Think about the buyer records bucket on dev before you change it.
+- Ask about the buyer records bucket on dev before you change it.
+- Write down the buyer records bucket on dev before you change it.
+- Test the buyer records bucket on dev before you change it.
+- Check the buyer records bucket on prod before you change it.
+- Read the buyer records bucket on prod before you change it.
+- Look at the buyer records bucket on prod before you change it.
+- Think about the buyer records bucket on prod before you change it.
+- Ask about the buyer records bucket on prod before you change it.
+- Write down the buyer records bucket on prod before you change it.
+- Test the buyer records bucket on prod before you change it.
+- Check the scan archive on dev before you change it.
+- Read the scan archive on dev before you change it.
+- Look at the scan archive on dev before you change it.
+- Think about the scan archive on dev before you change it.
+- Ask about the scan archive on dev before you change it.
+- Write down the scan archive on dev before you change it.
+- Test the scan archive on dev before you change it.
+- Check the scan archive on prod before you change it.
+- Read the scan archive on prod before you change it.
+- Look at the scan archive on prod before you change it.
+- Think about the scan archive on prod before you change it.
+- Ask about the scan archive on prod before you change it.
+- Write down the scan archive on prod before you change it.
+- Test the scan archive on prod before you change it.
+- Check the scan queue on dev before you change it.
+- Read the scan queue on dev before you change it.
+- Look at the scan queue on dev before you change it.
+- Think about the scan queue on dev before you change it.
+- Ask about the scan queue on dev before you change it.
+- Write down the scan queue on dev before you change it.
+- Test the scan queue on dev before you change it.
+- Check the scan queue on prod before you change it.
+- Read the scan queue on prod before you change it.
+- Look at the scan queue on prod before you change it.
+- Think about the scan queue on prod before you change it.
+- Ask about the scan queue on prod before you change it.
+- Write down the scan queue on prod before you change it.
+- Test the scan queue on prod before you change it.
+- Check seat-api on dev before you change it.
+- Read seat-api on dev before you change it.
+- Look at seat-api on dev before you change it.
+- Think about seat-api on dev before you change it.
+- Ask about seat-api on dev before you change it.
+- Write down seat-api on dev before you change it.
+- Test seat-api on dev before you change it.
+- Check seat-api on prod before you change it.
+- Read seat-api on prod before you change it.
+- Look at seat-api on prod before you change it.
+- Think about seat-api on prod before you change it.
+- Ask about seat-api on prod before you change it.
+- Write down seat-api on prod before you change it.
+- Test seat-api on prod before you change it.
+- Check the waiting room on dev before you change it.
+- Read the waiting room on dev before you change it.
+- Look at the waiting room on dev before you change it.
+- Think about the waiting room on dev before you change it.
+- Ask about the waiting room on dev before you change it.
+- Write down the waiting room on dev before you change it.
+- Test the waiting room on dev before you change it.
+- Check the waiting room on prod before you change it.
+- Read the waiting room on prod before you change it.
+- Look at the waiting room on prod before you change it.
+- Think about the waiting room on prod before you change it.
+- Ask about the waiting room on prod before you change it.
+- Write down the waiting room on prod before you change it.
+- Test the waiting room on prod before you change it.
+- Check the scan autoscaler on dev before you change it.
+- Read the scan autoscaler on dev before you change it.
+- Look at the scan autoscaler on dev before you change it.
+- Think about the scan autoscaler on dev before you change it.
+- Ask about the scan autoscaler on dev before you change it.
+- Write down the scan autoscaler on dev before you change it.
+- Test the scan autoscaler on dev before you change it.
+- Check the scan autoscaler on prod before you change it.
+- Read the scan autoscaler on prod before you change it.
+- Look at the scan autoscaler on prod before you change it.
+- Think about the scan autoscaler on prod before you change it.
+- Ask about the scan autoscaler on prod before you change it.
+- Write down the scan autoscaler on prod before you change it.
+- Test the scan autoscaler on prod before you change it.
+- Check the alert rules on dev before you change it.
+- Read the alert rules on dev before you change it.
+- Look at the alert rules on dev before you change it.
+- Think about the alert rules on dev before you change it.
+- Ask about the alert rules on dev before you change it.
+- Write down the alert rules on dev before you change it.
+- Test the alert rules on dev before you change it.
+- Check the alert rules on prod before you change it.
+- Read the alert rules on prod before you change it.
+- Look at the alert rules on prod before you change it.
+- Think about the alert rules on prod before you change it.
+- Ask about the alert rules on prod before you change it.
+- Write down the alert rules on prod before you change it.
+- Test the alert rules on prod before you change it.
+- Check the billing export on dev before you change it.
+- Read the billing export on dev before you change it.
+- Look at the billing export on dev before you change it.
+- Think about the billing export on dev before you change it.
+- Ask about the billing export on dev before you change it.
+- Write down the billing export on dev before you change it.
+- Test the billing export on dev before you change it.
+- Check the billing export on prod before you change it.
+- Read the billing export on prod before you change it.
+- Look at the billing export on prod before you change it.
+- Think about the billing export on prod before you change it.
+- Ask about the billing export on prod before you change it.
+- Write down the billing export on prod before you change it.
+- Test the billing export on prod before you change it.
+- Check the saved plans on dev before you change it.
+- Read the saved plans on dev before you change it.
+- Look at the saved plans on dev before you change it.
+- Think about the saved plans on dev before you change it.
+- Ask about the saved plans on dev before you change it.
+- Write down the saved plans on dev before you change it.
+- Test the saved plans on dev before you change it.
+- Check the saved plans on prod before you change it.
+- Read the saved plans on prod before you change it.
+- Look at the saved plans on prod before you change it.
+- Think about the saved plans on prod before you change it.
+- Ask about the saved plans on prod before you change it.
+- Write down the saved plans on prod before you change it.
+- Test the saved plans on prod before you change it.
+- Check the CI file on dev before you change it.
+- Read the CI file on dev before you change it.
+- Look at the CI file on dev before you change it.
+- Think about the CI file on dev before you change it.
+- Ask about the CI file on dev before you change it.
+- Write down the CI file on dev before you change it.
+- Test the CI file on dev before you change it.
+- Check the CI file on prod before you change it.
+- Read the CI file on prod before you change it.
+- Look at the CI file on prod before you change it.
+- Think about the CI file on prod before you change it.
+- Ask about the CI file on prod before you change it.
+- Write down the CI file on prod before you change it.
+- Test the CI file on prod before you change it.
+- Check the Helm values on dev before you change it.
+- Read the Helm values on dev before you change it.
+- Look at the Helm values on dev before you change it.
+- Think about the Helm values on dev before you change it.
+- Ask about the Helm values on dev before you change it.
+- Write down the Helm values on dev before you change it.
+- Test the Helm values on dev before you change it.
+- Check the Helm values on prod before you change it.
+- Read the Helm values on prod before you change it.
+- Look at the Helm values on prod before you change it.
+- Think about the Helm values on prod before you change it.
+- Ask about the Helm values on prod before you change it.
+- Write down the Helm values on prod before you change it.
+- Test the Helm values on prod before you change it.
+- Check the provider pins on dev before you change it.
+- Read the provider pins on dev before you change it.
+- Look at the provider pins on dev before you change it.
+- Think about the provider pins on dev before you change it.
+- Ask about the provider pins on dev before you change it.
+- Write down the provider pins on dev before you change it.
+- Test the provider pins on dev before you change it.
+- Check the provider pins on prod before you change it.
+- Read the provider pins on prod before you change it.
+- Look at the provider pins on prod before you change it.
+- Think about the provider pins on prod before you change it.
+- Ask about the provider pins on prod before you change it.
+- Write down the provider pins on prod before you change it.
+- Test the provider pins on prod before you change it.

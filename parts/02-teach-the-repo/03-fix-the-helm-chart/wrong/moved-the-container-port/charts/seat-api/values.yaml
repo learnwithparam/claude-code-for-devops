@@ -1,0 +1,15 @@
+replicaCount: 3
+image:
+  repository: registry.tallowmark.test/seat-api
+  tag: "2.7.1"
+containerPort: 9090
+probe:
+  path: /healthz
+  port: 9090
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
