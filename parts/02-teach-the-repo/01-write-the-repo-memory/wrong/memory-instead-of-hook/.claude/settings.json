@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "defaultMode": "default",
+    "disableBypassPermissionsMode": "disable",
+    "allow": [
+      "Bash(terraform plan *)",
+      "Bash(terraform validate)",
+      "Bash(terraform fmt *)",
+      "Bash(kubectl get *)",
+      "Bash(helm template *)",
+      "Bash(helm lint *)"
+    ],
+    "deny": [
+      "Bash(terraform apply *)",
+      "Bash(terraform destroy *)",
+      "Bash(kubectl delete *)",
+      "Bash(helm uninstall *)",
+      "Read(**/.env)",
+      "Read(~/.aws/**)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
+    "filesystem": {
+      "denyRead": [
+        "~/.aws",
+        "~/.ssh",
+        "~/.kube/prod"
+      ],
+      "allowWrite": [
+        "../.state",
+        "../logs"
+      ]
+    },
+    "network": {
+      "allowedDomains": [
+        "registry.terraform.io",
+        "registry.tallowmark.test",
+        "api.anthropic.com"
+      ]
+    }
+  }
+}
