@@ -4,6 +4,18 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ROOT } from "./structure";
 
+// CI runs bun run check without an install step, so the audit gets its own packages and browser first.
+const packages = Bun.spawnSync(["bun", "install", "--frozen-lockfile"], { cwd: ROOT });
+if (packages.exitCode !== 0) {
+  console.error("Could not install the packages. Try next: run bun install, then rerun.");
+  process.exit(1);
+}
+const browser = Bun.spawnSync(["bunx", "playwright", "install", "chromium"], { cwd: ROOT });
+if (browser.exitCode !== 0) {
+  console.error("Could not get the browser. Try next: run bunx playwright install chromium.");
+  process.exit(1);
+}
+
 const home = mkdtempSync(join(tmpdir(), "board-audit-"));
 // biome-ignore lint/style/useNamingConvention: environment variable name
 const env = { ...process.env, TALLOWMARK_HOME: home };
