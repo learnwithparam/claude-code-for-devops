@@ -1,0 +1,35 @@
+# The identity Claude Code reads the clusters as. Apply the same file to dev and to prod.
+# It can look at workloads. It cannot change anything, and it cannot read a secret.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: claude-reader
+  namespace: ops
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: claude-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "services", "endpoints", "events", "namespaces", "nodes", "configmaps"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "statefulsets", "daemonsets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: claude-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: claude-reader
+subjects:
+  - kind: ServiceAccount
+    name: claude-reader
+    namespace: ops

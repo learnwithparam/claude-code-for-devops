@@ -1,0 +1,5 @@
+# Settings for kubernetes-mcp-server. read_only is a best-effort guardrail.
+# The real wall is the claude-reader identity in the kubeconfig below.
+kubeconfig = "kubeconfig/claude-reader.yaml"
+read_only = true
+toolsets = ["core", "config"]

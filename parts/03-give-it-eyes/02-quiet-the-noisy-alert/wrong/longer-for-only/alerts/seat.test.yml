@@ -1,0 +1,33 @@
+# Unit test for SeatApiSlow. Run it with: promtool test rules alerts/seat.test.yml
+# Each minute 100 requests arrive. Normally all of them finish under 0.25 seconds.
+# Minutes 40 and 41: a short spike, 2 requests of 100 are slow. Fans never noticed.
+# Minutes 100 to 114: every request takes over 1 second. This one cost sales.
+rule_files:
+  - seat.rules.yml
+
+evaluation_interval: 1m
+
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'seat_api_request_seconds_bucket{le="0.25"}'
+        values: '0+100x39 3998+98x1 4196+100x57 9896+0x14 9996+100x15'
+      - series: 'seat_api_request_seconds_bucket{le="1"}'
+        values: '0+100x39 3998+98x1 4196+100x57 9896+0x14 9996+100x15'
+      - series: 'seat_api_request_seconds_bucket{le="2.5"}'
+        values: '0+100x130'
+      - series: 'seat_api_request_seconds_bucket{le="+Inf"}'
+        values: '0+100x130'
+    alert_rule_test:
+      # Right after the short spike: no page.
+      - eval_time: 42m
+        alertname: SeatApiSlow
+        exp_alerts: []
+      # Ten minutes into the slowdown: the page fires.
+      - eval_time: 110m
+        alertname: SeatApiSlow
+        exp_alerts:
+          - exp_labels:
+              severity: page
+            exp_annotations:
+              summary: Seat API is slow

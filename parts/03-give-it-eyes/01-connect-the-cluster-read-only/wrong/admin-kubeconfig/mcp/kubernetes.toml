@@ -1,0 +1,5 @@
+# Settings for kubernetes-mcp-server. read_only is a best-effort guardrail.
+# It uses the same kubeconfig as the person at the keyboard.
+kubeconfig = "~/.kube/config"
+read_only = true
+toolsets = ["core", "config"]
