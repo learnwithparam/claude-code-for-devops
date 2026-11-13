@@ -51,6 +51,7 @@ bun run world
 
 Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in` (and `Sandbox` on Linux), then
 `The world is ready: Tallowmark Tickets with 5 faults planted.` and two `export PATH` and `cd` lines to copy.
+The "world is ready" line shows only the first time. Later runs show the world's status instead.
 
 You can also work in Claude Code inside VS Code or JetBrains, or in the Code tab of Claude Desktop: open the world
 repo folder there. The settings, hooks and `CLAUDE.md` that Claude Code writes for you are the same files in every

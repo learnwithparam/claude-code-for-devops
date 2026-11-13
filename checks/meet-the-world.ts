@@ -81,8 +81,8 @@ export default [
     says: "you found which environment the shell points at",
     test: (folder) => namesOnlyWorldEnv(folder),
     tryNext:
-      "read .envrc in the world repo, " +
-      "or run aws sts get-caller-identity there, and name the one env",
+      "read TALLOWMARK_ENV in the world repo's .envrc and name only that env; " +
+      "do not name the other env, not even to say it is not that one",
   },
   {
     says: "you named one of the five faults on the board",
