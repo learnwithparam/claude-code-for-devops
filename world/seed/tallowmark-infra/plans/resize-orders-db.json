@@ -1,0 +1,25 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.17.2",
+  "resource_changes": [
+    {
+      "address": "aws_db_instance.orders",
+      "mode": "managed",
+      "type": "aws_db_instance",
+      "name": "orders",
+      "change": {
+        "actions": [
+          "update"
+        ],
+        "before": {
+          "identifier": "tallowmark-prod-orders",
+          "instance_class": "db.r6g.large"
+        },
+        "after": {
+          "identifier": "tallowmark-prod-orders",
+          "instance_class": "db.r6g.xlarge"
+        }
+      }
+    }
+  ]
+}

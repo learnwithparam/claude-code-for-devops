@@ -1,0 +1,47 @@
+{
+  "aws_s3_bucket.buyer_records": {
+    "address": "aws_s3_bucket.buyer_records",
+    "type": "aws_s3_bucket",
+    "attrs": {
+      "bucket": "tallowmark-prod-buyer-records"
+    }
+  },
+  "aws_s3_bucket_versioning.buyer_records": {
+    "address": "aws_s3_bucket_versioning.buyer_records",
+    "type": "aws_s3_bucket_versioning",
+    "attrs": {
+      "bucket": "tallowmark-prod-buyer-records",
+      "versioning_configuration": [
+        {
+          "status": "Suspended"
+        }
+      ]
+    }
+  },
+  "aws_s3_bucket_public_access_block.buyer_records": {
+    "address": "aws_s3_bucket_public_access_block.buyer_records",
+    "type": "aws_s3_bucket_public_access_block",
+    "attrs": {
+      "bucket": "tallowmark-prod-buyer-records",
+      "block_public_acls": false,
+      "block_public_policy": false,
+      "ignore_public_acls": false,
+      "restrict_public_buckets": false
+    }
+  },
+  "module.scan_store.aws_sqs_queue.scan": {
+    "address": "module.scan_store.aws_sqs_queue.scan",
+    "type": "aws_sqs_queue",
+    "attrs": {
+      "name": "tallowmark-scan-readings",
+      "message_retention_seconds": 345600
+    }
+  },
+  "module.scan_store.aws_s3_bucket.scan": {
+    "address": "module.scan_store.aws_s3_bucket.scan",
+    "type": "aws_s3_bucket",
+    "attrs": {
+      "bucket": "tallowmark-scan-archive"
+    }
+  }
+}

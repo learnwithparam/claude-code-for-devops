@@ -1,0 +1,49 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.17.2",
+  "resource_changes": [
+    {
+      "address": "aws_s3_bucket.buyer_records",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "buyer_records",
+      "change": {
+        "actions": [
+          "delete",
+          "create"
+        ],
+        "before": {
+          "bucket": "tallowmark-prod-buyer-records"
+        },
+        "after": {
+          "bucket": "tallowmark-prod-buyer-records-v2"
+        }
+      }
+    },
+    {
+      "address": "aws_s3_bucket_versioning.buyer_records",
+      "mode": "managed",
+      "type": "aws_s3_bucket_versioning",
+      "name": "buyer_records",
+      "change": {
+        "actions": [
+          "update"
+        ],
+        "before": {
+          "versioning_configuration": [
+            {
+              "status": "Suspended"
+            }
+          ]
+        },
+        "after": {
+          "versioning_configuration": [
+            {
+              "status": "Enabled"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

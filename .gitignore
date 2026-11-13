@@ -1,2 +1,5 @@
 verify-report.json
 node_modules
+.env
+world/live
+world/.finished

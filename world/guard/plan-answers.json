@@ -1,0 +1,16 @@
+{
+  "add-scan-lifecycle": { "verdict": "approve", "destroys": [], "replaces": [] },
+  "tag-scan-queue": { "verdict": "approve", "destroys": [], "replaces": [] },
+  "destroy-orders-db": {
+    "verdict": "block",
+    "destroys": ["aws_db_instance.orders"],
+    "replaces": []
+  },
+  "replace-buyer-records": {
+    "verdict": "block",
+    "destroys": [],
+    "replaces": ["aws_s3_bucket.buyer_records"]
+  },
+  "grant-ci-everything": { "verdict": "block", "destroys": [], "replaces": [] },
+  "resize-orders-db": { "verdict": "needs-human", "destroys": [], "replaces": [] }
+}

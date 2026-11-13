@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(terraform plan *)",
+      "Bash(terraform validate)",
+      "Bash(terraform fmt *)",
+      "Bash(kubectl get *)",
+      "Bash(helm template *)",
+      "Bash(helm lint *)"
+    ],
+    "deny": []
+  }
+}

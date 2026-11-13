@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: waiting-room
+  labels:
+    app: waiting-room
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: waiting-room
+  template:
+    metadata:
+      labels:
+        app: waiting-room
+    spec:
+      containers:
+        - name: waiting-room
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probe.path }}
+              port: {{ .Values.probe.port }}
+          resources: {{ toYaml .Values.resources | nindent 12 }}

@@ -1,5 +1,27 @@
+# Parts mapped onto formats. Step minutes never change; only the wrapping does.
+# Part minutes: orientation 15, fence-the-agent 90, teach-the-repo 75, give-it-eyes 75, run-it-without-you 120.
+
 [one-day]
-sessions = [{ parts = ["meet-the-world"], minutes = 60 }]
+sessions = [
+  { parts = ["orientation", "fence-the-agent"], minutes = 120 },
+  { parts = ["teach-the-repo"], minutes = 90 },
+  { parts = ["give-it-eyes"], minutes = 90 },
+  { parts = ["run-it-without-you"], minutes = 135 },
+]
 
 [four-evenings]
-sessions = [{ parts = ["meet-the-world"], minutes = 60 }]
+sessions = [
+  { parts = ["orientation", "fence-the-agent"], minutes = 120 },
+  { parts = ["teach-the-repo"], minutes = 90 },
+  { parts = ["give-it-eyes"], minutes = 90 },
+  { parts = ["run-it-without-you"], minutes = 135 },
+]
+
+# A cohort: one part per session, a 30 minute live kickoff and a 30 minute live review around each.
+[four-week-cohort]
+sessions = [
+  { parts = ["orientation", "fence-the-agent"], minutes = 165 },
+  { parts = ["teach-the-repo"], minutes = 135 },
+  { parts = ["give-it-eyes"], minutes = 135 },
+  { parts = ["run-it-without-you"], minutes = 180 },
+]

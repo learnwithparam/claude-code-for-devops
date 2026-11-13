@@ -1,0 +1,3 @@
+#!/bin/sh
+# The practice world's helm. It acts on world state, never a real cloud.
+exec bun "$(dirname "$0")/../sim/cli.ts" helm "$@"
