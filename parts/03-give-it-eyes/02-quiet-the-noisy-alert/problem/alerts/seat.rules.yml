@@ -1,0 +1,10 @@
+groups:
+  - name: seat-api
+    rules:
+      - alert: SeatApiSlow
+        expr: histogram_quantile(0.5, sum by (le) (rate(seat_api_request_seconds_bucket[1m]))) > 0.3
+        for: 0m
+        labels:
+          severity: page
+        annotations:
+          summary: Seat API is slow
