@@ -60,10 +60,10 @@ Add the plan review to one real pipeline of yours on a test branch and show it b
 
 | Step | Minutes | What Claude Code makes for you | The check reads |
 |---|---|---|---|
-| `review-the-plan-headless` | 30 | `review.config.json` and the command it names | The command's JSON on the 6 saved plans in `plans/`, against the answer key, on each of 3 recorded `claude -p` runs |
-| `wire-the-plan-review` | 25 | `workflows/plan-review.yml`, pinned by SHA, minimal permissions | The workflow file, and the verdict on the destroy plan with an injection line in the PR body |
-| `fix-the-failing-pipeline` | 20 | A fixed practice `workflows/ci.yml` and scan-store module | The world's CI fault, read from a fresh copy of the world with your two files in it |
-| `use-oidc-not-a-stored-token` | 20 | `workflows/plan.yml` that assumes a role with a short-lived token | The permissions, the role, no stored AWS key, and every action pinned |
+| `review-the-plan-headless` | 25 | `review.config.json` and the command it names | The command's JSON on the 6 saved plans in `plans/`, against the answer key, on each of 3 recorded `claude -p` runs |
+| `wire-the-plan-review` | 22 | `workflows/plan-review.yml`, pinned by SHA, minimal permissions | The workflow file, and the verdict on the destroy plan with an injection line in the PR body |
+| `fix-the-failing-pipeline` | 18 | A fixed practice `workflows/ci.yml` and scan-store module | The world's CI fault, read from a fresh copy of the world with your two files in it |
+| `use-oidc-not-a-stored-token` | 18 | `workflows/plan.yml` that assumes a role with a short-lived token | The permissions, the role, no stored AWS key, and every action pinned |
 
 Practice workflows live in `workflows/` in each step folder. In a real repo they go in the GitHub workflows
 folder. The practice repo keeps them out of it, so nothing here ever runs on GitHub.

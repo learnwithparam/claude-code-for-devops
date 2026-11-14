@@ -2,12 +2,14 @@
 
 ## The problem
 
-The workflow stores an AWS key as a GitHub secret. A key like that lives until someone rotates it. If a bad
-package or an injected prompt reads it, the thief owns it. With OIDC, short for OpenID Connect, the job asks
-AWS for a token that lasts a short time, and nothing is stored. Most teams still keep long-lived keys: 58 percent
-in the [State of DevSecOps](https://www.datadoghq.com/state-of-devsecops-2025/) report.
+For example, the plan workflow stores an AWS key as a GitHub secret. It lives until someone rotates it, and a bad package or
+an injected prompt can read it. Most teams still keep such keys: 58 percent in the
+[State of DevSecOps](https://www.datadoghq.com/state-of-devsecops-2025/) report.
 
-For example, the role lasts one hour, and a stolen token is dead by lunch.
+## Watch it done
+
+With OIDC, short for OpenID Connect, the job asks AWS for a token that lasts a short time. Nothing is stored,
+so a stolen token is dead by lunch.
 
 ```mermaid
 flowchart LR
@@ -16,20 +18,39 @@ flowchart LR
   A -->|short-lived access| J
 ```
 
-## Your challenge
-
-Start Claude Code in the root folder of this course repo, and give it this job:
+Before, the job holds these lines:
 
 ```text
-In parts/04-run-it-in-ci/04-use-oidc-not-a-stored-token/problem/workflows/plan.yml remove the AWS key
-secrets. Give the job permissions contents read and id-token write. Add the aws-actions/configure-aws-credentials
-step with role-to-assume arn:aws:iam::123456789012:role/tallowmark-plan-readonly and region eu-west-1. Pin every
-uses: by a full commit SHA. The job only plans and never applies. Show me the diff first.
+AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 ```
 
-Read the diff. Is any secret left? Does the job apply anything?
+After, they are gone, and the job assumes a role instead.
 
-The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+## Your turn
+
+1. Start Claude Code in the root folder of this course repo. Give it this job.
+
+   ```text
+   In parts/04-run-it-in-ci/04-use-oidc-not-a-stored-token/problem/workflows/plan.yml remove the AWS key
+   secrets. Give the job permissions contents read and id-token write. Add the aws-actions/configure-aws-credentials
+   step with role-to-assume arn:aws:iam::123456789012:role/tallowmark-plan-readonly and region eu-west-1. Pin every
+   uses: by a full commit SHA. The job only plans and never applies. Show me the diff first.
+   ```
+
+   Expect: Claude Code shows a diff before it writes.
+
+2. Read the diff. Is any secret left? Does the job apply anything?
+
+   Expect: no `secrets.AWS` line is left and nothing applies.
+
+3. Run the check in Done when below.
+
+## Do it on your work
+
+Search your own workflows for stored cloud keys: `grep -rn "secrets.AWS" .github/workflows`. Ask Claude Code to
+swap each one for a role the job assumes. Good looks like this: no key is named, and the role can only do what
+the job needs.
 
 ## Done when
 
@@ -44,6 +65,11 @@ bun run verify use-oidc-not-a-stored-token
 
 Expect: `Done. All 5 rules pass.`
 
+## Solution
+
+The after state is in `../solution/`. Its `workflows/plan.yml` drops the key secrets and adds the role step. The
+prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+
 ## If you get stuck
 
 | What you see | What to ask Claude Code |
@@ -55,3 +81,7 @@ Expect: `Done. All 5 rules pass.`
 
 - **OIDC**: a way for a job to prove who it is and get a short-lived token.
 - **Role**: a set of AWS rights that a job may borrow for a short time.
+
+## Go further
+
+- Limit the role so only your main branch may assume it.

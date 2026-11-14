@@ -2,17 +2,13 @@
 
 ## The problem
 
-A Terraform plan says what will change, before anything changes. A plan review in CI reads it on every pull
-request, with no person at the keyboard.
+A plan review in CI reads a Terraform plan on every pull request, with nobody at the keyboard. For example,
+`plans/destroy-orders-db.json` deletes the orders database. Claude Code answers `needs-human`, which is fair. But
+the rule is stricter: a plan that destroys or replaces data is blocked, every time, by code.
 
-Claude Code can run headless. `claude -p` takes one prompt, works, and prints an answer. With `--json-schema` the
-answer is JSON in a fixed shape, so a script can read it.
+## Watch it done
 
-But a model can be wrong, and the words in a pull request can talk to it. The rule that matters most must be code.
-
-For example, the saved plan `plans/destroy-orders-db.json` deletes the orders database. In the recorded runs,
-Claude Code answers `needs-human` for it. That is a fair answer, but the rule here is stricter. A plan that
-destroys or replaces data is blocked, every time.
+Code finds the destroys and replaces itself, and sets the block after Claude Code answers.
 
 ```mermaid
 flowchart LR
@@ -25,38 +21,44 @@ flowchart LR
   R -->|no| O[Claude Code's verdict]
 ```
 
-## Your challenge
-
-Get Claude Code to write the review command. You write no code. Start Claude Code in the root folder of this
-course repo, and give it this job:
+The finished command on the orders plan prints one JSON object (reasons cut short here):
 
 ```text
-In parts/04-run-it-in-ci/01-review-the-plan-headless/problem/, write
-review.config.json with {"command": "bun review/plan-review.ts"}, and write review/plan-review.ts.
-It reads a Terraform plan JSON file. The path is the last argument.
-In code, list destroys (actions exactly ["delete"]) and replaces (delete and create).
-Ask Claude Code headless for verdict and reasons. Use runClaude and mode from world/lib/claude.ts
-and PLAN_REVIEW from config/claude.ts, and find the course root by walking up from the file.
-Use the same prompt text as world/finished/overlay/review/plan-review.ts, so the recordings replay.
-If destroys or replaces is not empty, set the verdict to block in code.
-Print one JSON object: verdict, destroys, replaces, reasons. Show me your plan first.
+{"verdict":"block","destroys":["aws_db_instance.orders"],"replaces":[],"reasons":["the plan destroys or replaces aws_db_instance.orders", ...]}
 ```
 
-Read the plan before you say yes. Check these points:
+## Your turn
 
-- The lists come from the plan, not from Claude Code's answer.
-- The block for destroys and replaces is an `if` in code, after Claude Code answers.
-- It prints JSON and nothing else, and never runs `terraform apply`.
+1. Start Claude Code in the root folder of this course repo. Give it this job. You write no code.
 
-The check replays 3 recorded `claude -p` runs per plan. It needs no Claude Code and no key.
+   ```text
+   In parts/04-run-it-in-ci/01-review-the-plan-headless/problem/, write
+   review.config.json with {"command": "bun review/plan-review.ts"}, and write review/plan-review.ts.
+   It reads a Terraform plan JSON file. The path is the last argument.
+   In code, list destroys (actions exactly ["delete"]) and replaces (delete and create).
+   Ask Claude Code headless for verdict and reasons. Use runClaude and mode from world/lib/claude.ts
+   and PLAN_REVIEW from config/claude.ts, and find the course root by walking up from the file.
+   Use the same prompt text as world/finished/overlay/review/plan-review.ts, so the recordings replay.
+   If destroys or replaces is not empty, set the verdict to block in code.
+   Print one JSON object: verdict, destroys, replaces, reasons. Show me your plan first.
+   ```
 
-The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+   Expect: Claude Code shows a plan before it writes anything.
+
+2. Read the plan before you say yes. The lists must come from the plan, and the block must be an `if` in code.
+
+   Expect: both points are true, or you ask for a change.
+
+3. Run the check in Done when below. It replays 3 recorded `claude -p` runs per plan, so it needs no key.
+
+## Do it on your work
+
+Save one real plan from your own repo with `terraform show -json`. Ask Claude Code for a command that reads it
+and prints a verdict. Good looks like this: the block for a delete is code you can point at.
 
 ## Done when
 
 - `review.config.json` names a command that never applies anything.
-- On all 6 saved plans it prints one JSON object with the four fields.
-- `destroys` and `replaces` match each plan exactly.
 - Every plan that destroys or replaces data is blocked on all 3 recorded runs.
 - Every verdict matches the answer key in `world/guard/plan-answers.json`.
 
@@ -67,6 +69,11 @@ bun run verify review-the-plan-headless
 Expect: `Done. All 6 rules pass.`
 
 ![The plan review check passing on the sample answer](../images/expected.png)
+
+## Solution
+
+The after state is in `../solution/`. It adds `review.config.json` and `review/plan-review.ts`, which forces
+`block` in code. Its prompts are in `../solution/prompts.md`.
 
 ## If you get stuck
 
