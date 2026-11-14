@@ -2,18 +2,10 @@
 
 ## The problem
 
-Rules and hooks read command text. The sandbox does not care about text. The operating system itself stops a
-sandboxed command. It cannot read a path or call a host that you did not allow.
-
-Anthropic says that inside the company, the sandbox cut permission prompts by 84%
-([Beyond permission prompts](https://www.anthropic.com/engineering/claude-code-sandboxing)). So it adds safety
-and also means fewer clicks for you.
-
-By default, the sandbox can still read most of the machine, such as `~/.ssh` and `~/.aws/credentials`
-([Sandboxing](https://code.claude.com/docs/en/sandboxing)). You have to say what it may not read.
-
-For example, with `~/.aws` in the deny list, `cat ~/.aws/credentials` fails inside the sandbox. It fails even if
-the text of the command gets past every rule and hook.
+Rules and hooks read command text. The sandbox does not. The operating system stops a sandboxed command from
+reading a path or calling a host you did not allow. Anthropic says it cut permission prompts by 84% inside the
+company ([Sandboxing](https://www.anthropic.com/engineering/claude-code-sandboxing)). By default, it can still read
+`~/.aws/credentials`.
 
 ```mermaid
 flowchart TB
@@ -26,15 +18,25 @@ flowchart TB
   B -->|fails, retry outside?| N3[Not allowed]
 ```
 
-## Your challenge
+## Watch it done
 
-Get Claude Code to add a `sandbox` block to the settings.
+For example, with `~/.aws` in the deny list, `cat ~/.aws/credentials` fails inside the sandbox, even if the text
+gets past every rule and hook. The check shows the change:
 
-Start Claude Code in the root folder of this course repo, and give it this job:
+```text
+Before: FAIL the sandbox is on
+After:  Done. All 6 rules pass.
+```
+
+![The sandbox check passing on the sample answer](../images/expected.png)
+
+## Your turn
+
+1. Start Claude Code in the root folder of this course repo. Give it this job:
 
 ```text
 Add a sandbox block to parts/01-fence-the-agent/04-sandbox-the-shell/problem/.claude/settings.json.
-Turn the sandbox on, and stop Claude Code if the sandbox cannot start.
+Turn the sandbox on, and stop Claude Code if it cannot start.
 Do not let a failed command run again outside the sandbox.
 Deny reads of ~/.aws, ~/.ssh and ~/.kube/prod.
 Allow the network only to registry.terraform.io and registry.tallowmark.test.
@@ -42,24 +44,23 @@ Under filesystem, add "allowWrite": ["../.state", "../logs"] so the world's tool
 Keep my permissions and my hook as they are. Show me your plan first.
 ```
 
-Why `../.state` and `../logs`? The practice tools save their records one folder above the world repo, in
-`world/live/`. The sandbox blocks that without these two lines.
+Expect: a plan with one new `sandbox` block and no change to `permissions` or `hooks`.
 
-Read the plan before you say yes. Check these points:
+2. Read the plan before you say yes:
 
 - `enabled` and `failIfUnavailable` are both `true`.
-- `allowUnsandboxedCommands` is set to `false`. Leaving it out is not the same.
+- `allowUnsandboxedCommands` is `false`. Leaving it out is not the same.
 - The network list names hosts. A bare `"*"` lets a stolen key leave the machine.
-- The `permissions` block and the `hooks` block did not change.
 
-The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+## Do it on your work
+
+Open the settings of a repo you own. Ask Claude Code to add a sandbox that denies reads of your own secret
+folders and lists only the hosts the repo needs. Good looks like this: no `*`, and the escape hatch is closed.
 
 ## Done when
 
-- `sandbox.enabled` and `sandbox.failIfUnavailable` are `true`.
-- `sandbox.allowUnsandboxedCommands` is `false`.
-- `sandbox.filesystem.denyRead` covers `~/.aws` and `~/.ssh`.
-- `sandbox.network.allowedDomains` names hosts, with no bare `*`.
+- `sandbox.enabled` and `sandbox.failIfUnavailable` are `true`, and `allowUnsandboxedCommands` is `false`.
+- `denyRead` covers `~/.aws` and `~/.ssh`, and `allowedDomains` names hosts with no bare `*`.
 - The guard suite still passes.
 
 ```bash
@@ -68,7 +69,10 @@ bun run verify sandbox-the-shell
 
 Expect: `Done. All 6 rules pass.`
 
-![The sandbox check passing on the sample answer](../images/expected.png)
+## Solution
+
+The finished settings are in `../solution/.claude/settings.json`. The only change is the new `sandbox` block. The
+prompts are in `../solution/prompts.md`.
 
 ## If you get stuck
 
@@ -78,12 +82,12 @@ Expect: `Done. All 6 rules pass.`
 | `FAIL a failed command cannot be retried outside the sandbox` | "Set `allowUnsandboxedCommands` to false. Do not leave it out." |
 | `FAIL the network allow list names hosts` | "Take out `*` and list each host." |
 
-The sandbox needs Linux, macOS or WSL2. The check reads your settings, so it passes on any machine. To see the
-sandbox work, start Claude Code in the world repo and type `/sandbox`.
+## Go further
+
+- The sandbox needs Linux, macOS or WSL2. The check reads settings, so it passes anywhere. To see it work, start
+  Claude Code in the world repo and type `/sandbox`.
 
 ## Words you will use
 
-- **Sandbox**: a fence that the operating system puts around each Bash command. It says which paths the command may
-  read and write, and which hosts it may reach.
-- **Escape hatch**: when a sandboxed command fails, Claude Code can offer to run it again outside the sandbox.
-- **Allow list**: the only things that are allowed. Anything not on it is denied.
+- **Sandbox**: a fence the operating system puts around each Bash command.
+- **Escape hatch**: a failed sandboxed command can be offered a retry outside the sandbox.

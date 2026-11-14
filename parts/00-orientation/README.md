@@ -24,7 +24,7 @@ The setup steps are in [Set up](../../00-orientation/README.md).
 
 | Step | Minutes | What Claude Code makes for you | The check reads |
 |---|---|---|---|
-| `meet-the-world` | 15 | A first-look note | The note names one of the five faults, points at a file with @, shows a screenshot, and says plan mode |
+| `meet-the-world` | 10 | A first-look note | The note names one of the five faults, points at a file with @, shows a screenshot, and says plan mode |
 
 ## Watch and read
 

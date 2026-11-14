@@ -1,37 +1,36 @@
 # Parts mapped onto formats. Step minutes never change; only the wrapping does.
-# The closing part check-infrastructure-rules-with-conftest is 20 minutes.
-# Part minutes: orientation 15, fence-the-agent 90, teach-the-repo 95, give-it-eyes 100, run-it-in-ci 95, ship-the-kit 90, work-in-parallel 55.
+# Every session is 90 minutes or less.
 
 [one-day]
 sessions = [
-  { parts = ["orientation", "fence-the-agent"], minutes = 120 },
-  { parts = ["teach-the-repo"], minutes = 105 },
-  { parts = ["give-it-eyes"], minutes = 110 },
-  { parts = ["run-it-in-ci"], minutes = 105 },
-  { parts = ["ship-the-kit"], minutes = 100 },
-  { parts = ["work-in-parallel"], minutes = 65 },
-  { parts = ["check-infrastructure-rules-with-conftest"], minutes = 30 },
+  { parts = ["orientation", "fence-the-agent"], minutes = 85 },
+  { parts = ["teach-the-repo"], minutes = 86 },
+  { parts = ["give-it-eyes"], minutes = 80 },
+  { parts = ["run-it-in-ci"], minutes = 83 },
+  { parts = ["ship-the-kit"], minutes = 60 },
+  { parts = ["work-in-parallel"], minutes = 45 },
+  { parts = ["check-infrastructure-rules-with-conftest"], minutes = 20 },
 ]
 
 [four-evenings]
 sessions = [
-  { parts = ["orientation", "fence-the-agent"], minutes = 120 },
-  { parts = ["teach-the-repo"], minutes = 105 },
-  { parts = ["give-it-eyes"], minutes = 110 },
-  { parts = ["run-it-in-ci"], minutes = 105 },
-  { parts = ["ship-the-kit"], minutes = 100 },
-  { parts = ["work-in-parallel"], minutes = 65 },
-  { parts = ["check-infrastructure-rules-with-conftest"], minutes = 30 },
+  { parts = ["orientation", "fence-the-agent"], minutes = 85 },
+  { parts = ["teach-the-repo"], minutes = 86 },
+  { parts = ["give-it-eyes"], minutes = 80 },
+  { parts = ["run-it-in-ci"], minutes = 83 },
+  { parts = ["ship-the-kit"], minutes = 60 },
+  { parts = ["work-in-parallel"], minutes = 45 },
+  { parts = ["check-infrastructure-rules-with-conftest"], minutes = 20 },
 ]
 
-# A cohort: one part per session, a 30 minute live kickoff and a 30 minute live review around each.
+# A cohort: one part per session, a short live kickoff and a short live review around each.
 [four-week-cohort]
 sessions = [
-  { parts = ["orientation", "fence-the-agent"], minutes = 165 },
-  { parts = ["teach-the-repo"], minutes = 150 },
-  { parts = ["give-it-eyes"], minutes = 155 },
-  { parts = ["run-it-in-ci"], minutes = 155 },
-  { parts = ["ship-the-kit"], minutes = 150 },
-  { parts = ["work-in-parallel"], minutes = 115 },
-  { parts = ["check-infrastructure-rules-with-conftest"], minutes = 30 },
+  { parts = ["orientation", "fence-the-agent"], minutes = 85 },
+  { parts = ["teach-the-repo"], minutes = 86 },
+  { parts = ["give-it-eyes"], minutes = 80 },
+  { parts = ["run-it-in-ci"], minutes = 83 },
+  { parts = ["ship-the-kit"], minutes = 60 },
+  { parts = ["work-in-parallel"], minutes = 45 },
+  { parts = ["check-infrastructure-rules-with-conftest"], minutes = 20 },
 ]

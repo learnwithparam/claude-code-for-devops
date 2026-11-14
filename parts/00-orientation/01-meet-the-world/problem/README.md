@@ -2,13 +2,9 @@
 
 ## The problem
 
-Before you let an agent into an infra repo, ask what a new teammate would ask:
-
-1. Which environment am I pointed at?
-2. What is already broken?
-3. What must never run?
-
-Most laptops answer the first question badly. This repo's `.envrc` file is one of them.
+A new teammate asks which environment they are on, what is broken, and what must never run. Most laptops answer
+the first question badly. In this repo, the `.envrc` file points your shell at prod, and the board shows five open
+faults.
 
 ```mermaid
 flowchart LR
@@ -19,11 +15,30 @@ flowchart LR
   F --> N
 ```
 
-## Your challenge
+## Watch it done
 
-You explore with Claude Code. It writes the note. You check every line.
+The board you will see, before any guard exists:
 
-Start Claude Code in the root folder of this course repo, in plan mode. Ask it to look first:
+```text
+  RED    Noisy SeatApiSlow alert    SeatApiSlow uses p50 with for: 0m
+  RED    Failing CI pipeline        3 action(s) not pinned to a commit SHA
+5 faults open. Each part of the course turns some of this green.
+```
+
+![The board you will see: five faults open and nothing guarded](../images/expected.png)
+
+## Your turn
+
+1. Read the file and look at the board:
+
+```bash
+cat world/live/tallowmark-infra/.envrc
+bun run board
+```
+
+Expect: the `.envrc` lines, then the board with five `RED` lines.
+
+2. Start Claude Code in the root folder, in plan mode. Ask it to write the note:
 
 ```text
 Read world/live/tallowmark-infra/.envrc and run bun run board.
@@ -34,41 +49,21 @@ Then fill in parts/00-orientation/01-meet-the-world/problem/notes/first-look.md 
 4. How I asked: say you used plan mode, point at a file with @, and link a screenshot of the board in notes/.
 ```
 
-Run them yourself to see the same lines:
+Expect: a note with four filled headings.
 
-```bash
-cat world/live/tallowmark-infra/.envrc
-bun run board
-```
+3. Check each line. For example, the word after `export TALLOWMARK_ENV=` is your environment. `terraform plan` only
+reads, so it is the wrong command.
 
-Expect: the `.envrc` lines, then the board with five `RED` lines.
+## Do it on your work
 
-For example, the `.envrc` has a line that starts with `export TALLOWMARK_ENV=`. The word after it is the
-environment your shell points at.
-
-Check each line against what you saw:
-
-- Does the environment match the `TALLOWMARK_ENV` line? Say no to a guess of `dev`.
-- Is the fault one of the five `RED` lines on the board?
-- Does the command change or delete something? `terraform plan` only reads, so it is the wrong answer.
-
-The prompt that solves this step is in `../solution/prompts.md`. Read it after you try.
+Open a repo you own. Ask Claude Code, in plan mode, for the same four-heading note about it. Good looks like this:
+you can name the one environment, one real fault and one command you would block.
 
 ## Done when
 
-- The note has the four headings.
-- It names the environment the world really points at.
-- It names one of the five faults.
-- Its command is one the finished guard blocks.
-- A fourth heading, How I asked, says you used plan mode, pointed at a file with `@`, and shows a screenshot.
-
-Ask Claude Code to check your work:
-
-```text
-Run the check for meet-the-world and tell me what it printed. Do not change anything to make it pass.
-```
-
-You can also run it yourself:
+- The note has the four headings and names the environment the world really points at.
+- It names one of the five faults, and a command the finished guard blocks.
+- How I asked says you used plan mode, pointed at a file with `@`, and shows a screenshot.
 
 ```bash
 bun run verify meet-the-world
@@ -76,7 +71,10 @@ bun run verify meet-the-world
 
 Expect: `Done. All 5 rules pass.`
 
-![The board you will see: five faults open and nothing guarded](../images/expected.png)
+## Solution
+
+The finished note is in `../solution/notes/first-look.md`. The prompt that made it is in `../solution/prompts.md`.
+The check passes on it.
 
 ## If you get stuck
 
@@ -89,6 +87,4 @@ Expect: `Done. All 5 rules pass.`
 ## Words you will use
 
 - **Environment**: a full copy of the platform. `dev` is for trying things. `prod` is where fans buy tickets.
-- **Drift**: the cloud no longer matches the Terraform code. Someone changed the cloud directly, not through
-  Terraform.
-- **The board**: one screen with every fault and the guard score. It reads the world's state and logs.
+- **The board**: one screen with every fault and the guard score.

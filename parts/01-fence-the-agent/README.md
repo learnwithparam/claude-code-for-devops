@@ -59,11 +59,11 @@ Put three deny rules and the guard hook on one real repo of yours. Run the guard
 
 | Step | Minutes | What Claude Code makes for you | The check reads |
 |---|---|---|---|
-| `write-the-deny-rules` | 15 | Deny rules in `.claude/settings.json` | Your settings, matched the way Claude Code matches rules |
-| `block-the-apply` | 25 | A PreToolUse hook, wired in settings | The hook's exit code and JSON on 20 dangerous and 15 safe planted calls |
-| `catch-the-sneaky-commands` | 20 | A hook that also stops 10 bypass forms, and a note of your deny rule gaps | The hook on 45 calls, and your gaps against your own rules |
-| `sandbox-the-shell` | 20 | A sandbox block in settings | Your sandbox keys, and the guard suite again |
-| `choose-the-permission-mode` | 10 | A permission mode and a note on when to use each one | Your settings and the note |
+| `write-the-deny-rules` | 10 | Deny rules in `.claude/settings.json` | Your settings, matched the way Claude Code matches rules |
+| `block-the-apply` | 20 | A PreToolUse hook, wired in settings | The hook's exit code and JSON on 20 dangerous and 15 safe planted calls |
+| `catch-the-sneaky-commands` | 15 | A hook that also stops 10 bypass forms, and a note of your deny rule gaps | The hook on 45 calls, and your gaps against your own rules |
+| `sandbox-the-shell` | 15 | A sandbox block in settings | Your sandbox keys, and the guard suite again |
+| `choose-the-permission-mode` | 15 | A permission mode and a note on when to use each one | Your settings and the note |
 
 Every step starts from the last step's sample answer. So you can start any step fresh.
 

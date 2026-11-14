@@ -2,18 +2,10 @@
 
 ## The problem
 
-The permission mode decides who says yes to each action. There are a few modes:
-
-- In auto mode, a classifier says yes for you. Anthropic's own tests found it missed 17% of real actions that went
-  too far ([How we built Claude Code auto mode](https://www.anthropic.com/engineering/claude-code-auto-mode)).
-- Bypass mode skips almost every prompt.
-
-Neither one belongs on a repo whose shell starts on prod.
-
-In a session, press Shift+Tab to move to the next mode. The [ways of working](../../../../00-orientation/ways-of-working.md) page lists the other techniques.
-
-For example, in default mode Claude Code asks you before it runs `kubectl rollout restart` for the first time. In
-bypass mode it runs the command and does not ask.
+The permission mode decides who says yes to each action. In auto mode, a classifier says yes for you, and
+Anthropic's tests found it missed 17% of actions that went too far
+([auto mode](https://www.anthropic.com/engineering/claude-code-auto-mode)). Bypass mode skips almost every
+prompt. Neither belongs on a repo whose shell starts on prod.
 
 ```mermaid
 flowchart LR
@@ -22,52 +14,60 @@ flowchart LR
   K[disableBypassPermissionsMode: disable] -.blocks.-> B[bypassPermissions]
 ```
 
-## Your challenge
+## Watch it done
 
-First you learn the modes with Claude Code. Then you pick one, and Claude Code writes it into the settings.
+For example, in default mode Claude Code asks before it first runs `kubectl rollout restart`. In bypass mode it
+runs it and does not ask. The check shows the change:
 
-Start Claude Code in the root folder of this course repo, and give it this job:
+```text
+Before: FAIL permissions.defaultMode is set
+After:  Done. All 10 rules pass.
+```
+
+![The mode check passing on the sample answer](../images/expected.png)
+
+## Your turn
+
+1. Start Claude Code in the root folder of this course repo. Ask it to learn the modes:
 
 ```text
 Read https://code.claude.com/docs/en/permission-modes.
-Then fill in the table in
-parts/01-fence-the-agent/05-choose-the-permission-mode/problem/notes/permission-mode.md.
-For each mode (default, acceptEdits, plan, auto, dontAsk), say what it does,
-and when I would use it on tallowmark-infra, where the shell starts on prod.
-Do not fill in the Mode: line yet.
+Fill in the table in parts/01-fence-the-agent/05-choose-the-permission-mode/problem/notes/permission-mode.md.
+For each mode (default, acceptEdits, plan, auto, dontAsk), say what it does and when I would use it
+on tallowmark-infra. Do not fill in the Mode: line yet.
 ```
 
-Read the table. Do you agree with each row? Ask Claude Code about any row you do not understand.
+Expect: a table with five filled rows.
 
-Now pick the mode for this repo. Then give the second job, with your mode in place of `default`:
+2. Pick a mode. Give the second job, with your mode in place of `default`:
 
 ```text
 In the same note, under "## This repo", write "Mode: default".
-In parts/01-fence-the-agent/05-choose-the-permission-mode/problem/.claude/settings.json,
-set permissions.defaultMode to "default", and set
-permissions.disableBypassPermissionsMode to "disable".
-Keep the hook and the sandbox as they are. Show me your plan first.
+In problem/.claude/settings.json, set permissions.defaultMode to "default",
+and permissions.disableBypassPermissionsMode to "disable".
+Keep the hook and the sandbox. Show me your plan first.
 ```
 
-Last, undo a bad edit. In the same session, give this job:
+Expect: a plan that changes only `permissions` and the note.
 
-```text
-Tidy scratch/replicas.yaml. Make it replicas: 0.
-```
+3. Undo a bad edit. Ask `Tidy scratch/replicas.yaml. Make it replicas: 0.` Read the diff. Let it happen, press
+Esc, run `/rewind`, and choose the point before the edit. Then write `notes/undo-log.md` with the headings "The bad
+edit" (paste the diff) and "How I got it back".
 
-Read the diff. It is a bad edit. Let Claude Code make it, press Esc, then run /rewind and choose the point before the edit. Then write `notes/undo-log.md` with two headings. Under "The bad edit", paste the diff. Under "How I got it back", say you pressed Esc and ran /rewind. The file must show `replicas: 3` again.
+Expect: `scratch/replicas.yaml` shows `replicas: 3` again.
 
-The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+## Do it on your work
+
+Open the settings of a repo you own. Set `defaultMode` to `default` or `plan`, and switch bypass off. Good looks
+like this: you can say why that mode fits the place your shell points at.
 
 ## Done when
 
-- The note has a filled row for each of the five modes.
-- `permissions.defaultMode` is set, and is not `auto` or `bypassPermissions`.
-- The note's `Mode:` line matches the setting.
-- `disableBypassPermissionsMode` is `"disable"`.
+- The note has a filled row for each of the five modes, and its `Mode:` line matches the setting.
+- `permissions.defaultMode` is set, not `auto` or `bypassPermissions`, and bypass is `"disable"`.
 - The hook and the sandbox are still in place.
-- `scratch/replicas.yaml` is back to `replicas: 3`, and `notes/undo-log.md` shows the diff and how you got it back.
-- The permission note ends with a section, When it goes wrong. It says how you review a diff, stop with Esc, go back with `/rewind` and start fresh with `/clear`.
+- `scratch/replicas.yaml` is back to `replicas: 3`, and `notes/undo-log.md` shows the diff.
+- The note ends with When it goes wrong: review a diff, Esc, `/rewind`, and `/clear`.
 
 ```bash
 bun run verify choose-the-permission-mode
@@ -75,7 +75,10 @@ bun run verify choose-the-permission-mode
 
 Expect: `Done. All 10 rules pass.`
 
-![The mode check passing on the sample answer](../images/expected.png)
+## Solution
+
+The finished settings are in `../solution/.claude/settings.json`. They add `defaultMode` and the bypass switch. The
+notes are in `../solution/notes/`. The prompts are in `../solution/prompts.md`.
 
 ## If you get stuck
 
@@ -89,4 +92,3 @@ Expect: `Done. All 10 rules pass.`
 
 - **Permission mode**: the rule for which tool calls run without asking you.
 - **Classifier**: a model that judges each action. It is a review, not a rule.
-- **Project settings**: the file `.claude/settings.json`. Everyone who clones the repo gets it.

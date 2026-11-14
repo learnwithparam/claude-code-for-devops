@@ -2,13 +2,9 @@
 
 ## The problem
 
-Claude Code works in `tallowmark-infra`, and your shell points at prod. Right now nothing stops it from running
-`terraform apply`, deleting a namespace or reading `.env`.
-
-Claude Code checks its rules in a fixed order: deny, then ask, then allow. A deny rule wins over every other rule.
-
-For example, say Claude Code wants to run `terraform apply -auto-approve`. With the rule
-`Bash(terraform apply *)` in the deny list, the call stops before it runs. Claude Code tells you it was denied.
+Claude Code works in `tallowmark-infra`, and your shell points at prod. Nothing stops it from running
+`terraform apply`, deleting a namespace or reading `.env`. A deny rule is a settings line that stops a call
+before it runs. Claude Code checks deny first, then ask, then allow.
 
 ```mermaid
 flowchart LR
@@ -18,11 +14,21 @@ flowchart LR
   L -->|no| P
 ```
 
-## Your challenge
+## Watch it done
 
-You do not write the rules. You give Claude Code the job, read its plan, and say yes or no.
+For example, with `Bash(terraform apply *)` in the deny list, `terraform apply -auto-approve` is stopped. The
+check shows the change:
 
-Start Claude Code in the root folder of this course repo:
+```text
+Before: FAIL a deny rule stops terraform apply
+After:  Done. All 8 rules pass.
+```
+
+![The check passing on the sample answer](../images/expected.png)
+
+## Your turn
+
+1. Start Claude Code in the root folder of this course repo:
 
 ```bash
 claude
@@ -30,37 +36,32 @@ claude
 
 Expect: the Claude Code prompt opens in this folder.
 
-Give it this job:
+2. Give it the job, and ask for its plan first:
 
 ```text
 Open parts/01-fence-the-agent/01-write-the-deny-rules/problem/.claude/settings.json.
-Add deny rules so you can never run these without a person:
-terraform apply, terraform destroy, kubectl delete and helm uninstall.
+Deny terraform apply, terraform destroy, kubectl delete and helm uninstall.
 Also deny reading .env in any folder of the repo, and anything under ~/.aws.
-Keep every allow rule that is there now. Show me your plan before you change the file.
+Keep every allow rule. Show me your plan before you change the file.
 ```
 
-Read the plan before you say yes. Check three things:
+Expect: a plan that lists the new deny rules.
 
-- Each rule ends in ` *`, like `Bash(terraform apply *)`, so it covers every flag after the verb.
-- The `.env` rule is `Read(**/.env)`. A plain `Read(.env)` only covers the top folder.
-- The allow rule `Bash(terraform plan *)` is still there. Claude Code should look freely and change nothing.
+3. Read the plan before you say yes:
 
-Path forms matter in Read rules:
+- Each command rule ends in ` *`, like `Bash(terraform apply *)`.
+- The `.env` rule is `Read(**/.env)`. A plain `Read(.env)` covers only the top folder.
+- The allow rule `Bash(terraform plan *)` is still there.
 
-| The rule says | It means |
-|---|---|
-| `Read(~/.aws/**)` | under your home folder |
-| `Read(/terraform/**)` | relative to the project, not the disk root |
-| `Read(**/.env)` | `.env` in any folder of the project |
+## Do it on your work
 
-The prompts that solve this step, and the plan to look for, are in `../solution/prompts.md`. Read it after you try.
+Open the `.claude/settings.json` of a repo you own. Ask Claude Code for deny rules for its one worst command and
+its one secret file. Good looks like this: the risky verb is named, and the safe look-only command still works.
 
 ## Done when
 
 - `.claude/settings.json` is valid JSON.
-- A deny rule stops each of the six actions above.
-- `terraform plan` is still allowed.
+- A deny rule stops each of the six actions above, and `terraform plan` is still allowed.
 
 ```bash
 bun run verify write-the-deny-rules
@@ -68,24 +69,25 @@ bun run verify write-the-deny-rules
 
 Expect: `Done. All 8 rules pass.`
 
-![The check passing on the sample answer](../images/expected.png)
+## Solution
+
+The finished settings are in `../solution/.claude/settings.json`. It adds six deny rules and keeps the allow rules.
+The prompts that made it are in `../solution/prompts.md`.
 
 ## If you get stuck
 
-Each FAIL line has a Try next line. Give that line to Claude Code as your next prompt.
-
 | What you see | What to ask Claude Code |
 |---|---|
-| `FAIL .claude/settings.json exists and is valid JSON` | "Check the settings file is valid JSON, with no comments and no trailing commas." |
 | `FAIL a deny rule stops reading .env anywhere in the repo` | "Change the .env rule to `Read(**/.env)` so it covers every folder." |
 | `FAIL a deny rule stops reading ~/.aws` | "The ~/.aws rule must start with `~/`. Fix it." |
 | `FAIL terraform plan is still allowed` | "A deny rule is too broad and blocks plan. Make it name the verb, like apply." |
 
-To see the rules work, run `bun run world use write-the-deny-rules`. Then ask Claude Code, in
-`world/live/tallowmark-infra`, to apply the prod plan.
+## Go further
+
+- `Read(/terraform/**)` means relative to the project, not the disk root.
+- Run `bun run world use write-the-deny-rules`, then ask Claude Code to apply the prod plan.
 
 ## Words you will use
 
-- **Deny rule**: a rule in `permissions.deny` that stops a tool call before it runs.
 - **Bash rule**: a rule such as `Bash(terraform apply *)`. It matches the command text Claude Code writes.
 - **Prod**: production, the place where real fans buy tickets.
