@@ -21,20 +21,20 @@ flowchart LR
 
 ## Your challenge
 
-You explore the world with Claude Code. Claude Code writes the note. You check that every line is true.
+You explore with Claude Code. It writes the note. You check every line.
 
-Start Claude Code in the root folder of this course repo. Ask it to look first, then write the note:
+Start Claude Code in the root folder of this course repo, in plan mode. Ask it to look first:
 
 ```text
 Read world/live/tallowmark-infra/.envrc and run bun run board.
-Then fill in 00-orientation/meet-the-world/problem/notes/first-look.md under its three headings:
+Then fill in 00-orientation/meet-the-world/problem/notes/first-look.md under its four headings:
 1. Where my shell points: the one environment the .envrc points at, and the line that shows it.
 2. The fault that worries me most: one fault from the board, by name, and why.
 3. A command I would never let an agent run: one command, in backticks, that changes or deletes something.
-Keep the headings exactly as they are.
+4. How I asked: say you used plan mode, point at a file with @, and link a screenshot of the board in notes/.
 ```
 
-Claude Code ran these two commands for you. You can run them yourself to see the same lines:
+Run them yourself to see the same lines:
 
 ```bash
 cat world/live/tallowmark-infra/.envrc
@@ -46,10 +46,9 @@ Expect: the `.envrc` lines, then the board with five `RED` lines.
 For example, the `.envrc` has a line that starts with `export TALLOWMARK_ENV=`. The word after it is the
 environment your shell points at.
 
-Read the note before you go on. Check each line against what you saw:
+Check each line against what you saw:
 
-- Does the environment match the `TALLOWMARK_ENV` line? Claude Code may guess `dev`, because that is where people
-  test. Say no to a guess.
+- Does the environment match the `TALLOWMARK_ENV` line? Say no to a guess of `dev`.
 - Is the fault one of the five `RED` lines on the board?
 - Does the command change or delete something? `terraform plan` only reads, so it is the wrong answer.
 
@@ -57,7 +56,7 @@ The prompt that solves this step is in `../solution/prompts.md`. Read it after y
 
 ## Done when
 
-- The note has the three headings.
+- The note has the four headings.
 - It names the environment the world really points at.
 - It names one of the five faults.
 - Its command is one the finished guard blocks.

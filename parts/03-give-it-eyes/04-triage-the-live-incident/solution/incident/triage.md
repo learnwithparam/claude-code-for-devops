@@ -6,7 +6,7 @@ Buyers get errors at checkout. The seat-api pods in prod restart again and again
 
 ## Evidence
 
-```bash
+```text
 kubectl get pods -n seat --context kind-tallowmark-prod
 kubectl describe pod seat-api-10x7 -n seat --context kind-tallowmark-prod
 kubectl logs seat-api-10x7 -n seat --previous --context kind-tallowmark-prod

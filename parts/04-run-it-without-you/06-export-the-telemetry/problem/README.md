@@ -6,6 +6,8 @@ The platform team needs to know who runs Claude Code, how often, and what it cos
 an env var fails, because people forget. Managed settings sit above every other settings file, so one file turns
 telemetry on for everyone. Claude Code sends it as OpenTelemetry, a standard way to send metrics and logs.
 
+For example, the dashboard shows 40 sessions yesterday and what they cost.
+
 ```mermaid
 flowchart LR
   M[managed-settings.json] --> C[Claude Code on every laptop]
@@ -46,7 +48,7 @@ Expect: `Done. All 6 rules pass.`
 | What you see | What to ask Claude Code |
 |---|---|
 | `FAIL the endpoint is https and not on this machine` | "Use https://otel.tallowmark.test:4317, not localhost." |
-| `FAIL what people type is not exported` | "Set OTEL_LOG_USER_PROMPTS to 0, or leave it out." |
+| `FAIL prompts stay out of the export` | "Set OTEL_LOG_USER_PROMPTS to 0, or leave it out." |
 
 ## Words you will use
 

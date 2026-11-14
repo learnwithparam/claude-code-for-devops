@@ -6,12 +6,12 @@ What is built, what is left, and what each step's check reads. A part session st
 |---|---|---|---|
 | `00-orientation/` | built | `meet-the-world` (15) | 15 |
 | `parts/01-fence-the-agent/` | built | `write-the-deny-rules` (15), `block-the-apply` (25), `catch-the-sneaky-commands` (20), `sandbox-the-shell` (20), `choose-the-permission-mode` (10) | 90 |
-| `parts/02-teach-the-repo/` | skeleton | `write-the-repo-memory` (15), `fix-the-drift` (20), `fix-the-helm-chart` (20), `write-a-runbook-skill` (20) | 75 |
-| `parts/03-give-it-eyes/` | skeleton | `connect-the-cluster-read-only` (25), `quiet-the-noisy-alert` (20), `split-the-cost-hunt` (30) | 75 |
-| `parts/04-run-it-without-you/` | skeleton | `review-the-plan-headless` (30), `wire-the-plan-review` (25), `fix-the-failing-pipeline` (20), `seal-the-devcontainer` (25), `ship-the-guardrail-kit` (20) | 120 |
+| `parts/02-teach-the-repo/` | skeleton | `write-the-repo-memory` (15), `fix-the-drift` (20), `fix-the-helm-chart` (20), `write-a-runbook-skill` (20), `schedule-the-drift-check` (20) | 95 |
+| `parts/03-give-it-eyes/` | skeleton | `connect-the-cluster-read-only` (25), `quiet-the-noisy-alert` (20), `split-the-cost-hunt` (30), `triage-the-live-incident` (25) | 100 |
+| `parts/04-run-it-without-you/` | skeleton | `review-the-plan-headless` (30), `wire-the-plan-review` (25), `fix-the-failing-pipeline` (20), `seal-the-devcontainer` (25), `ship-the-guardrail-kit` (20), `export-the-telemetry` (20), `use-oidc-not-a-stored-token` (20), `run-the-kit-on-your-repo` (25), `gate-the-goal-with-a-stop-hook` (30), `run-agents-apart` (25), `report-on-your-own-repo` (25) | 265 |
 | `parts/05-check-infrastructure-rules-with-conftest/` | built | `write-the-plan-policy` (20) | 20 |
 
-Total: 375 minutes. `schedules.toml` maps these onto the delivery formats.
+Total: 575 minutes. `schedules.toml` maps these onto the delivery formats.
 
 ## How a part session builds a part
 

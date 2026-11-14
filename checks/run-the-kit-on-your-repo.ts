@@ -1,6 +1,6 @@
 // Runs the learner's own cases through their kit's hook, in a fresh folder. The cases come from the
 // learner's repo. The check reads the course cases only to tell that the learner wrote new ones.
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Rule } from "../scripts/verify";
@@ -25,7 +25,10 @@ function ownCases(folder: string): Own[] {
 const commandOf = (item: Own) => String(item.tool_input?.command ?? "");
 const courseCommands = () => new Set(cases().map((item) => String(item.tool_input.command ?? "")));
 const isWellFormed = (item: Own) =>
-  Boolean(item.id) && ["block", "allow"].includes(item.expect) && Boolean(item.tool_name) && typeof item.tool_input === "object";
+  Boolean(item.id) &&
+  ["block", "allow"].includes(item.expect) &&
+  Boolean(item.tool_name) &&
+  typeof item.tool_input === "object";
 
 async function tally(folder: string): Promise<Tally | null> {
   if (!existsSync(join(folder, "kit", "settings.json"))) return null;
@@ -56,7 +59,9 @@ const tallyOf = (folder: string) => {
   return saved.get(folder) as Promise<Tally | null>;
 };
 const claimed = (folder: string, word: string): [number, number] | null => {
-  const found = read(folder, "own-results.md").match(new RegExp(`${word}:\\s*(\\d+) of (\\d+)`, "i"));
+  const found = read(folder, "own-results.md").match(
+    new RegExp(`${word}:\\s*(\\d+) of (\\d+)`, "i"),
+  );
   return found ? [Number(found[1]), Number(found[2])] : null;
 };
 
@@ -70,7 +75,7 @@ export default [
     tryNext: "write one JSON object per line with id, expect, tool_name, tool_input and why",
   },
   {
-    says: `own-cases.jsonl has at least ${SAMPLE_BLOCKED} calls to block and ${SAMPLE_ALLOWED} to allow`,
+    says: `own-cases.jsonl has ${SAMPLE_BLOCKED} calls to block and ${SAMPLE_ALLOWED} to allow`,
     test: (folder) => {
       const items = ownCases(folder);
       const blocks = items.filter((item) => item.expect === "block").length;
@@ -91,7 +96,9 @@ export default [
     test: async (folder) => {
       const result = await tallyOf(folder);
       if (result) explain(STEP, result.wrong);
-      return result !== null && result.wrong.length === 0 && result.blocked[1] + result.allowed[1] > 0;
+      return (
+        result !== null && result.wrong.length === 0 && result.blocked[1] + result.allowed[1] > 0
+      );
     },
     tryNext: "fix the hook for each wrong line, or move a safe command out of the block list",
   },
@@ -107,7 +114,9 @@ export default [
       const blocked = claimed(folder, "Blocked");
       const allowed = claimed(folder, "Allowed");
       if (!(result && blocked && allowed)) return false;
-      return blocked.join() === result.blocked.join() && allowed.join() === result.allowed.join();
+      const sameBlocked = blocked.join() === result.blocked.join();
+      const sameAllowed = allowed.join() === result.allowed.join();
+      return sameBlocked && sameAllowed;
     },
     tryNext: "run the cases again and copy the real counts into Blocked and Allowed",
   },

@@ -6,6 +6,8 @@ Three jobs wait: pin the actions, add chart limits, tag the buckets. One agent d
 in one folder trip over each other and overwrite files. A worktree is a second copy of the repo on its own branch.
 Give each agent its own, and give each unit its own files.
 
+For example, two agents both edit `workflows/ci.yml`, and the second overwrites the first.
+
 ```mermaid
 flowchart LR
   B["/batch plan"] --> A1[Agent in worktree pin-actions]
@@ -22,7 +24,7 @@ flowchart LR
 Start Claude Code in the root folder of this course repo, and give it this job:
 
 ```text
-In parts/04-run-it-without-you/11-run-agents-apart/problem/ split three jobs so no file belongs to two of them:
+In parts/04-run-it-without-you/10-run-agents-apart/problem/ split three jobs so no file belongs to two of them:
 pin the actions in workflows/ci.yml, add limits in charts/seat-api/values.yaml, tag the buckets in
 terraform/modules/scan-store. Write batch.md with a Command section holding one /batch line, and a Units table of
 each unit and the paths it may change. Write scripts/start-agents.sh that starts one claude -w per unit with a

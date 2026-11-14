@@ -7,6 +7,8 @@ package or an injected prompt reads it, the thief owns it. With OIDC, short for 
 AWS for a token that lasts a short time, and nothing is stored. Most teams still keep long-lived keys: 58 percent
 in the [State of DevSecOps](https://www.datadoghq.com/state-of-devsecops-2025/) report.
 
+For example, the role lasts one hour, and a stolen token is dead by lunch.
+
 ```mermaid
 flowchart LR
   J[Plan job] -->|id-token| G[GitHub OIDC]

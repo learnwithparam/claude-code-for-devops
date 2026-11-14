@@ -42,6 +42,12 @@ flowchart LR
 | `fix-the-failing-pipeline` | 20 | A fixed practice `workflows/ci.yml` and scan-store module | The world's CI fault, read from a fresh copy of the world with your two files in it |
 | `seal-the-devcontainer` | 25 | `.devcontainer/` with a firewall allow list and managed settings | The container config, the pinned version, the allow list and the managed settings keys |
 | `ship-the-guardrail-kit` | 20 | `kit/` with settings, hook, sandbox block, guard test and a README for security | The guard suite run from the kit in a fresh copy of the world, and the README's sections |
+| `export-the-telemetry` | 20 | `managed/managed-settings.json` that sends metrics and logs to the team collector | The env block: telemetry on, OTLP, an https collector, no prompts and no token |
+| `use-oidc-not-a-stored-token` | 20 | `workflows/plan.yml` that assumes a role with a short-lived token | The permissions, the role, no stored AWS key, and every action pinned |
+| `run-the-kit-on-your-repo` | 25 | `own-cases.jsonl` and `own-results.md` from your own repo | The kit run on your cases in a fresh folder, and the counts in your results |
+| `gate-the-goal-with-a-stop-hook` | 30 | `SPEC.md`, a Stop hook, `goal.txt` and a read-only reviewer | The hook run on a failing and a passing check, and the loop guard |
+| `run-agents-apart` | 25 | `batch.md`, `scripts/start-agents.sh` and a merge reviewer | Units with no shared path, one worktree per agent, and a reviewer that cannot edit |
+| `report-on-your-own-repo` | 25 | `REPORT.md` on your own repo, the capstone | The five sections, your deny rules, and evidence that matches your results file |
 
 Practice workflows live in `workflows/` in each step folder. In a real repo they go in the GitHub workflows
 folder. The practice repo keeps them out of it, so nothing here ever runs on GitHub.
@@ -83,9 +89,15 @@ bun run verify wire-the-plan-review
 bun run verify fix-the-failing-pipeline
 bun run verify seal-the-devcontainer
 bun run verify ship-the-guardrail-kit
+bun run verify export-the-telemetry
+bun run verify use-oidc-not-a-stored-token
+bun run verify run-the-kit-on-your-repo
+bun run verify gate-the-goal-with-a-stop-hook
+bun run verify run-agents-apart
+bun run verify report-on-your-own-repo
 ```
 
-Expect: `Done. All 6 rules pass.`, then 9, 5, 9 and 8 rules, once each step is solved.
+Expect: `Done. All 6 rules pass.`, then 9, 5, 9, 8, 6, 5, 6, 7, 6 and 6 rules, once each step is solved.
 
 Check the whole part in one go:
 
@@ -93,7 +105,7 @@ Check the whole part in one go:
 bun run verify part run-it-without-you
 ```
 
-Expect: `Part run-it-without-you is done: 5/5 steps pass.`
+Expect: `Part run-it-without-you is done: 11/11 steps pass.`
 
 ## Assignment
 

@@ -22,3 +22,9 @@ Under Rollback, write the command, but name a person to run it.
 
 - Every command under Evidence is a read.
 - The rollback names a person, and Claude Code does not run it.
+
+## Prompt 3: watch it
+
+```text
+Under Watch it, write one /loop line that only reads the seat pods on prod every few minutes, and say when to stop.
+```

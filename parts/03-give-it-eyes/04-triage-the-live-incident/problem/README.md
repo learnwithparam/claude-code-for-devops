@@ -9,6 +9,8 @@ an unchecked deploy ([SEC order](https://www.sec.gov/litigation/admin/2013/34-70
 So Claude Code gets eyes and no hands. It reads pods and logs and writes a short note. A person decides on the
 rollback.
 
+For example, `kubectl get pods` shows `CrashLoopBackOff`, and Claude Code writes down why.
+
 ```mermaid
 flowchart LR
   A[Alert: checkout errors] --> R[Claude Code reads pods and logs]

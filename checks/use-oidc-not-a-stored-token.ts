@@ -19,17 +19,26 @@ export default [
   },
   {
     says: "no permission is wider than that",
-    test: (folder) => !/:\s*write\s*$/m.test(codeLines(folder).join("\n").replace(/id-token:\s*write/g, "")),
+    test: (folder) =>
+      !/:\s*write\s*$/m.test(
+        codeLines(folder)
+          .join("\n")
+          .replace(/id-token:\s*write/g, ""),
+      ),
     tryNext: "remove every write permission except id-token",
   },
   {
     says: "the job assumes a role",
-    test: (folder) => /configure-aws-credentials@/.test(workflow(folder)) && /role-to-assume:\s*arn:aws:iam::\d+:role\/\S+/.test(workflow(folder)),
+    test: (folder) =>
+      /configure-aws-credentials@/.test(workflow(folder)) &&
+      /role-to-assume:\s*arn:aws:iam::\d+:role\/\S+/.test(workflow(folder)),
     tryNext: "add aws-actions/configure-aws-credentials with role-to-assume set to the role ARN",
   },
   {
     says: "no AWS key or secret is named anywhere",
-    test: (folder) => workflow(folder) !== "" && !/AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|secrets\.AWS/i.test(workflow(folder)),
+    test: (folder) =>
+      workflow(folder) !== "" &&
+      !/AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|secrets\.AWS/i.test(workflow(folder)),
     tryNext: "delete every secrets.AWS line and the env block that held them",
   },
   {

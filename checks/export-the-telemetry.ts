@@ -21,7 +21,8 @@ export default [
   },
   {
     says: "metrics and logs go out over OTLP",
-    test: (folder) => env(folder).OTEL_METRICS_EXPORTER === "otlp" && env(folder).OTEL_LOGS_EXPORTER === "otlp",
+    test: (folder) =>
+      env(folder).OTEL_METRICS_EXPORTER === "otlp" && env(folder).OTEL_LOGS_EXPORTER === "otlp",
     tryNext: "set OTEL_METRICS_EXPORTER and OTEL_LOGS_EXPORTER to otlp",
   },
   {
@@ -38,7 +39,7 @@ export default [
     tryNext: "point OTEL_EXPORTER_OTLP_ENDPOINT at the team collector over https",
   },
   {
-    says: "what people type is not exported, and the file holds no token",
+    says: "prompts stay out of the export, and the file holds no token",
     test: (folder) => {
       const text = read(folder, "managed", "managed-settings.json");
       const promptsOff = env(folder).OTEL_LOG_USER_PROMPTS !== "1";

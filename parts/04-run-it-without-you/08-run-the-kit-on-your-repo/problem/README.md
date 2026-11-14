@@ -6,6 +6,8 @@ The kit passed the course's 45 calls. Those calls are Tallowmark's, not yours. A
 commands proves little. Your own repo has its own dangerous calls, such as a staging apply or a bucket delete,
 and its own daily safe ones.
 
+For example, `terraform -chdir=infra/staging apply` is in your scripts, and the course never saw it.
+
 ```mermaid
 flowchart LR
   C[own-cases.jsonl from your repo] --> K[kit hook in a fresh folder]

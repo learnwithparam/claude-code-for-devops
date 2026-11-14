@@ -13,7 +13,11 @@ const WRITES = [
   "helm rollback seat-api 1",
   "helm upgrade seat-api ./chart",
 ];
-const READS = ["kubectl get pods", "kubectl describe pod seat-api-10x7", "kubectl logs seat-api-10x7"];
+const READS = [
+  "kubectl get pods",
+  "kubectl describe pod seat-api-10x7",
+  "kubectl logs seat-api-10x7",
+];
 const PERSON = /\b(person|human|engineer|on-call|oncall|platform team)\b/i;
 const READ_LINE = /^kubectl (get|describe|logs)\b/;
 const WRITE_WORD = /\b(apply|delete|rollout|scale|patch|edit|exec|rollback|upgrade)\b/;
@@ -32,7 +36,8 @@ export default [
       const settings = readSettings(folder);
       return settings !== null && WRITES.every((command) => denies(settings, "Bash", command));
     },
-    tryNext: "add deny rules for apply, delete, rollout, scale, patch, edit, exec and helm rollback",
+    tryNext:
+      "add deny rules for apply, delete, rollout, scale, patch, edit, exec and helm rollback",
   },
   {
     says: "the settings allow no write command",
@@ -82,7 +87,8 @@ export default [
       const hasCommand = /helm rollback|kubectl rollout undo/.test(rollback);
       return PERSON.test(rollback) && hasCommand && /not run|does not|never/i.test(rollback);
     },
-    tryNext: "write the rollback command, name the on-call engineer, and say Claude Code does not run it",
+    tryNext:
+      "write the rollback command, name the on-call engineer, and say Claude Code does not run it",
   },
   {
     says: "Watch it runs a read-only /loop with an interval and a way to stop",

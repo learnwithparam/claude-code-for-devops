@@ -15,3 +15,9 @@ only when there is drift, and stays quiet otherwise. Show me the file first.
 - No allowed tool can change prod.
 - The owner is a person or a team.
 - It says nothing when nothing drifted.
+
+## Prompt 2: the run contract
+
+```text
+Add a contract table: a turn limit, what a failed run does, and a .jsonl log file.
+```

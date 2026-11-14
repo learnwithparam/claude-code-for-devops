@@ -6,6 +6,8 @@ Every step so far used the course repo. A team does not care about it. They care
 asks for one page about your own repo, backed by files a reviewer can open. The check reads your page and your files.
 It never reads the course repo.
 
+For example, "Blocked: 5 of 5" in your report is the same line in your results file.
+
 ```mermaid
 flowchart LR
   S[.claude/settings.json] --> R[REPORT.md]

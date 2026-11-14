@@ -6,6 +6,8 @@ In the last step, someone found drift by hand. Drift is when the real cloud no l
 looks until something breaks. A scheduled check looks every morning. It must only read, and it must stay quiet when
 all is well, or people stop reading it.
 
+For example, at 07:00 the check finds that a bucket lost versioning, and the on-call engineer sees one note.
+
 ```mermaid
 flowchart LR
   T[Weekday 07:00] --> P[terraform plan, read only]

@@ -10,6 +10,7 @@ type Routine = {
   // biome-ignore lint/style/useNamingConvention: the routine file uses snake case.
   notify_when?: string;
   owner?: string;
+  // biome-ignore lint/style/useNamingConvention: the routine file uses snake case.
   contract?: { max_turns?: number; on_failure?: string; log?: string };
 };
 const CHANGES = /\b(apply|destroy|import|taint|state (rm|mv))\b/i;
@@ -32,7 +33,9 @@ export default [
     says: "the schedule runs at most once an hour",
     test: (folder) => {
       const [minute, hour] = (routine(folder).cron ?? "").trim().split(/\s+/);
-      return /^\d+$/.test(minute ?? "") && hour !== undefined && hour !== "*" && !hour.startsWith("*/");
+      return (
+        /^\d+$/.test(minute ?? "") && hour !== undefined && hour !== "*" && !hour.startsWith("*/")
+      );
     },
     tryNext: "use a fixed minute and a fixed hour; a check every minute is noise",
   },
@@ -40,7 +43,9 @@ export default [
     says: "the prompt plans prod with -detailed-exitcode",
     test: (folder) => {
       const prompt = routine(folder).prompt ?? "";
-      return /terraform plan/.test(prompt) && /-detailed-exitcode/.test(prompt) && /prod/.test(prompt);
+      return (
+        /terraform plan/.test(prompt) && /-detailed-exitcode/.test(prompt) && /prod/.test(prompt)
+      );
     },
     tryNext: "ask for terraform plan -detailed-exitcode on prod; exit code 2 means drift",
   },

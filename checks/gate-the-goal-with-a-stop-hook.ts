@@ -1,6 +1,6 @@
 // Reads SPEC.md, goal.txt, the Stop hook and the reviewer subagent. It runs the hook in a fresh
 // folder with its own two specs, one that fails and one that passes. It never runs your Check line.
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync, cpSync, existsSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { frontMatter, listField } from "../parts/03-give-it-eyes/helpers/front-matter";
@@ -14,7 +14,10 @@ const WRITE_TOOLS = ["Edit", "Write", "NotebookEdit"];
 type Hook = { command: string };
 const stopHook = (folder: string): Hook | undefined =>
   readSettings(folder)?.hooks?.Stop?.[0]?.hooks?.[0];
-const checkLine = (folder: string) => SPEC(folder).match(/^Check:\s*(.+)$/m)?.[1]?.trim() ?? "";
+const checkLine = (folder: string) =>
+  SPEC(folder)
+    .match(/^Check:\s*(.+)$/m)?.[1]
+    ?.trim() ?? "";
 
 // Runs the learner's hook in a fresh folder whose SPEC.md has the given Check line.
 async function runGate(folder: string, check: string, stdin: string): Promise<number | null> {
@@ -42,20 +45,29 @@ async function runGate(folder: string, check: string, stdin: string): Promise<nu
   }
 }
 
+// biome-ignore-start lint/style/useNamingConvention: Claude Code names these JSON fields.
 const normal = JSON.stringify({ hook_event_name: "Stop", stop_hook_active: false });
 const second = JSON.stringify({ hook_event_name: "Stop", stop_hook_active: true });
+// biome-ignore-end lint/style/useNamingConvention: Claude Code names these JSON fields.
 
 export default [
   {
     says: "SPEC.md has Goal, Done when and Out of scope",
-    test: (folder) => ["Goal", "Done when", "Out of scope"].every((h) => section(SPEC(folder), h).length > 10),
+    test: (folder) =>
+      ["Goal", "Done when", "Out of scope"].every(
+        (heading) => section(SPEC(folder), heading).length > 10,
+      ),
     tryNext: "ask Claude Code to interview you, then write the three sections",
   },
   {
     says: "Done when holds one read-only Check: line",
     test: (folder) => {
       const line = checkLine(folder);
-      return line.length > 3 && !CHANGES.test(line) && section(SPEC(folder), "Done when").includes("Check:");
+      return (
+        line.length > 3 &&
+        !CHANGES.test(line) &&
+        section(SPEC(folder), "Done when").includes("Check:")
+      );
     },
     tryNext: "add a line that starts Check: with a command that reads, such as terraform plan",
   },
@@ -79,16 +91,26 @@ export default [
     test: (folder) => {
       const goal = read(folder, "goal.txt");
       const readsSpec = /Check line|SPEC\.md/.test(goal);
-      return goal.startsWith("/goal") && readsSpec && /\d+ turns/.test(goal) && goal.includes("/code-review");
+      return (
+        goal.startsWith("/goal") &&
+        readsSpec &&
+        /\d+ turns/.test(goal) &&
+        goal.includes("/code-review")
+      );
     },
-    tryNext: "write /goal, then the work, the Check line, a turn limit like 12 turns, and /code-review",
+    tryNext:
+      "write /goal, then the work, the Check line, a turn limit like 12 turns, and /code-review",
   },
   {
     says: "the reviewer subagent cannot Edit or Write",
     test: (folder) => {
       const fields = frontMatter(read(folder, ".claude", "agents", "code-reviewer.md")) ?? {};
       const tools = listField(fields.tools);
-      return Boolean(fields.name) && tools.length > 0 && !tools.some((tool) => WRITE_TOOLS.includes(tool));
+      return (
+        Boolean(fields.name) &&
+        tools.length > 0 &&
+        !tools.some((tool) => WRITE_TOOLS.includes(tool))
+      );
     },
     tryNext: "set tools to Read, Grep, Glob and Bash in code-reviewer.md",
   },

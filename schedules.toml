@@ -1,22 +1,22 @@
 # Parts mapped onto formats. Step minutes never change; only the wrapping does.
 # The closing part check-infrastructure-rules-with-conftest is 20 minutes.
-# Part minutes: orientation 15, fence-the-agent 90, teach-the-repo 75, give-it-eyes 75, run-it-without-you 120.
+# Part minutes: orientation 15, fence-the-agent 90, teach-the-repo 95, give-it-eyes 100, run-it-without-you 265.
 
 [one-day]
 sessions = [
   { parts = ["orientation", "fence-the-agent"], minutes = 120 },
-  { parts = ["teach-the-repo"], minutes = 90 },
-  { parts = ["give-it-eyes"], minutes = 90 },
-  { parts = ["run-it-without-you"], minutes = 135 },
+  { parts = ["teach-the-repo"], minutes = 105 },
+  { parts = ["give-it-eyes"], minutes = 110 },
+  { parts = ["run-it-without-you"], minutes = 280 },
   { parts = ["check-infrastructure-rules-with-conftest"], minutes = 30 },
 ]
 
 [four-evenings]
 sessions = [
   { parts = ["orientation", "fence-the-agent"], minutes = 120 },
-  { parts = ["teach-the-repo"], minutes = 90 },
-  { parts = ["give-it-eyes"], minutes = 90 },
-  { parts = ["run-it-without-you"], minutes = 135 },
+  { parts = ["teach-the-repo"], minutes = 105 },
+  { parts = ["give-it-eyes"], minutes = 110 },
+  { parts = ["run-it-without-you"], minutes = 280 },
   { parts = ["check-infrastructure-rules-with-conftest"], minutes = 30 },
 ]
 
@@ -24,8 +24,8 @@ sessions = [
 [four-week-cohort]
 sessions = [
   { parts = ["orientation", "fence-the-agent"], minutes = 165 },
-  { parts = ["teach-the-repo"], minutes = 135 },
-  { parts = ["give-it-eyes"], minutes = 135 },
-  { parts = ["run-it-without-you"], minutes = 180 },
+  { parts = ["teach-the-repo"], minutes = 150 },
+  { parts = ["give-it-eyes"], minutes = 155 },
+  { parts = ["run-it-without-you"], minutes = 330 },
   { parts = ["check-infrastructure-rules-with-conftest"], minutes = 30 },
 ]

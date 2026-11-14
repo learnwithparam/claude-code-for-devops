@@ -37,6 +37,7 @@ flowchart LR
 | `fix-the-drift` | 20 | `reviews/buyer-records-drift.md`, and the Terraform code left as the source of truth | The prod plan after the checker applies as a person, the bucket's state, and the command log for any agent change |
 | `fix-the-helm-chart` | 20 | A fixed `charts/seat-api` | `helm lint`, the chart values, the rendered manifest, and the dev pods after the checker deploys |
 | `write-a-runbook-skill` | 20 | `.claude/skills/drain-a-node/SKILL.md`, dev only | The skill's front matter, its `allowed-tools`, and each command it runs against the guard hook |
+| `schedule-the-drift-check` | 20 | `routines/drift-check.toml`: a weekday read-only plan that tells a person only on drift | The cron, the plan prompt, the allowed tools, the notify rule and the run contract |
 
 Every step starts from the last step's sample answer. So you can start any step fresh.
 
@@ -77,6 +78,7 @@ bun run verify write-the-repo-memory
 bun run verify fix-the-drift
 bun run verify fix-the-helm-chart
 bun run verify write-a-runbook-skill
+bun run verify schedule-the-drift-check
 ```
 
 Expect: `Done. All 8 rules pass.`, then 8, 7 and 8 rules, once each step is solved.

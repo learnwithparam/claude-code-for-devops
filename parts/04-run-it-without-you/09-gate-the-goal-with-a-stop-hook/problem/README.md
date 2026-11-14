@@ -6,6 +6,8 @@ You tell Claude Code "fix the drift" and walk away. It says it is done. It is no
 a script can check, so "done" is a fact and not a mood. A Stop hook runs when Claude Code tries to stop. If the
 check fails, the hook sends it back to work.
 
+For example, Claude Code says "done", the plan still shows drift, and the hook sends it back.
+
 ```mermaid
 flowchart LR
   S[SPEC.md with a Check line] --> G["/goal until the check passes"]
@@ -21,7 +23,7 @@ Start Claude Code in the root folder of this course repo, and give it this job:
 
 ```text
 Interview me about putting prod's buyer records bucket back, one question at a time. Then in
-parts/04-run-it-without-you/10-gate-the-goal-with-a-stop-hook/problem/ write SPEC.md with Goal, Done when and
+parts/04-run-it-without-you/09-gate-the-goal-with-a-stop-hook/problem/ write SPEC.md with Goal, Done when and
 Out of scope. Done when holds one line that starts Check: and is a read-only command. Write
 .claude/hooks/stop-gate.sh, a Stop hook that runs that line and exits 2 when it fails, and exits 0 when
 stop_hook_active is true. Wire it in .claude/settings.json. Write goal.txt with a /goal line that repeats the
