@@ -2,14 +2,9 @@
 
 ## The problem
 
-At 2am the checkout page fails. The on-call engineer is tired, and prod is on fire. An agent with write access
-can make it worse in one command. The 2012 Knight Capital outage lost 440 million dollars in under an hour from
-an unchecked deploy ([SEC order](https://www.sec.gov/litigation/admin/2013/34-70694.pdf)).
+At 2am the checkout page fails. The on-call engineer is tired, and prod is on fire. An agent with write access can make it worse in one command. For example, the Knight Capital outage lost 440 million dollars in under an hour from an unchecked deploy ([SEC order](https://www.sec.gov/litigation/admin/2013/34-70694.pdf)).
 
-So Claude Code gets eyes and no hands. It reads pods and logs and writes a short note. A person decides on the
-rollback.
-
-For example, `kubectl get pods` shows `CrashLoopBackOff`, and Claude Code writes down why.
+## Watch it done
 
 ```mermaid
 flowchart LR
@@ -19,9 +14,17 @@ flowchart LR
   P -->|decides| B[helm rollback, run by a person]
 ```
 
-## Your challenge
+Claude Code gets eyes and no hands. It reads pods and logs and writes a short note. A person decides on the rollback. The note on the sample answer lists only reads:
 
-Start Claude Code in the root folder of this course repo, and give it this job:
+```text
+kubectl get pods -n seat --context kind-tallowmark-prod
+kubectl describe pod seat-api-10x7 -n seat --context kind-tallowmark-prod
+kubectl logs seat-api-10x7 -n seat --previous --context kind-tallowmark-prod
+```
+
+## Your turn
+
+1. Start Claude Code in the root folder of this course repo. Give it this job:
 
 ```text
 In parts/03-give-it-eyes/04-triage-the-live-incident/problem/.claude/settings.json allow only read commands:
@@ -31,9 +34,15 @@ helm rollback. Then fill incident/triage.md for the seat-api crash loop on prod.
 command but name a person to run it. Add a Watch it section with a /loop line that only reads, and say when to stop. Show me your plan first.
 ```
 
-Read the plan. Is any write command in the allow list? Does the note name a person?
+Expect: a plan. Is any write command in the allow list? Does the note name a person?
 
-The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+2. Read the note. Does it say the cause is a guess?
+
+Expect: yes, and the rollback names a person, not Claude Code.
+
+## Do it on your work
+
+Take one past incident from your own notes. Mark each command you ran as read or write. Allow only the reads, deny the rest, and name a person for any fix. Good looks like an allow list with no write command.
 
 ## Done when
 
@@ -48,6 +57,10 @@ bun run verify triage-the-live-incident
 ```
 
 Expect: `Done. All 8 rules pass.`
+
+## Solution
+
+The after state is in `../solution/`. It adds the allow and deny rules in `.claude/settings.json` and the finished `incident/triage.md`. Prompts: `../solution/prompts.md`.
 
 ## If you get stuck
 

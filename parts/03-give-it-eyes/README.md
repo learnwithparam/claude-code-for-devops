@@ -57,10 +57,10 @@ Point the read-only role at a test cluster of yours and triage one real alert wi
 
 | Step | Minutes | What Claude Code makes for you | The check reads |
 |---|---|---|---|
-| `connect-the-cluster-read-only` | 25 | A reader ServiceAccount and ClusterRole, its kubeconfig, `.mcp.json` and deny rules | What the reader identity may do on both clusters, which kubeconfig the MCP server uses, and which MCP tools are denied |
-| `quiet-the-noisy-alert` | 20 | A fixed `alerts/seat.rules.yml` and its unit test | The rule run against `alerts/series.yml`: no firing on the three short spikes, firing on the sustained one |
-| `split-the-cost-hunt` | 30 | Three subagents in `.claude/agents/` and `investigations/cost-spike.md` | The agents' tools, the report's `root_causes` against the planted pair, its sections, and the command log for any write |
-| `triage-the-live-incident` | 25 | Read-only settings and `incident/triage.md`, with a rollback a person runs | The deny rules, the evidence commands, the named person and the read-only `/loop` |
+| `connect-the-cluster-read-only` | 20 | A reader ServiceAccount and ClusterRole, its kubeconfig, `.mcp.json` and deny rules | What the reader identity may do on both clusters, which kubeconfig the MCP server uses, and which MCP tools are denied |
+| `quiet-the-noisy-alert` | 15 | A fixed `alerts/seat.rules.yml` and its unit test | The rule run against `alerts/series.yml`: no firing on the three short spikes, firing on the sustained one |
+| `split-the-cost-hunt` | 25 | Three subagents in `.claude/agents/` and `investigations/cost-spike.md` | The agents' tools, the report's `root_causes` against the planted pair, its sections, and the command log for any write |
+| `triage-the-live-incident` | 20 | Read-only settings and `incident/triage.md`, with a rollback a person runs | The deny rules, the evidence commands, the named person and the read-only `/loop` |
 
 ## Walkthrough
 
