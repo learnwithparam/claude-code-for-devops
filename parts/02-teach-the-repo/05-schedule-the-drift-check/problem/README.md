@@ -2,9 +2,10 @@
 
 ## The problem
 
-In the last step, someone found drift by hand. Drift is when the real cloud no longer matches the code. Nobody
-looks until something breaks. A scheduled check looks every morning. It must only read, and it must stay quiet when
-all is well, or people stop reading it.
+Drift is when the real cloud no longer matches the code. Nobody looks until something breaks. A scheduled check
+looks every morning. It must only read. It must stay quiet when all is well, or people stop reading it.
+
+## Watch it done
 
 For example, at 07:00 the check finds that a bucket lost versioning, and the on-call engineer sees one note.
 
@@ -16,9 +17,15 @@ flowchart LR
   N --> H[A person applies]
 ```
 
-## Your challenge
+The check on the sample answer ends like this:
 
-Start Claude Code in the root folder of this course repo, and give it this job:
+```text
+Done. All 7 rules pass.
+```
+
+## Your turn
+
+1. Start Claude Code in the root folder of this course repo, and give it this job:
 
 ```text
 In parts/02-teach-the-repo/05-schedule-the-drift-check/problem/routines/drift-check.toml fill every field.
@@ -27,9 +34,14 @@ on prod, names each drifted address, and never applies. Allow only plan, show, R
 Tell a person only when there is drift. Name the owner. Add a contract table with a turn limit, what a failed run does, and a log file. Show me the file first.
 ```
 
-Read the file. Could any allowed tool change prod?
+Expect: the file shown to you first.
 
-The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+2. Read it. Could any allowed tool change prod? Expect: no.
+
+## Do it on your work
+
+Write the same file for one of your own checks. Good looks like a fixed time, read-only tools, a named owner, and
+a note only when something is wrong.
 
 ## Done when
 
@@ -44,6 +56,11 @@ bun run verify schedule-the-drift-check
 ```
 
 Expect: `Done. All 7 rules pass.`
+
+## Solution
+
+See `../solution/`. The diff fills every field of `routines/drift-check.toml`. The prompts are in
+`../solution/prompts.md`. Read them after you try.
 
 ## If you get stuck
 

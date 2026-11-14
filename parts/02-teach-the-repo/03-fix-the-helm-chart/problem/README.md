@@ -2,24 +2,14 @@
 
 ## The problem
 
-`seat-api` holds seats and takes payment. If it is down, nobody can buy a ticket. On dev it restarts again and
-again. The chart in `charts/seat-api` has three faults:
+`seat-api` holds seats and takes payment. On dev it restarts again and again. Its health probe checks port 9090,
+but the app listens on 8080, so Kubernetes kills each pod as unhealthy. The chart also uses the image tag
+`latest` and sets no CPU or memory limits.
 
-- The image tag is `latest`, so a deploy can pull a different build than the one you tested.
-- There are no CPU or memory limits, so one busy pod can starve the rest of the node.
-- The health probe checks port 9090. The app listens on 8080. Kubernetes kills each pod as unhealthy.
+## Watch it done
 
-For example, run these in your world:
-
-```bash
-world/bin/kubectl get pods -n seat --context kind-tallowmark-dev
-world/bin/kubectl logs seat-api --context kind-tallowmark-dev
-```
-
-Expect: three `seat-api` pods in `CrashLoopBackOff`, then listening on :8080.
-
-A weak fix moves the app to port 9090 to match the probe. The pods go green, but the app still listens on 8080,
-and every request fails.
+For example, a weak fix moves the app to port 9090 to match the probe. The pods go green, but every request fails. The real
+fix moves the probe to 8080.
 
 ```mermaid
 flowchart LR
@@ -31,9 +21,24 @@ flowchart LR
   P -->|no| C[CrashLoopBackOff]
 ```
 
-## Your challenge
+Before the fix, the pods look like this:
 
-Start Claude Code in the root folder of this course repo, and give it this job:
+```text
+seat-api   0/1   CrashLoopBackOff
+```
+
+## Your turn
+
+1. Look at the pods and the logs in your world:
+
+```bash
+world/bin/kubectl get pods -n seat --context kind-tallowmark-dev
+world/bin/kubectl logs seat-api --context kind-tallowmark-dev
+```
+
+Expect: three `seat-api` pods in `CrashLoopBackOff`, then listening on :8080.
+
+2. Start Claude Code in the root folder of this course repo, and give it this job:
 
 ```text
 seat-api crash-loops on dev. Find out why, and fix the chart in
@@ -45,11 +50,12 @@ Then run world/bin/helm lint and world/bin/helm template on the chart.
 Do not upgrade or install any release. Show me your plan first.
 ```
 
-Read the plan. Which number does it change: the probe port, or the container port? Say no if it moves the app.
+Expect: a plan first. Which number does it change, the probe port or the container port? Say no if it moves the app.
 
-The check plays the person. It deploys your chart to dev in a fresh world, then reads the pods.
+## Do it on your work
 
-The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+Point the same job at one of your own charts that restarts. Good looks like a pinned tag, set limits, and the
+probe on the port the logs show.
 
 ## Done when
 
@@ -66,6 +72,11 @@ bun run verify fix-the-helm-chart
 Expect: `Done. All 7 rules pass.`
 
 ![The chart check passing on the sample answer](../images/expected.png)
+
+## Solution
+
+See `../solution/`. The diff changes the chart in `charts/seat-api`: a pinned tag, limits, and the probe on 8080.
+The prompts are in `../solution/prompts.md`. Read them after you try.
 
 ## If you get stuck
 
