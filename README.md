@@ -182,5 +182,4 @@ Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in`, and a `Sa
 `bun run record` makes every recording again on your own signed-in Claude Code; `world/recordings/RECORD.md` lists
 each one.
 
-The rules every course repo follows, and the check behind each, are in [STANDARD.md](STANDARD.md). What is built and
-what each remaining part's checks read is in [PARTS.md](PARTS.md).
+The rules every course repo follows, and the check behind each, are in [STANDARD.md](STANDARD.md).
