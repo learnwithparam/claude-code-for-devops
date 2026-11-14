@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(kubectl get *)",
+      "Bash(kubectl describe *)",
+      "Bash(kubectl logs *)",
+      "Bash(helm history *)",
+      "Bash(helm rollback *)"
+    ],
+    "deny": [
+      "Bash(kubectl apply *)",
+      "Bash(kubectl delete *)",
+      "Bash(kubectl scale *)",
+      "Bash(kubectl patch *)",
+      "Bash(kubectl edit *)",
+      "Bash(kubectl exec *)",
+      "Bash(helm upgrade *)"
+    ]
+  }
+}
