@@ -2,11 +2,14 @@
 
 ## The problem
 
-The platform team needs to know who runs Claude Code, how often, and what it costs. Asking each developer to set
-an env var fails, because people forget. Managed settings sit above every other settings file, so one file turns
-telemetry on for everyone. Claude Code sends it as OpenTelemetry, a standard way to send metrics and logs.
+The platform team needs to know who runs Claude Code and what it costs. Asking each person to set a variable fails,
+because people forget. One managed settings file turns it on for everyone. For example, the dashboard shows 40
+sessions yesterday and their cost.
 
-For example, the dashboard shows 40 sessions yesterday and what they cost.
+## Watch it done
+
+Claude Code sends metrics and logs as OpenTelemetry, a standard way to send them to a collector, a server that
+feeds a dashboard.
 
 ```mermaid
 flowchart LR
@@ -15,33 +18,49 @@ flowchart LR
   O --> D[Dashboard]
 ```
 
-## Your challenge
-
-Start Claude Code in the root folder of this course repo, and give it this job:
+The check on the empty starter ends like this, and on the sample answer it passes all 6 rules:
 
 ```text
-Read the monitoring page in the Claude Code docs. In
-parts/05-ship-the-kit/03-export-the-telemetry/problem/managed/managed-settings.json keep
-allowManagedHooksOnly and add an env block. Turn telemetry on. Export metrics and logs with OTLP over grpc to
-https://otel.tallowmark.test:4317. Do not log what people type. Put no token in the file. Show me the file first.
+FAIL  telemetry is switched on
+2 of 6 rules pass.
 ```
 
-Read the file. Is the collector on your own host? Could a secret leak from it?
+## Your turn
 
-The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+1. Start Claude Code in the root folder of this course repo. Expect: a prompt.
+2. Give it this job:
+
+   ```text
+   Read the monitoring page in the Claude Code docs. In
+   parts/05-ship-the-kit/03-export-the-telemetry/problem/managed/managed-settings.json keep
+   allowManagedHooksOnly and add an env block. Turn telemetry on. Export metrics and logs with OTLP over grpc to
+   https://otel.tallowmark.test:4317. Do not log what people type. Put no token in the file. Show me the file first.
+   ```
+
+   Expect: the file shown, before it is saved.
+3. Check two things. Is the collector on your own host? Could a secret leak from the file? Expect: no to both.
+
+## Do it on your work
+
+Point the same file at your team's real collector, over https. Good looks like one file in one place, with no
+token in it.
 
 ## Done when
 
-- Telemetry is on, with metrics and logs sent over OTLP.
-- The endpoint is an https address that is not on this machine.
+- Telemetry is on, with metrics and logs sent over OTLP to an https address that is not this machine.
 - What people type is not exported, and the file holds no token.
-- The old managed rule, managed hooks only, is still there.
+- The old rule, managed hooks only, is still there.
 
 ```bash
 bun run verify export-the-telemetry
 ```
 
 Expect: `Done. All 6 rules pass.`
+
+## Solution
+
+See `../solution/`. The diff adds an `env` block to `managed/managed-settings.json`. The prompts are in
+`../solution/prompts.md`. Read them after you try.
 
 ## If you get stuck
 

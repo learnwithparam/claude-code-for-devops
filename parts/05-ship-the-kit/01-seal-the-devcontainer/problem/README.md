@@ -2,17 +2,14 @@
 
 ## The problem
 
-Claude Code runs commands on your laptop, with your keys nearby. A package it installs can run code too.
+Claude Code runs commands near your keys. Once, 19 bad versions of `nx` packages ran a script when installed. It
+searched the disk for credentials and posted them to a public repo
+([Nx advisory GHSA-cxm3-wv7p-598c](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c)). A box with
+a firewall stops that. For example, inside the box `curl https://example.com` gets no answer.
 
-Once, 19 bad versions of `nx` packages ran a script when they were installed. The script searched the
-disk for credentials and posted them to a public repo. It even carried a prompt that started "You are a
-file-search agent" ([Nx advisory GHSA-cxm3-wv7p-598c](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c)).
+## Watch it done
 
-A dev container is a box for the work. Inside it, a firewall decides which hosts the box can reach. Managed
-settings decide what Claude Code may do, and nothing in the repo can change them.
-
-For example, inside a sealed box `curl https://example.com` gets no answer. Claude Code can still reach
-`api.anthropic.com`, and `npm install` can still reach `registry.npmjs.org`.
+The firewall lets three hosts through. Managed settings sit above every repo file, so the repo cannot undo them.
 
 ```mermaid
 flowchart LR
@@ -24,38 +21,46 @@ flowchart LR
   M["/etc/claude-code/managed-settings.json"] --> C
 ```
 
-## Your challenge
-
-Get Claude Code to write the container. You write no code. Start Claude Code in the root folder of this course
-repo, and give it this job:
+The check on the empty starter ends like this, and on the sample answer it passes all 9 rules:
 
 ```text
-Read https://code.claude.com/docs/en/devcontainer and the managed settings page in the same docs.
-In parts/05-ship-the-kit/01-seal-the-devcontainer/problem/.devcontainer/, write
-devcontainer.json, a Dockerfile, init-firewall.sh and managed-settings.json.
-The Dockerfile installs @anthropic-ai/claude-code at the exact version that claude --version prints, sets DISABLE_AUTOUPDATER=1,
-and copies managed-settings.json to /etc/claude-code/managed-settings.json.
-The firewall drops everything except api.anthropic.com, registry.npmjs.org and registry.tallowmark.test.
-It runs at start, with --cap-add=NET_ADMIN. Managed settings set allowManagedHooksOnly to true and
-disableBypassPermissionsMode to disable. Then the repo's hook stops running, so copy
-.claude/hooks/guard-infra.ts into /etc/claude-code/hooks/ and wire it in the managed settings.
-Show me your plan first.
+FAIL  the firewall drops everything it does not allow
+hosts in init-firewall.sh: none
+0 of 9 rules pass.
 ```
 
-Read the plan before you say yes. Count the hosts in the firewall. There must be three.
+## Your turn
 
-The check reads the files. It builds no image. To try the box for real, open the folder in VS Code and choose
-"Reopen in Container".
+1. Start Claude Code in the root folder of this course repo. Expect: a prompt.
+2. Give it this job:
 
-The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+   ```text
+   Read https://code.claude.com/docs/en/devcontainer and the managed settings page in the same docs.
+   In parts/05-ship-the-kit/01-seal-the-devcontainer/problem/.devcontainer/ write devcontainer.json, a
+   Dockerfile, init-firewall.sh and managed-settings.json.
+   The Dockerfile installs @anthropic-ai/claude-code at the exact version that claude --version prints, sets
+   DISABLE_AUTOUPDATER=1, and copies managed-settings.json to /etc/claude-code/managed-settings.json.
+   The firewall drops everything except api.anthropic.com, registry.npmjs.org and registry.tallowmark.test.
+   It runs at start, with --cap-add=NET_ADMIN. Managed settings set allowManagedHooksOnly to true and
+   disableBypassPermissionsMode to disable. Then the repo's hook stops running, so copy
+   .claude/hooks/guard-infra.ts into /etc/claude-code/hooks/ and wire it in the managed settings.
+   Show me your plan first.
+   ```
+
+   Expect: a plan, before any file is written.
+3. Count the hosts in the plan. Expect: exactly three.
+4. Say yes. Expect: four files in `.devcontainer/`.
+
+## Do it on your work
+
+Ask for the same box around your own repo, and name the hosts your build needs. Good looks like a short allow list
+you can read in one breath. Every extra host is a way out.
 
 ## Done when
 
-- `devcontainer.json` builds from the Dockerfile and runs the firewall at start, with `NET_ADMIN`.
-- Claude Code is pinned to an exact version and cannot update itself.
 - The firewall drops by default and allows only the three hosts.
-- Managed settings are copied to `/etc/claude-code/managed-settings.json`, allow managed hooks only, switch bypass
-  mode off, and carry the guard hook.
+- Claude Code is pinned to an exact version and cannot update itself.
+- Managed settings allow managed hooks only, switch bypass mode off, and carry the guard hook.
 
 ```bash
 bun run verify seal-the-devcontainer
@@ -64,6 +69,11 @@ bun run verify seal-the-devcontainer
 Expect: `Done. All 9 rules pass.`
 
 ![The devcontainer check passing on the sample answer](../images/expected.png)
+
+## Solution
+
+See `../solution/`. The diff adds the four `.devcontainer/` files. The prompts are in `../solution/prompts.md`.
+Read them after you try.
 
 ## If you get stuck
 

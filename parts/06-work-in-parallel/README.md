@@ -26,7 +26,7 @@ flowchart LR
 | Step | Minutes | What Claude Code makes for you | The check reads |
 |---|---|---|---|
 | `gate-the-goal-with-a-stop-hook` | 30 | `SPEC.md`, a Stop hook, `goal.txt` and a read-only reviewer | The hook run on a failing and a passing check, and the loop guard |
-| `run-agents-apart` | 25 | `batch.md`, `scripts/start-agents.sh` and a merge reviewer | Units with no shared path, one worktree per agent, and a reviewer that cannot edit |
+| `run-agents-apart` | 20 | `batch.md`, `scripts/start-agents.sh` and a merge reviewer | Units with no shared path, one worktree per agent, and a reviewer that cannot edit |
 
 ## Watch and read
 
