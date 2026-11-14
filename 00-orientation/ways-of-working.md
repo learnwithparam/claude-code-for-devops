@@ -10,7 +10,7 @@ You write no code. You give Claude Code a job in plain English, read its plan, a
 Type what you want, the way you would tell a new teammate. For example, "Read this file and tell me which
 environment it points at."
 
-You do this in [meet-the-world](meet-the-world/problem/README.md), and then in every step.
+You do this in [meet-the-world](../parts/00-orientation/01-meet-the-world/problem/README.md), and then in every step.
 
 ## Start Claude Code in a folder
 

@@ -137,7 +137,7 @@ Expect: `BLOCKED  Blocked by guard-infra: terraform apply changes real infrastru
 
 ## Walkthrough
 
-Your one step here is [meet-the-world](meet-the-world/problem/README.md). Get Claude Code to fill in
+Your one step here is [meet-the-world](../parts/00-orientation/01-meet-the-world/problem/README.md). Get Claude Code to fill in
 `notes/first-look.md` in its `problem/` folder. Check the note, then ask Claude Code to check your work:
 
 ```text

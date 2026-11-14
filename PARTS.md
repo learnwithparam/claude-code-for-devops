@@ -4,7 +4,7 @@ What is built, what is left, and what each step's check reads. A part session st
 
 | Part folder | State | Steps (minutes) | Total |
 |---|---|---|---|
-| `00-orientation/` | built | `meet-the-world` (15) | 15 |
+| `parts/00-orientation/` | built | `meet-the-world` (15) | 15 |
 | `parts/01-fence-the-agent/` | built | `write-the-deny-rules` (15), `block-the-apply` (25), `catch-the-sneaky-commands` (20), `sandbox-the-shell` (20), `choose-the-permission-mode` (10) | 90 |
 | `parts/02-teach-the-repo/` | skeleton | `write-the-repo-memory` (15), `fix-the-drift` (20), `fix-the-helm-chart` (20), `write-a-runbook-skill` (20), `schedule-the-drift-check` (20) | 95 |
 | `parts/03-give-it-eyes/` | skeleton | `connect-the-cluster-read-only` (25), `quiet-the-noisy-alert` (20), `split-the-cost-hunt` (30), `triage-the-live-incident` (25) | 100 |

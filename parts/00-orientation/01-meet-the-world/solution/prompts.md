@@ -9,7 +9,7 @@ Start Claude Code in the root folder of the course repo, then type:
 
 ```text
 Read world/live/tallowmark-infra/.envrc and run bun run board.
-Then fill in 00-orientation/meet-the-world/problem/notes/first-look.md under its four headings:
+Then fill in parts/00-orientation/01-meet-the-world/problem/notes/first-look.md under its four headings:
 1. Where my shell points: the one environment the .envrc points at, and the line that shows it.
 2. The fault that worries me most: one fault from the board, by name, and why.
 3. A command I would never let an agent run: one command, in backticks, that changes or deletes something.
