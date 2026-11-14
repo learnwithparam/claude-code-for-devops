@@ -66,6 +66,14 @@ cd ../../../..
 
 Expect: one JSON line that starts `{"verdict":"block","destroys":["aws_db_instance.orders"]`.
 
+To check your work, ask Claude Code. For example, for the step you just finished:
+
+```text
+Check my work for this step. Run its check and tell me what it printed. Do not change anything to make it pass.
+```
+
+You can also run the checks yourself:
+
 Give Claude Code the job in each step's README. Then check each step in order. Each prints PASS or FAIL lines, and
 a Try next line under every FAIL.
 

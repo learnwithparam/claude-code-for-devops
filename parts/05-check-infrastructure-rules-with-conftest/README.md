@@ -66,7 +66,13 @@ bun run verify write-the-plan-policy solution
 
 Expect: `Done. All 3 rules pass.`
 
-Give Claude Code the job in the step README, then check your own work:
+Give Claude Code the job in the step README. Then ask it to check your work:
+
+```text
+Check my work for this step. Run its check and tell me what it printed. Do not change anything to make it pass.
+```
+
+You can also run the check yourself:
 
 ```bash
 bun run verify write-the-plan-policy

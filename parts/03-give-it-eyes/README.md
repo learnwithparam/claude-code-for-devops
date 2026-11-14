@@ -68,6 +68,14 @@ bun parts/03-give-it-eyes/helpers/alerts.ts parts/03-give-it-eyes/02-quiet-the-n
 
 Expect: four lines, each ending in `FIRES`.
 
+To check your work, ask Claude Code. For example, for the step you just finished:
+
+```text
+Check my work for this step. Run its check and tell me what it printed. Do not change anything to make it pass.
+```
+
+You can also run the checks yourself:
+
 In the third step, a session started inside the step folder loads the three subagents. Its prompts are in the
 step README. Check each step when Claude Code is done. Each prints PASS or FAIL lines, and a Try next line under
 every FAIL:

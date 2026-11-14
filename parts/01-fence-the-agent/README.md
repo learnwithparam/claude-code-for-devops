@@ -54,6 +54,14 @@ bun run world use write-the-deny-rules
 
 Expect: `The world repo now uses parts/01-fence-the-agent/01-write-the-deny-rules/problem/.claude as its .claude folder.`
 
+To check your work, ask Claude Code. For example, for the step you just finished:
+
+```text
+Check my work for this step. Run its check and tell me what it printed. Do not change anything to make it pass.
+```
+
+You can also run the checks yourself:
+
 Check each step in order. Each prints PASS or FAIL lines, and a Try next line under every FAIL.
 
 ```bash
