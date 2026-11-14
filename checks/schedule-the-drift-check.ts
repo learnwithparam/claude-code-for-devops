@@ -10,6 +10,7 @@ type Routine = {
   // biome-ignore lint/style/useNamingConvention: the routine file uses snake case.
   notify_when?: string;
   owner?: string;
+  contract?: { max_turns?: number; on_failure?: string; log?: string };
 };
 const CHANGES = /\b(apply|destroy|import|taint|state (rm|mv))\b/i;
 
@@ -66,5 +67,15 @@ export default [
       return found.notify_when === "drift" && (found.owner ?? "").trim().length > 3;
     },
     tryNext: 'set notify_when to "drift" and name the person or team who reads it',
+  },
+  {
+    says: "the run contract caps turns, says what a failed run does, and keeps a log",
+    test: (folder) => {
+      const contract = routine(folder).contract ?? {};
+      const turns = Number(contract.max_turns);
+      const failure = (contract.on_failure ?? "").trim().length > 3;
+      return turns > 0 && turns <= 30 && failure && (contract.log ?? "").endsWith(".jsonl");
+    },
+    tryNext: "add a contract table: max_turns, on_failure and a log file that ends in .jsonl",
   },
 ] satisfies Rule[];

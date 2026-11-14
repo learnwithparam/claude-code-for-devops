@@ -26,7 +26,7 @@ In parts/03-give-it-eyes/04-triage-the-live-incident/problem/.claude/settings.js
 kubectl get, describe and logs, and helm history. Deny every command that changes the cluster, including
 helm rollback. Then fill incident/triage.md for the seat-api crash loop on prod. Use only read commands with
 --context kind-tallowmark-prod, and list them under Evidence. Say the cause is a guess. Under Rollback, write the
-command but name a person to run it. Show me your plan first.
+command but name a person to run it. Add a Watch it section with a /loop line that only reads, and say when to stop. Show me your plan first.
 ```
 
 Read the plan. Is any write command in the allow list? Does the note name a person?
@@ -39,12 +39,13 @@ The prompts that solve this step are in `../solution/prompts.md`. Read them afte
 - The note has the four sections: What I saw, Evidence, Likely cause, Rollback.
 - Evidence holds at least two read commands that name the prod context.
 - The rollback names a person and is not run by Claude Code.
+- Watch it holds a read-only `/loop` with an interval, and says when to stop.
 
 ```bash
 bun run verify triage-the-live-incident
 ```
 
-Expect: `Done. All 7 rules pass.`
+Expect: `Done. All 8 rules pass.`
 
 ## If you get stuck
 

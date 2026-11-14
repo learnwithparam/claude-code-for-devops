@@ -11,3 +11,8 @@ allowed_tools = ["Bash(terraform plan *)", "Bash(terraform show *)", "Read", "Wr
 notify_when = "drift"
 silent_when = "no drift"
 owner = "the platform on-call engineer"
+
+[contract]
+max_turns = 8
+on_failure = "notify the owner that the run failed"
+log = "reviews/drift-log.jsonl"

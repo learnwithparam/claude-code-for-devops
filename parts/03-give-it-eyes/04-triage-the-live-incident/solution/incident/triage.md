@@ -28,3 +28,13 @@ helm rollback seat-api 1 -n seat --kube-context kind-tallowmark-prod
 ```
 
 Then the on-call engineer watches `kubectl get pods` until the pods are ready.
+
+## Watch it
+
+After the rollback, keep a read only check running:
+
+```text
+/loop 5m kubectl get pods -n seat --context kind-tallowmark-prod
+```
+
+Stop the loop when every pod is ready.

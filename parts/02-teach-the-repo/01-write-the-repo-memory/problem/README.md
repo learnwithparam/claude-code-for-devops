@@ -25,7 +25,8 @@ flowchart LR
 
 ## Your challenge
 
-Start Claude Code in the root folder of this course repo, and give it this job:
+Start Claude Code in the root folder of this course repo. Type `/init` first. It reads the repo and drafts a
+first `CLAUDE.md`. Treat that draft as a start. Then give it this job:
 
 ```text
 Read world/seed/tallowmark-infra: its README, .envrc, terraform/, charts/ and alerts/.

@@ -66,4 +66,12 @@ export default [
     },
     tryNext: "keep the hook, its wiring and the sandbox block from the earlier steps",
   },
+  {
+    says: "the note's When it goes wrong section names diff review, Esc, /rewind and /clear",
+    test: (folder) => {
+      const undo = section(note(folder), "When it goes wrong");
+      return /diff/i.test(undo) && /\bEsc\b/.test(undo) && undo.includes("/rewind") && undo.includes("/clear");
+    },
+    tryNext: "add a When it goes wrong section: read the diff, press Esc, then /rewind and /clear",
+  },
 ] satisfies Rule[];

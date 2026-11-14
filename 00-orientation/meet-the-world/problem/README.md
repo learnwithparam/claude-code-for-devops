@@ -61,6 +61,7 @@ The prompt that solves this step is in `../solution/prompts.md`. Read it after y
 - It names the environment the world really points at.
 - It names one of the five faults.
 - Its command is one the finished guard blocks.
+- A fourth heading, How I asked, says you used plan mode, pointed at a file with `@`, and shows a screenshot.
 
 Ask Claude Code to check your work:
 
@@ -74,7 +75,7 @@ You can also run it yourself:
 bun run verify meet-the-world
 ```
 
-Expect: `Done. All 4 rules pass.`
+Expect: `Done. All 5 rules pass.`
 
 ![The board you will see: five faults open and nothing guarded](../images/expected.png)
 

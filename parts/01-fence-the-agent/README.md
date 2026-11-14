@@ -72,7 +72,7 @@ bun run verify sandbox-the-shell
 bun run verify choose-the-permission-mode
 ```
 
-Expect: `Done. All 8 rules pass.`, then 6, 6, 6 and 6 rules, once each step is solved.
+Expect: `Done. All 8 rules pass.`, then 6, 6, 6 and 7 rules, once each step is solved.
 
 Check the whole part in one go, and see the board count the guard suite:
 

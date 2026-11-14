@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "allow": ["Bash(terraform plan *)", "Bash(kubectl get *)"],
+    "deny": ["Bash(terraform apply *)", "Bash(kubectl delete *)", "Bash(helm uninstall *)", "Read(./.env)"]
+  }
+}

@@ -84,4 +84,13 @@ export default [
     },
     tryNext: "write the rollback command, name the on-call engineer, and say Claude Code does not run it",
   },
+  {
+    says: "Watch it runs a read-only /loop with an interval and a way to stop",
+    test: (folder) => {
+      const watch = section(note(folder), "Watch it");
+      const loop = watch.match(/^\/loop\s+(\d+[smh])\s+(kubectl (get|describe|logs)[^\n]*)$/m);
+      return Boolean(loop) && !WRITE_WORD.test(loop?.[2] ?? "") && /stop/i.test(watch);
+    },
+    tryNext: "add Watch it: a /loop line such as /loop 5m kubectl get pods, and say when to stop",
+  },
 ] satisfies Rule[];

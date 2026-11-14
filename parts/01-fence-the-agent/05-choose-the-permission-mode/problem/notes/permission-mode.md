@@ -11,3 +11,5 @@
 ## This repo
 
 Mode:
+
+## When it goes wrong

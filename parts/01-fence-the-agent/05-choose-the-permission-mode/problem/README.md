@@ -58,12 +58,13 @@ The prompts that solve this step are in `../solution/prompts.md`. Read them afte
 - The note's `Mode:` line matches the setting.
 - `disableBypassPermissionsMode` is `"disable"`.
 - The hook and the sandbox are still in place.
+- A last section, When it goes wrong, says how you review a diff, stop with Esc, go back with `/rewind` and start fresh with `/clear`.
 
 ```bash
 bun run verify choose-the-permission-mode
 ```
 
-Expect: `Done. All 6 rules pass.`
+Expect: `Done. All 7 rules pass.`
 
 ![The mode check passing on the sample answer](../images/expected.png)
 

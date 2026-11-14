@@ -22,7 +22,7 @@ Start Claude Code in the root folder of this course repo, and give it this job:
 In parts/02-teach-the-repo/05-schedule-the-drift-check/problem/routines/drift-check.toml fill every field.
 Run on weekday mornings, never more often than once an hour. The prompt runs terraform plan with -detailed-exitcode
 on prod, names each drifted address, and never applies. Allow only plan, show, Read and writes to reviews/.
-Tell a person only when there is drift. Name the owner. Show me the file first.
+Tell a person only when there is drift. Name the owner. Add a contract table with a turn limit, what a failed run does, and a log file. Show me the file first.
 ```
 
 Read the file. Could any allowed tool change prod?
@@ -35,18 +35,20 @@ The prompts that solve this step are in `../solution/prompts.md`. Read them afte
 - The prompt plans with `-detailed-exitcode` and says never to apply.
 - No allowed tool applies, destroys or imports.
 - It notifies only on drift, and names an owner.
+- A run contract caps the turns, says what a failed run does, and names a log file.
 
 ```bash
 bun run verify schedule-the-drift-check
 ```
 
-Expect: `Done. All 6 rules pass.`
+Expect: `Done. All 7 rules pass.`
 
 ## If you get stuck
 
 | What you see | What to ask Claude Code |
 |---|---|
 | `FAIL the schedule runs at most once an hour` | "Use a fixed minute and hour, such as 0 7 * * 1-5." |
+| `FAIL the run contract caps turns ...` | "Add [contract] with max_turns, on_failure and a .jsonl log." |
 | `FAIL no allowed tool changes anything` | "Remove apply from allowed_tools. Keep plan and show." |
 
 ## Words you will use
