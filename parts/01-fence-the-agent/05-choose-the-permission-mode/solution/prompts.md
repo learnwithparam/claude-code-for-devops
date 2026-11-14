@@ -40,7 +40,7 @@ Keep the hook and the sandbox as they are. Show me your plan first.
 
 The words change from run to run. A good plan has these points:
 
-1. Add `Mode: default` under `## This repo` in the note.
+1. Add `Mode: default` under ## This repo in the note.
 2. Add `"defaultMode": "default"` and `"disableBypassPermissionsMode": "disable"` to `permissions`.
 3. Change nothing else.
 
@@ -50,10 +50,19 @@ The words change from run to run. A good plan has these points:
 - The mode is not `auto`. The `wrong/auto-by-default` answer shows this mistake.
 - Bypass mode is switched off. The `wrong/bypass-left-open` answer forgets this.
 
+## Prompt 3: make a bad edit and undo it
+
+```text
+Tidy scratch/replicas.yaml. Make it replicas: 0.
+```
+
+Let it make the edit and read the diff. Then press Esc, run /rewind, and choose the point before the edit. Write
+notes/undo-log.md with the diff and how you got it back. The file shows replicas: 3 again.
+
 ## Then run the check
 
 ```bash
 bun run verify choose-the-permission-mode
 ```
 
-Expect: `Done. All 6 rules pass.`
+Expect: `Done. All 10 rules pass.`

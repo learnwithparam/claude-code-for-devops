@@ -1,9 +1,5 @@
-import {
-  asList,
-  frontMatter,
-  pathPatternMatches,
-} from "../parts/02-teach-the-repo/helpers/markdown";
 import type { Rule } from "../scripts/verify";
+import { asList, frontMatter, pathPatternMatches } from "./helpers/02-teach-the-repo/markdown";
 import { read, readSettings, section, suite } from "./lib";
 
 const LONGEST_MEMORY = 200;

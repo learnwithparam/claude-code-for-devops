@@ -43,8 +43,8 @@ The words change from run to run. A good plan has these points:
 ## Ask what the reader can do
 
 ```bash
-bun parts/03-give-it-eyes/helpers/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution delete pods
-bun parts/03-give-it-eyes/helpers/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution list pods
+bun checks/helpers/03-give-it-eyes/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution delete pods
+bun checks/helpers/03-give-it-eyes/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution list pods
 ```
 
 Expect: `no`, then `yes`.

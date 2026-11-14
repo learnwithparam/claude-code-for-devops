@@ -19,4 +19,4 @@ The autoscaler keeps 20 pods. The archive never expires old readings.
 
 ## What I changed
 
-I scaled `scan-telemetry` on prod down to 3 replicas, so the bill stops growing now.
+I scaled `scan-telemetry` on prod down to 3. The bill stops now.

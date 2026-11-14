@@ -1,0 +1,41 @@
+# Maps each Claude Code feature a learner must use to the step that teaches it.
+# Levels come from standard section 7.
+[features]
+# L0 Ask
+plan-mode = "choose-the-permission-mode"
+at-files = "meet-the-world"
+screenshots = "meet-the-world"
+specific-prompt = "meet-the-world"
+# L1 Supervise
+permission-modes = "choose-the-permission-mode"
+diff-review = "choose-the-permission-mode"
+esc = "choose-the-permission-mode"
+rewind = "choose-the-permission-mode"
+clear = "choose-the-permission-mode"
+# L2 Teach the repo
+init = "write-the-repo-memory"
+claude-md = "write-the-repo-memory"
+rules = "write-the-repo-memory"
+check-to-run = "write-the-repo-memory"
+# L3 Fence it
+hooks = "catch-the-sneaky-commands"
+deny-rules = "write-the-deny-rules"
+sandbox = "sandbox-the-shell"
+skills = "write-a-runbook-skill"
+mcp-or-cli-tools = "connect-the-cluster-read-only"
+# L4 Spec and verify
+spec-interview = "gate-the-goal-with-a-stop-hook"
+goal = "gate-the-goal-with-a-stop-hook"
+stop-hook-gate = "gate-the-goal-with-a-stop-hook"
+code-review-subagent = "gate-the-goal-with-a-stop-hook"
+# L5 Parallel
+subagents = "split-the-cost-hunt"
+worktrees = "run-agents-apart"
+batch = "run-agents-apart"
+reviewer-agent = "run-agents-apart"
+# L6 Unattended
+headless = "review-the-plan-headless"
+loop = "triage-the-live-incident"
+schedule = "schedule-the-drift-check"
+github-action = "wire-the-plan-review"
+run-contract-and-metrics = "export-the-telemetry"

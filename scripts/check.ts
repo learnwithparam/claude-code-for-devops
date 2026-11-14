@@ -1,83 +1,76 @@
 // bun run check: the repo standard. CI runs this; any failure stops the build.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { allSteps, type Part, parts, ROOT, type Step } from "./structure";
+import {
+  allSteps,
+  exampleFilesProblems,
+  type Part,
+  partShapeProblems,
+  parts,
+  ROOT,
+  type Step,
+  stepShapeProblems,
+} from "./structure";
 
 const problems: string[] = [];
 
-function fail(where: string, what: string) {
-  const shownPath = relative(ROOT, where) || ".";
-  problems.push(`${shownPath}: ${what}`);
+function report(where: string, what: string) {
+  problems.push(`${relative(ROOT, where) || "."}: ${what}`);
 }
 
 const readText = (path: string) => readFileSync(path, "utf8");
 
-const STEP_SECTIONS = [
-  "## The problem",
-  "## Your challenge",
-  "## Done when",
-  "## If you get stuck",
-  "## Words you will use",
-];
-const HYPE_WORDS = [
-  "supercharge",
-  "unleash",
-  "unlock",
-  "seamless(ly)?",
-  "leverage",
-  "dive into",
-  "game[- ]changer",
-  "revolutioni[sz]e",
-  "magic(al)?",
-  "cutting[- ]edge",
-  "AI-powered",
-];
-const HYPE = new RegExp(`\\b(${HYPE_WORDS.join("|")})\\b`, "i");
+const HYPE_PHRASES = [
+  "supercharge|unleash|unlock|seamless(ly)?|leverage|dive into|game[- ]changer",
+  "revolutioni[sz]e|magic(al)?|cutting[- ]edge|AI-powered",
+].join("|");
+const HYPE_WORDS = new RegExp(`\\b(${HYPE_PHRASES})\\b`, "i");
 const TIME_WORDS = /\b(week|day|hour)\s+\d+\b/i;
 const VERB_THING = /^[a-z]+(-[a-z0-9]+)+$/;
 const IMAGE = /!\[[^\]]*\]\(([^)\s]+)\)/g;
 const MERMAID = /```mermaid\n/;
-const MODEL_ID = /\b(claude-[a-z0-9-]+-\d|gpt-\d[\w.-]*|gemini-\d[\w.-]*|o\d-(mini|pro)\b)/i;
-const SOLUTION_PROMPTS_MISSING =
-  "solution/ has no prompts.md: " +
-  "the prompts that got there, the plan Claude showed, and what you checked";
+const MODEL_NAME = /\b(claude-[a-z0-9-]+-\d|gpt-\d[\w.-]*|gemini-\d[\w.-]*|o\d-(mini|pro)\b)/i;
 
 const hasImage = (text: string) => [...text.matchAll(IMAGE)].length > 0;
 
-function everyFile(folder: string, found: string[] = []): string[] {
+function listFiles(folder: string, found: string[] = []): string[] {
   for (const entry of readdirSync(folder)) {
-    if (entry === "node_modules" || entry === ".git") continue;
+    // Fixtures are pages that fail on purpose, so the shape tests can prove the checks bite.
+    if (entry === "node_modules" || entry === ".git" || entry === "fixtures") continue;
     const path = join(folder, entry);
-    if (statSync(path).isDirectory()) everyFile(path, found);
+    if (statSync(path).isDirectory()) listFiles(path, found);
     else found.push(path);
   }
   return found;
 }
 
+const allFiles = listFiles(ROOT);
+const markdownFiles = allFiles.filter((file) => file.endsWith(".md"));
+
 // 1. No Makefile anywhere.
-function checkNoMakefile(files: string[]) {
-  for (const file of files) {
+function checkNoMakefile() {
+  for (const file of allFiles) {
     if (/(^|\/)(GNU)?[Mm]akefile$/.test(file)) {
-      fail(file, "a Makefile is not allowed; use a Bun or uv script");
+      report(file, "a Makefile is not allowed; use a Bun or uv script");
     }
   }
 }
 
 // 2. Prose rules on every Markdown file.
 function checkProseLine(file: string, line: string, lineNumber: number) {
-  if (line.includes("—")) fail(file, `line ${lineNumber}: em dash`);
-  const hypeWord = line.match(HYPE);
-  if (hypeWord) fail(file, `line ${lineNumber}: hype word "${hypeWord[0]}"`);
+  if (line.includes("—")) report(file, `line ${lineNumber}: em dash`);
+  const hype = line.match(HYPE_WORDS);
+  if (hype) report(file, `line ${lineNumber}: hype word "${hype[0]}"`);
   const timeWord = line.match(TIME_WORDS);
   if (timeWord && !file.includes("schedules")) {
-    fail(file, `line ${lineNumber}: "${timeWord[0]}"; content is in parts, schedules map time`);
+    report(file, `line ${lineNumber}: "${timeWord[0]}"; content is in parts, schedules map time`);
   }
   if (/\bM=\d+|verify \d+/.test(line)) {
-    fail(file, `line ${lineNumber}: numeric step command; name the step`);
+    report(file, `line ${lineNumber}: numeric step command; name the step`);
   }
 }
 
-function checkProse(markdownFiles: string[]) {
+function checkProse() {
   for (const file of markdownFiles) {
     const lines = readText(file).split("\n");
     lines.forEach((line, index) => {
@@ -87,201 +80,181 @@ function checkProse(markdownFiles: string[]) {
 }
 
 // 2b. Every page shows, not only tells: images it names exist, and the key pages carry a picture.
-function checkImagesExist(markdownFiles: string[]) {
+function checkImagesExist() {
   for (const file of markdownFiles) {
     for (const match of readText(file).matchAll(IMAGE)) {
-      const imagePath = match[1];
-      if (/^https?:/.test(imagePath)) continue;
-      if (!existsSync(join(dirname(file), imagePath))) {
-        fail(file, `image "${imagePath}" does not exist`);
+      if (/^https?:/.test(match[1])) continue;
+      if (!existsSync(join(dirname(file), match[1]))) {
+        report(file, `image "${match[1]}" does not exist`);
       }
     }
   }
 }
 
-type PictureNeeds = { mermaid: boolean; image: boolean };
-
-function checkHasPicture(file: string, what: string, needs: PictureNeeds) {
-  if (!existsSync(file)) {
-    fail(file, "missing");
-    return;
-  }
+function checkPagePicture(file: string, what: string, needsMermaid: boolean, needsImage: boolean) {
+  if (!existsSync(file)) return report(file, "missing");
   const text = readText(file);
-  if (needs.mermaid && !MERMAID.test(text)) fail(file, `${what} needs a Mermaid diagram`);
-  if (needs.image && !hasImage(text)) fail(file, `${what} needs a screenshot`);
+  if (needsMermaid && !MERMAID.test(text)) report(file, `${what} needs a Mermaid diagram`);
+  if (needsImage && !hasImage(text)) report(file, `${what} needs a screenshot`);
+}
+
+function checkKeyPagesHavePictures() {
+  checkPagePicture(join(ROOT, "README.md"), "the root README", true, true);
+  checkPagePicture(join(ROOT, "00-orientation", "README.md"), "the orientation", false, true);
 }
 
 // 3. Parts and steps.
 function checkPartReadme(part: Part) {
   const readme = join(part.dir, "README.md");
-  if (!existsSync(readme)) {
-    fail(part.dir, "part has no README.md");
-    return;
-  }
+  if (!existsSync(readme)) return report(part.dir, "part has no README.md");
   const text = readText(readme);
-  if (!MERMAID.test(text)) fail(readme, "part README needs a Mermaid diagram");
-  const afterHeading = text.split("## Walkthrough")[1];
-  const walkthrough = afterHeading?.split("\n## ")[0];
-  if (walkthrough === undefined) {
-    fail(readme, `part README needs a "## Walkthrough" section`);
-  } else if (!walkthrough.includes("```bash")) {
-    fail(readme, "the walkthrough needs the commands, each with an Expect: line");
-  }
+  if (!MERMAID.test(text)) report(readme, "part README needs a Mermaid diagram");
+  for (const problem of partShapeProblems(text)) report(readme, problem);
 }
 
-function checkStepBasics(step: Step, namesSeen: Set<string>) {
+function checkStepName(step: Step, namesSeen: Set<string>) {
   if (!VERB_THING.test(step.name)) {
-    fail(step.dir, `step name "${step.name}" must be verb-thing in lower case`);
+    report(step.dir, `step name "${step.name}" must be verb-thing in lower case`);
   }
-  if (namesSeen.has(step.name)) fail(step.dir, `step name "${step.name}" is used twice`);
+  if (namesSeen.has(step.name)) report(step.dir, `step name "${step.name}" is used twice`);
   namesSeen.add(step.name);
-  if (!existsSync(join(step.dir, "step.toml"))) fail(step.dir, "missing step.toml");
-  const minutes = step.meta.minutes;
-  if (minutes < 5 || minutes > 30) {
-    fail(step.dir, `step is ${minutes} min; keep a step between 5 and 30, split it if longer`);
+}
+
+function checkStepFilesExist(step: Step) {
+  if (!existsSync(join(step.dir, "step.toml"))) report(step.dir, "missing step.toml");
+  if (step.meta.minutes < 5 || step.meta.minutes > 30) {
+    report(
+      step.dir,
+      `step is ${step.meta.minutes} min; keep a step between 5 and 30, split it if longer`,
+    );
   }
 }
 
-function checkScreenStep(step: Step, readme: string, text: string) {
-  if (!existsSync(join(step.dir, "images", "expected.png"))) {
-    fail(step.dir, "screen step needs images/expected.png");
-  }
-  if (!text.includes("images/expected.png")) {
-    fail(readme, "screen step must show ../images/expected.png");
-  }
-}
-
-// Returns false when the step has no problem/README.md, so the later step rules are skipped.
-function checkStepReadme(step: Step): boolean {
-  const readme = join(step.dir, "problem", "README.md");
-  if (!existsSync(readme)) {
-    fail(step.dir, "missing problem/README.md");
-    return false;
-  }
+function checkStepReadme(step: Step, readme: string) {
   const text = readText(readme);
-  const words = text.split(/\s+/).filter(Boolean).length;
-  if (words > 600) fail(readme, `${words} words; a step README stays under 600, split the step`);
-  for (const heading of STEP_SECTIONS) {
-    if (!text.includes(heading)) fail(readme, `missing section "${heading}"`);
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  if (wordCount > 600) {
+    report(readme, `${wordCount} words; a step README stays under 600, split the step`);
   }
+  for (const problem of stepShapeProblems(text)) report(readme, problem);
   if (!MERMAID.test(text) && !hasImage(text)) {
-    fail(readme, "a step shows a picture: a screenshot or a Mermaid diagram");
+    report(readme, "a step shows a picture: a screenshot or a Mermaid diagram");
   }
-  const doneWhen = text.split("## Done when")[1]?.split("\n## ")[0] ?? "";
-  if (!/^- /m.test(doneWhen)) fail(readme, "Done when needs at least one bullet");
+  const doneSection = text.split("## Done when")[1]?.split("\n## ")[0] ?? "";
+  if (!/^- /m.test(doneSection)) report(readme, "Done when needs at least one bullet");
   if (step.meta.screen) checkScreenStep(step, readme, text);
-  return true;
+}
+
+function checkScreenStep(step: Step, readme: string, readmeText: string) {
+  const picture = join(step.dir, "images", "expected.png");
+  if (!existsSync(picture)) report(step.dir, "screen step needs images/expected.png");
+  if (!readmeText.includes("images/expected.png")) {
+    report(readme, "screen step must show ../images/expected.png");
+  }
 }
 
 function checkStepSolutionAndCheck(step: Step) {
   if (step.meta.solution && !existsSync(join(step.dir, "solution"))) {
-    fail(step.dir, "step.toml says solution but there is no solution/");
+    report(step.dir, "step.toml says solution but there is no solution/");
   }
-  const checksFolder = join(ROOT, "checks");
-  const hasTypeScriptCheck = existsSync(join(checksFolder, `${step.name}.ts`));
-  const hasPythonCheck = existsSync(join(checksFolder, `${step.name}.py`));
-  if (!hasTypeScriptCheck && !hasPythonCheck) fail(step.dir, `no check at checks/${step.name}.ts`);
+  const hasTypeScriptCheck = existsSync(join(ROOT, "checks", `${step.name}.ts`));
+  const hasPythonCheck = existsSync(join(ROOT, "checks", `${step.name}.py`));
+  if (!hasTypeScriptCheck && !hasPythonCheck) {
+    report(step.dir, `no check at checks/${step.name}.ts`);
+  }
 }
 
-// A sample solution keeps the prompts that built it, so a learner can see how it was made.
-function checkSolutionPrompts(step: Step) {
-  const solution = join(step.dir, "solution");
-  if (existsSync(solution) && !existsSync(join(solution, "prompts.md"))) {
-    fail(step.dir, SOLUTION_PROMPTS_MISSING);
-  }
+function checkStep(step: Step, namesSeen: Set<string>) {
+  checkStepName(step, namesSeen);
+  checkStepFilesExist(step);
+  const readme = join(step.dir, "problem", "README.md");
+  if (!existsSync(readme)) return report(step.dir, "missing problem/README.md");
+  checkStepReadme(step, readme);
+  for (const problem of exampleFilesProblems(step.meta.exampleFiles)) report(step.dir, problem);
+  checkStepSolutionAndCheck(step);
 }
 
 function checkPartsAndSteps(allParts: Part[]) {
   const namesSeen = new Set<string>();
-  if (allParts.length === 0) fail(join(ROOT, "parts"), "no parts");
+  if (allParts.length === 0) report(join(ROOT, "parts"), "no parts");
   for (const part of allParts) {
     checkPartReadme(part);
-    if (part.steps.length === 0) fail(part.dir, "part has no steps");
-    for (const step of part.steps) {
-      checkStepBasics(step, namesSeen);
-      if (checkStepReadme(step)) checkStepSolutionAndCheck(step);
-      checkSolutionPrompts(step);
-    }
+    if (part.steps.length === 0) report(part.dir, "part has no steps");
+    for (const step of part.steps) checkStep(step, namesSeen);
   }
 }
 
-// 4. Commands: the README runs the finished system first,
-// and every command block says what to expect.
+// 4. Commands: the README runs the finished system first, and every bash block says what to expect.
 function checkRootReadmeOrder() {
   const rootReadme = join(ROOT, "README.md");
-  if (!existsSync(rootReadme)) {
-    fail(ROOT, "missing README.md");
-    return;
-  }
+  if (!existsSync(rootReadme)) return report(ROOT, "missing README.md");
   const text = readText(rootReadme);
   const firstCode = text.indexOf("```bash");
   const firstConcept = text.search(/^## (How it works|Concepts|Background|Why)/m);
   if (firstCode < 0) {
-    fail(rootReadme, "the README needs a bash block that runs the finished system");
+    report(rootReadme, "the README needs a bash block that runs the finished system");
   } else if (firstConcept >= 0 && firstConcept < firstCode) {
-    fail(rootReadme, "run the finished system before any concept section");
+    report(rootReadme, "run the finished system before any concept section");
   }
 }
 
-function checkExpectLines(file: string) {
+function checkBashBlocksSayWhatToExpect(file: string) {
   const lines = readText(file).split("\n");
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trim() !== "```bash") continue;
-    let j = i + 1;
-    while (j < lines.length && lines[j].trim() !== "```") j++;
-    const linesAfterBlock = lines.slice(j + 1);
-    const nextText = linesAfterBlock.find((line) => line.trim() !== "");
-    if (!nextText?.startsWith("Expect:")) {
-      fail(file, `line ${i + 1}: a bash block must be followed by an Expect: line`);
+  for (let index = 0; index < lines.length; index++) {
+    if (lines[index].trim() !== "```bash") continue;
+    let closing = index + 1;
+    while (closing < lines.length && lines[closing].trim() !== "```") closing++;
+    const lineAfter = lines.slice(closing + 1).find((line) => line.trim() !== "");
+    if (!lineAfter?.startsWith("Expect:")) {
+      report(file, `line ${index + 1}: a bash block must be followed by an Expect: line`);
     }
-    i = j;
+    index = closing;
   }
+}
+
+function checkCommands() {
+  checkRootReadmeOrder();
+  for (const file of markdownFiles) checkBashBlocksSayWhatToExpect(file);
 }
 
 // 5. One model config, exact pins, a troubleshooting table.
-function checkModelIds(files: string[]) {
-  const scanned = files.filter(
-    (file) =>
-      /\.(ts|py|md|json|toml|ya?ml)$/.test(file) &&
-      !file.includes("/config/models.") &&
-      !file.includes("/scripts/check.ts"),
-  );
-  for (const file of scanned) {
-    const modelId = readText(file).match(MODEL_ID);
-    if (modelId) {
-      fail(file, `model id "${modelId[0]}" outside config/models; name models in one place`);
+function checkModelsNamedInOnePlace() {
+  const sourceFiles = allFiles.filter((file) => /\.(ts|py|md|json|toml|ya?ml)$/.test(file));
+  for (const file of sourceFiles) {
+    // This file holds the pattern that finds model names, so it would flag itself.
+    if (file.includes("/config/models.") || file.includes("/scripts/check.ts")) continue;
+    const found = readText(file).match(MODEL_NAME);
+    if (found) {
+      report(file, `model id "${found[0]}" outside config/models; name models in one place`);
     }
   }
 }
 
-type PackageJson = {
-  dependencies?: Record<string, string>;
-  devDependencies?: Record<string, string>;
-};
-
-function checkPinnedVersions() {
-  const packagePath = join(ROOT, "package.json");
-  if (existsSync(packagePath)) {
-    const packageJson = JSON.parse(readText(packagePath)) as PackageJson;
-    const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
-    for (const [name, version] of Object.entries(dependencies)) {
-      if (!/^\d+\.\d+\.\d+$/.test(version))
-        fail(packagePath, `${name}@${version}: pin an exact version`);
-    }
+function checkNodePackagesPinned() {
+  const packageFile = join(ROOT, "package.json");
+  if (!existsSync(packageFile)) return;
+  const manifest = JSON.parse(readText(packageFile));
+  const wanted: Record<string, string> = { ...manifest.dependencies, ...manifest.devDependencies };
+  for (const [name, version] of Object.entries(wanted)) {
+    if (!/^\d+\.\d+\.\d+$/.test(version))
+      report(packageFile, `${name}@${version}: pin an exact version`);
   }
-  const pyprojectPath = join(ROOT, "pyproject.toml");
-  if (!existsSync(pyprojectPath)) return;
-  const looseVersion = /"([A-Za-z0-9_.\-[\]]+)\s*(>=|~=|\^|>|<)[^"]*"/g;
-  for (const match of readText(pyprojectPath).matchAll(looseVersion)) {
-    fail(pyprojectPath, `${match[1]}: pin with == not ${match[2]}`);
+}
+
+function checkPythonPackagesPinned() {
+  const projectFile = join(ROOT, "pyproject.toml");
+  if (!existsSync(projectFile)) return;
+  const loosePin = /"([A-Za-z0-9_.\-[\]]+)\s*(>=|~=|\^|>|<)[^"]*"/g;
+  for (const match of readText(projectFile).matchAll(loosePin)) {
+    report(projectFile, `${match[1]}: pin with == not ${match[2]}`);
   }
 }
 
 function checkTroubleshootingTable() {
-  const troubleshooting = join(ROOT, "00-orientation", "troubleshooting.md");
+  const file = join(ROOT, "00-orientation", "troubleshooting.md");
   const tableHeader = /\| *What you see *\| *What it means *\| *Fix *\|/;
-  if (!existsSync(troubleshooting) || !tableHeader.test(readText(troubleshooting))) {
-    fail(
+  if (!existsSync(file) || !tableHeader.test(readText(file))) {
+    report(
       ROOT,
       "00-orientation/troubleshooting.md needs a table: What you see | What it means | Fix",
     );
@@ -289,61 +262,72 @@ function checkTroubleshootingTable() {
 }
 
 // 6. Every schedule covers every part, and the minutes add up.
-type Session = { parts: string[]; minutes: number };
-type Schedules = Record<string, { sessions: Session[] }>;
+type Schedule = Record<string, { sessions: { parts: string[]; minutes: number }[] }>;
 
-function checkOneSchedule(format: string, sessions: Session[], allParts: Part[]) {
-  const schedulePath = join(ROOT, "schedules.toml");
-  const listedParts = sessions.flatMap((session) => session.parts);
+function minutesPerPart(allParts: Part[]): Record<string, number> {
+  const minutes: Record<string, number> = {};
   for (const part of allParts) {
-    if (!listedParts.includes(part.name)) {
-      fail(schedulePath, `${format} leaves out part "${part.name}"`);
+    minutes[part.name] = part.steps.reduce((total, step) => total + step.meta.minutes, 0);
+  }
+  return minutes;
+}
+
+function checkScheduleCoversParts(
+  schedulePath: string,
+  format: string,
+  listed: string[],
+  allParts: Part[],
+) {
+  for (const part of allParts) {
+    if (!listed.includes(part.name)) {
+      report(schedulePath, `${format} leaves out part "${part.name}"`);
     }
   }
-  const minutesPerPart = new Map<string, number>();
-  for (const part of allParts) {
-    const total = part.steps.reduce((sum, step) => sum + step.meta.minutes, 0);
-    minutesPerPart.set(part.name, total);
-  }
+}
+
+function checkSessionMinutes(
+  schedulePath: string,
+  format: string,
+  sessions: Schedule[string]["sessions"],
+  allParts: Part[],
+) {
+  const partMinutes = minutesPerPart(allParts);
   for (const session of sessions) {
-    const needed = session.parts.reduce((sum, name) => sum + (minutesPerPart.get(name) ?? 0), 0);
+    const needed = session.parts.reduce((total, name) => total + (partMinutes[name] ?? 0), 0);
     if (needed > session.minutes) {
-      fail(schedulePath, `${format}: a session needs ${needed} min but has ${session.minutes}`);
+      report(schedulePath, `${format}: a session needs ${needed} min but has ${session.minutes}`);
     }
   }
 }
 
 function checkSchedules(allParts: Part[]) {
   const schedulePath = join(ROOT, "schedules.toml");
-  if (!existsSync(schedulePath)) {
-    fail(ROOT, "missing schedules.toml");
-    return;
-  }
-  const schedules = Bun.TOML.parse(readText(schedulePath)) as Schedules;
-  for (const [format, schedule] of Object.entries(schedules)) {
-    checkOneSchedule(format, schedule.sessions, allParts);
+  if (!existsSync(schedulePath)) return report(ROOT, "missing schedules.toml");
+  const schedule = Bun.TOML.parse(readText(schedulePath)) as Schedule;
+  for (const [format, definition] of Object.entries(schedule)) {
+    const listed = definition.sessions.flatMap((session) => session.parts);
+    checkScheduleCoversParts(schedulePath, format, listed, allParts);
+    checkSessionMinutes(schedulePath, format, definition.sessions, allParts);
   }
 }
 
-const files = everyFile(ROOT);
-const markdownFiles = files.filter((file) => file.endsWith(".md"));
-const allParts = parts();
+function runEveryCheck() {
+  const allParts = parts();
+  checkNoMakefile();
+  checkProse();
+  checkImagesExist();
+  checkKeyPagesHavePictures();
+  checkPartsAndSteps(allParts);
+  checkCommands();
+  checkModelsNamedInOnePlace();
+  checkNodePackagesPinned();
+  checkPythonPackagesPinned();
+  checkTroubleshootingTable();
+  checkSchedules(allParts);
+  return allParts;
+}
 
-checkNoMakefile(files);
-checkProse(markdownFiles);
-checkImagesExist(markdownFiles);
-checkHasPicture(join(ROOT, "README.md"), "the root README", { mermaid: true, image: true });
-checkHasPicture(join(ROOT, "00-orientation", "README.md"), "the orientation", {
-  mermaid: false,
-  image: true,
-});
-checkPartsAndSteps(allParts);
-checkRootReadmeOrder();
-for (const file of markdownFiles) checkExpectLines(file);
-checkModelIds(files);
-checkPinnedVersions();
-checkTroubleshootingTable();
-checkSchedules(allParts);
+const checkedParts = runEveryCheck();
 
 if (problems.length > 0) {
   console.log(`The repo does not meet the standard. ${problems.length} problem(s):`);
@@ -351,5 +335,5 @@ if (problems.length > 0) {
   process.exit(1);
 }
 console.log(
-  `The repo meets the standard: ${allParts.length} part(s), ${allSteps().length} step(s).`,
+  `The repo meets the standard: ${checkedParts.length} part(s), ${allSteps().length} step(s).`,
 );

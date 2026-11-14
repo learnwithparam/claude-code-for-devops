@@ -19,6 +19,9 @@ function isFilled(row: string | undefined): boolean {
   return cellsAfterMode.every((cell) => cell.trim().length > 3);
 }
 
+const ORIGINAL_REPLICAS = "service: seat-api\nreplicas: 3\n";
+const undoLog = (folder: string) => read(folder, "notes", "undo-log.md");
+
 const defaultMode = (folder: string) => readSettings(folder)?.permissions?.defaultMode;
 
 export default [
@@ -65,5 +68,39 @@ export default [
       return dangerousBlocked === 30 && safeAllowed === 15 && sandboxOn;
     },
     tryNext: "keep the hook, its wiring and the sandbox block from the earlier steps",
+  },
+  {
+    says: "the note's When it goes wrong section names diff review, Esc, /rewind and /clear",
+    test: (folder) => {
+      const undo = section(note(folder), "When it goes wrong");
+      return (
+        /diff/i.test(undo) &&
+        /\bEsc\b/.test(undo) &&
+        undo.includes("/rewind") &&
+        undo.includes("/clear")
+      );
+    },
+    tryNext: "add a When it goes wrong section: read the diff, press Esc, then /rewind and /clear",
+  },
+  {
+    says: "notes/undo-log.md shows the bad edit as a diff, from replicas 3 to replicas 0",
+    test: (folder) => {
+      const edit = section(undoLog(folder), "The bad edit");
+      return /^-replicas: 3\s*$/m.test(edit) && /^\+replicas: 0\s*$/m.test(edit);
+    },
+    tryNext: "paste the diff you saw before you pressed Esc, under a heading The bad edit",
+  },
+  {
+    says: "notes/undo-log.md says you pressed Esc and used /rewind",
+    test: (folder) => {
+      const back = section(undoLog(folder), "How I got it back");
+      return /\bEsc\b/.test(back) && back.includes("/rewind");
+    },
+    tryNext: "under How I got it back, say you pressed Esc, then ran /rewind",
+  },
+  {
+    says: "scratch/replicas.yaml is back to replicas 3 after the rewind",
+    test: (folder) => read(folder, "scratch", "replicas.yaml") === ORIGINAL_REPLICAS,
+    tryNext: "run /rewind and choose the point before the edit, so the file shows replicas: 3",
   },
 ] satisfies Rule[];

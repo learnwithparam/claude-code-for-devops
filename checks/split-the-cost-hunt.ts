@@ -1,8 +1,8 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { frontMatter, listField } from "../parts/03-give-it-eyes/helpers/front-matter";
-import { agentWrites, describeEntry } from "../parts/03-give-it-eyes/helpers/world-log";
 import type { Rule } from "../scripts/verify";
+import { frontMatter, listField } from "./helpers/03-give-it-eyes/front-matter";
+import { agentWrites, describeEntry } from "./helpers/03-give-it-eyes/world-log";
 import { explain, read, section } from "./lib";
 
 const STEP = "split-the-cost-hunt";

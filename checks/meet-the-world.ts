@@ -99,4 +99,16 @@ export default [
       "put one command in backticks under the third heading; " +
       "pick one that changes or deletes something on prod",
   },
+  {
+    says: "How I asked names a file with @, shows a screenshot that exists, and says plan mode",
+    test: (folder) => {
+      const asked = section(note(folder), "How I asked");
+      const picture = asked.match(/!\[[^\]]*\]\(([^)\s]+)\)/)?.[1];
+      const pictureExists = picture !== undefined && read(folder, "notes", picture) !== "";
+      return /@[\w./-]+/.test(asked) && /plan mode/i.test(asked) && pictureExists;
+    },
+    tryNext:
+      "add a How I asked section: say plan mode, point at a file with @, " +
+      "and paste a screenshot into notes/ with a link to it",
+  },
 ] satisfies Rule[];

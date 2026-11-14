@@ -1,0 +1,18 @@
+name = "drift-check"
+# Every weekday at 07:00.
+cron = "* * * * *"
+prompt = """
+Run terraform plan with -detailed-exitcode in terraform/envs/prod, read only.
+Exit code 2 means drift. Name each resource address that differs.
+Never run apply. A person applies, after reading your note.
+Write the note to reviews/drift-today.md.
+"""
+allowed_tools = ["Bash(terraform plan *)", "Bash(terraform show *)", "Read", "Write(reviews/*)"]
+notify_when = "drift"
+silent_when = "no drift"
+owner = "the platform on-call engineer"
+
+[contract]
+max_turns = 8
+on_failure = "notify the owner that the run failed"
+log = "reviews/drift-log.jsonl"

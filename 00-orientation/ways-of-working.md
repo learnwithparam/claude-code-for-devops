@@ -10,7 +10,7 @@ You write no code. You give Claude Code a job in plain English, read its plan, a
 Type what you want, the way you would tell a new teammate. For example, "Read this file and tell me which
 environment it points at."
 
-You do this in [meet-the-world](meet-the-world/problem/README.md), and then in every step.
+You do this in [meet-the-world](../parts/00-orientation/01-meet-the-world/problem/README.md), and then in every step.
 
 ## Start Claude Code in a folder
 
@@ -102,19 +102,19 @@ You do this in
 `claude -p` runs Claude Code with one prompt and no screen. It can answer in a fixed shape. The course uses it for a
 plan review.
 
-You do this in [review-the-plan-headless](../parts/04-run-it-without-you/01-review-the-plan-headless/problem/README.md).
+You do this in [review-the-plan-headless](../parts/04-run-it-in-ci/01-review-the-plan-headless/problem/README.md).
 
 ## Run it in CI
 
 A pipeline can start Claude Code with a fixed permission mode and a turn limit. It signs in with a token you make
 once with `claude setup-token`.
 
-You do this in [wire-the-plan-review](../parts/04-run-it-without-you/02-wire-the-plan-review/problem/README.md).
+You do this in [wire-the-plan-review](../parts/04-run-it-in-ci/02-wire-the-plan-review/problem/README.md).
 
 ## Lock settings that a repo cannot change
 
 Managed settings apply to everyone on a machine, and a repo cannot override them. You do this in
-[seal-the-devcontainer](../parts/04-run-it-without-you/04-seal-the-devcontainer/problem/README.md).
+[seal-the-devcontainer](../parts/05-ship-the-kit/01-seal-the-devcontainer/problem/README.md).
 
 ## Leave a session
 

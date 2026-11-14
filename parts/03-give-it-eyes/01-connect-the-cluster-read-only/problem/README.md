@@ -2,16 +2,11 @@
 
 ## The problem
 
-Claude Code finds a cause faster when it can look at the clusters itself. An MCP server gives it
-that view. But the view must not come with hands.
+An MCP server lets Claude Code look at the cluster. The view must not come with hands. The `read_only` setting is only "best-effort" in the server's own docs.
 
-The Kubernetes MCP server has a `read_only` setting. Its own docs say this setting is "best-effort". The access
-control to rely on is Kubernetes RBAC on the identity the server uses
-([kubernetes-mcp-server](https://github.com/containers/kubernetes-mcp-server)).
+For example, if the server uses your `~/.kube/config`, one slip runs `pods_delete` on prod with your admin rights.
 
-For example, if the server uses your own `~/.kube/config`, it acts as you. One slip in the server, and
-`pods_delete` runs on prod with your admin rights. If it uses a `claude-reader` account that may only `get`,
-`list` and `watch`, the cluster itself says no.
+## Watch it done
 
 ```mermaid
 flowchart LR
@@ -20,22 +15,23 @@ flowchart LR
   K --> SA[claude-reader ServiceAccount]
   SA -->|ClusterRole: get, list, watch| P[(dev and prod)]
   SA -.->|delete, secrets: no| P
-  D[deny rules for mcp__kubernetes__ write tools] -.-> C
+  D[deny rules for write tools] -.-> C
 ```
 
-## Your challenge
+With a `claude-reader` account that may only `get`, `list` and `watch`, the cluster itself says no. On the sample answer, `delete pods` prints `no` and `get pods` prints `yes`.
 
-You give Claude Code eyes on both clusters. Three layers keep its hands off: RBAC, the server's `read_only`
-setting, and deny rules in settings.
+![The read-only check passing on the sample answer](../images/expected.png)
 
-Start Claude Code in the root folder of this course repo, and give it this job:
+## Your turn
+
+1. Start Claude Code in the root folder of this course repo. Give it this job:
 
 ```text
 Work in parts/03-give-it-eyes/01-connect-the-cluster-read-only/problem/.
 1. Write k8s/claude-reader.yaml: a ServiceAccount claude-reader in namespace ops,
    a ClusterRole that may only get, list and watch pods, pods/log, services, events,
-   namespaces, nodes, configmaps, deployments, replicasets and horizontalpodautoscalers,
-   and a ClusterRoleBinding. No secrets, and no "*" anywhere.
+   nodes, deployments and horizontalpodautoscalers, and a ClusterRoleBinding.
+   No secrets, and no "*" anywhere.
 2. Write kubeconfig/claude-reader.yaml with contexts kind-tallowmark-dev and
    kind-tallowmark-prod, both using the user claude-reader with a practice token.
 3. Read https://github.com/containers/kubernetes-mcp-server. Write mcp/kubernetes.toml
@@ -48,15 +44,19 @@ Work in parts/03-give-it-eyes/01-connect-the-cluster-read-only/problem/.
 Show me your plan first.
 ```
 
-Read the plan. Does any line of the ClusterRole say `"*"`? Then ask what the reader can do:
+Expect: a plan. Does any line of the ClusterRole say `"*"`? If so, ask for a fix.
+
+2. Ask what the reader can do:
 
 ```bash
-bun parts/03-give-it-eyes/helpers/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/problem delete pods
+bun checks/helpers/03-give-it-eyes/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/problem delete pods
 ```
 
 Expect: `no`
 
-The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+## Do it on your work
+
+Make a reader account on a cluster you own, with only `get`, `list` and `watch`. Point the MCP server at it, never at your admin file. Good looks like the cluster refusing a pod delete.
 
 ## Done when
 
@@ -73,7 +73,9 @@ bun run verify connect-the-cluster-read-only
 
 Expect: `Done. All 9 rules pass.`
 
-![The read-only check passing on the sample answer](../images/expected.png)
+## Solution
+
+The after state is in `../solution/`. It adds the reader files, `mcp/kubernetes.toml`, `.mcp.json` and the deny rules. Prompts: `../solution/prompts.md`.
 
 ## If you get stuck
 

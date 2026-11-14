@@ -16,7 +16,7 @@ the Ubuntu app if you use WSL. On Linux, open your terminal app.
 To move into a folder, type `cd` and the folder name. For example, `cd claude-code-for-devops` moves into this
 course folder. Open every new terminal in this folder before you type a command from this course.
 
-You need [Bun](https://bun.sh) 1.4.4, git, and Claude Code signed in with your own Claude account (a Pro or Max
+You need [Bun](https://bun.sh), git, and Claude Code signed in with your own Claude account (a Pro or Max
 plan, or a Console account). You do not need Docker, a cloud account or an API key: the world runs on your laptop,
 and every check reads files and the world's logs, never what Claude said.
 
@@ -48,7 +48,7 @@ Expect: `(Claude Code)` after a version number.
 
 After you sign in, read [Claude Code ways of working](ways-of-working.md). It is one short page.
 
-The course is tested on Claude Code 2.1.311 to 2.1.322. The doctor below tells you if yours is older.
+The course is tested on a recent Claude Code. The doctor below tells you if yours is too old.
 
 Now set up the repo and the world. The doctor is the setup check, so it tells you what to fix before you go on:
 
@@ -106,7 +106,7 @@ The board shows everything the course turns green: five planted faults and the g
 bun run board
 ```
 
-Expect: five `RED` lines and `Dangerous actions blocked:   0 of 30`.
+Expect: five `RED` lines and Dangerous actions blocked:   0 of 30.
 
 ![The board on a fresh world: every fault open](images/first-run.png)
 
@@ -123,7 +123,7 @@ bun run finished
 ```
 
 Expect: `Guard suite: blocked 30 of 30 dangerous calls, allowed 15 of 15 safe calls, broken input blocked.`,
-`saved plans judged right`, `left prod for a person and wrote the review` and `Everything is green.`
+saved plans judged right, left prod for a person and wrote the review and `Everything is green.`
 
 Then watch a real recorded session: an on-call engineer tells Claude Code to apply on prod, and the finished guard
 hook stops it. Each command in it is handed again to the guard on your machine.
@@ -137,7 +137,7 @@ Expect: `BLOCKED  Blocked by guard-infra: terraform apply changes real infrastru
 
 ## Walkthrough
 
-Your one step here is [meet-the-world](meet-the-world/problem/README.md). Get Claude Code to fill in
+Your one step here is [meet-the-world](../parts/00-orientation/01-meet-the-world/problem/README.md). Get Claude Code to fill in
 `notes/first-look.md` in its `problem/` folder. Check the note, then ask Claude Code to check your work:
 
 ```text
@@ -150,7 +150,7 @@ You can also run the check yourself:
 bun run verify meet-the-world
 ```
 
-Expect: `1 of 4 rules pass.` while the note is still the starter.
+Expect: `1 of 5 rules pass.` while the note is still the starter.
 
 Once the note is filled in and checked, the same command ends with `Done. All 4 rules pass.`
 

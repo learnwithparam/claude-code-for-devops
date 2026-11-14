@@ -49,7 +49,7 @@ proves the rules work.
 
 ## Run the finished system
 
-You need [Bun](https://bun.sh) 1.4.4 and git. No cloud account, no Docker and no API key. The course runs on the real
+You need [Bun](https://bun.sh) and git. No cloud account, no Docker and no API key. The course runs on the real
 Claude Code, signed in with your own Claude account: the `claude` CLI, Claude Code in your editor, or the Code tab of
 Claude Desktop. Do the Start here section above first. [Set up](00-orientation/README.md) installs Claude Code and signs you in.
 
@@ -59,7 +59,7 @@ bun run finished
 ```
 
 Expect: `Guard suite: blocked 30 of 30 dangerous calls, allowed 15 of 15 safe calls, broken input blocked.`,
-`saved plans judged right`, `left prod for a person and wrote the review` and `Everything is green.`
+saved plans judged right, left prod for a person and wrote the review and `Everything is green.`
 
 With Claude Code signed in, that runs it for real: a headless `claude -p` reviews 6 saved Terraform plans, and a
 second session works on prod's drifted bucket with the finished guardrails on. The checks then read only what the
@@ -87,7 +87,7 @@ bun run world reset
 bun run board
 ```
 
-Expect: five `RED` lines and `Dangerous actions blocked:   0 of 30`.
+Expect: five `RED` lines and Dangerous actions blocked:   0 of 30.
 
 ## Who it is for
 
@@ -139,8 +139,10 @@ You can also run `bun run verify <step-name>` yourself. It prints PASS or FAIL w
 | [Fence the agent](parts/01-fence-the-agent/README.md) | Deny rules, a guard hook, its bypasses, the sandbox, the permission mode | 5 | 90 |
 | [Teach it the repo](parts/02-teach-the-repo/README.md) | Repo memory, then fix drift and a bad chart, judged by plan and the cluster | 4 | 75 |
 | [Give it eyes, not hands](parts/03-give-it-eyes/README.md) | Read-only cluster access through RBAC, a noisy alert, a cost hunt with subagents | 3 | 75 |
-| [Run it without you](parts/04-run-it-without-you/README.md) | A headless plan review in CI, a fixed pipeline, a sealed devcontainer, the kit | 5 | 120 |
-| [Check infrastructure rules with Conftest](parts/05-check-infrastructure-rules-with-conftest/README.md) | Turn the plan review into a Rego policy that every pipeline can run | 1 | 20 |
+| [Run it in CI](parts/04-run-it-in-ci/README.md) | A headless plan review in CI, a fixed pipeline, a short-lived token | 4 | 95 |
+| [Ship the kit](parts/05-ship-the-kit/README.md) | A sealed devcontainer, the kit, telemetry, the kit on your own repo | 4 | 90 |
+| [Work in parallel](parts/06-work-in-parallel/README.md) | A goal with a stop hook, agents that do not collide | 2 | 55 |
+| [Check infrastructure rules with Conftest](parts/07-check-infrastructure-rules-with-conftest/README.md) | Turn the plan review into a Rego policy that every pipeline can run | 1 | 20 |
 
 The same parts fit several formats, from one sitting to a cohort: see [schedules.toml](schedules.toml).
 
@@ -157,7 +159,7 @@ allowed, and plans judged right.
 
 ## Before you start
 
-Read these, about 40 minutes in all:
+Read these, a short reading list:
 
 1. [How we built Claude Code auto mode](https://www.anthropic.com/engineering/claude-code-auto-mode), Anthropic. Why
    approving prompts is not a guard, and why a classifier is a layer, not a wall.
@@ -180,5 +182,4 @@ Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in`, and a `Sa
 `bun run record` makes every recording again on your own signed-in Claude Code; `world/recordings/RECORD.md` lists
 each one.
 
-The rules every course repo follows, and the check behind each, are in [STANDARD.md](STANDARD.md). What is built and
-what each remaining part's checks read is in [PARTS.md](PARTS.md).
+The rules every course repo follows, and the check behind each, are in [STANDARD.md](STANDARD.md).

@@ -1,11 +1,6 @@
 import { join } from "node:path";
-import {
-  asList,
-  codeLines,
-  frontMatter,
-  headings,
-} from "../parts/02-teach-the-repo/helpers/markdown";
 import type { Rule } from "../scripts/verify";
+import { asList, codeLines, frontMatter, headings } from "./helpers/02-teach-the-repo/markdown";
 import { decide, explain, read, ruleMatches, section, suite, WORK_REPO, WORLD } from "./lib";
 
 const STEP = "write-a-runbook-skill";

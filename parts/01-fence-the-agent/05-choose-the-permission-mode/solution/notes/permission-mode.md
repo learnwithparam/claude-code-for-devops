@@ -11,3 +11,8 @@
 ## This repo
 
 Mode: default
+
+## When it goes wrong
+
+I read the diff before I say yes to each edit. Esc stops it mid-step. `/rewind` goes back to an earlier point and
+undoes its file edits. `/clear` starts fresh when the talk has drifted off the job.

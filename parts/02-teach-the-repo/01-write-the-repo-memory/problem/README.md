@@ -3,15 +3,12 @@
 ## The problem
 
 Each Claude Code session starts with an empty memory. It does not know that your shell starts on prod. It does
-not know that `plan` is the judge of done.
+not know that `plan` is the judge of done. People report that it even skips "mandatory" rules in `CLAUDE.md`
+([issue #2544](https://github.com/anthropics/claude-code/issues/2544)). So memory advises, and the hook still guards.
 
-`CLAUDE.md` is the file Claude Code reads at the start of every session. Rules in `.claude/rules/` load only
-when Claude Code opens a matching file. The docs say to keep `CLAUDE.md` under 200 lines. Longer files are
-followed less well.
+## Watch it done
 
-But memory is advice, not a guard. For example, many people report that Claude Code skipped a "mandatory" rule
-in their `CLAUDE.md` ([issue #2544](https://github.com/anthropics/claude-code/issues/2544)). So the hook from
-the Fence the agent part stays. The memory tells Claude Code how to work. The hook stops what it must never do.
+For example, `CLAUDE.md` loads every session. A rule file in `.claude/rules/` loads only for a matching file.
 
 ```mermaid
 flowchart LR
@@ -23,33 +20,45 @@ flowchart LR
   H -->|apply| X[Blocked]
 ```
 
-## Your challenge
-
-Start Claude Code in the root folder of this course repo, and give it this job:
+The check on the sample answer ends like this:
 
 ```text
-Read world/seed/tallowmark-infra: its README, .envrc, terraform/, charts/ and alerts/.
-Then write parts/02-teach-the-repo/01-write-the-repo-memory/problem/CLAUDE.md for that repo.
-Use exactly four sections: Environments, Commands, Never, Done means.
-Say that the shell starts on prod. List only commands that read, never apply.
-Done means: terraform plan -detailed-exitcode exits 0 after a person applies.
-Keep it under 60 lines. Show me the file before you save it.
+Done. All 8 rules pass.
 ```
 
-Read the file. Is every line a fact Claude Code needs in every session? Cut the rest.
+## Your turn
 
-Then give the second job:
+1. Start Claude Code in the root folder of this course repo. Type `/init`. Expect: a first `CLAUDE.md` draft.
+2. Give it this job:
 
-```text
-Move the Terraform-only advice into
-parts/02-teach-the-repo/01-write-the-repo-memory/problem/.claude/rules/terraform.md,
-with front matter paths: ["terraform/**/*.tf"].
-Say the code is the source of truth, and that the buyer records bucket keeps
-versioning on and all four public access settings true.
-Do not touch .claude/settings.json or the hook.
-```
+   ```text
+   Read world/seed/tallowmark-infra: its README, .envrc, terraform/, charts/ and alerts/.
+   Then write parts/02-teach-the-repo/01-write-the-repo-memory/problem/CLAUDE.md for that repo.
+   Use exactly four sections: Environments, Commands, Never, Done means.
+   Say that the shell starts on prod. List only commands that read, never apply.
+   Done means: terraform plan -detailed-exitcode exits 0 after a person applies.
+   Keep it under 60 lines. Show me the file before you save it.
+   ```
 
-The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
+   Expect: a file with four sections, shown before it is saved.
+3. Cut every line that Claude Code does not need in every session. Expect: a shorter file.
+4. Give the second job:
+
+   ```text
+   Move the Terraform-only advice into
+   parts/02-teach-the-repo/01-write-the-repo-memory/problem/.claude/rules/terraform.md,
+   with front matter paths: ["terraform/**/*.tf"].
+   Say the code is the source of truth, and that the buyer records bucket keeps
+   versioning on and all four public access settings true.
+   Do not touch .claude/settings.json or the hook.
+   ```
+
+   Expect: a rule file, and an untouched hook.
+
+## Do it on your work
+
+Run the same two jobs in your own repo, and list only read commands. Good looks like a short `CLAUDE.md`
+and one rule file per area.
 
 ## Done when
 
@@ -66,6 +75,11 @@ bun run verify write-the-repo-memory
 Expect: `Done. All 8 rules pass.`
 
 ![The memory check passing on the sample answer](../images/expected.png)
+
+## Solution
+
+See `../solution/`. The diff adds `CLAUDE.md` with four sections and a Terraform-only rule file. The prompts
+are in `../solution/prompts.md`. Read them after you try.
 
 ## If you get stuck
 

@@ -2,6 +2,14 @@
 
 This part moves the **Outcome**: Claude Code fixes real drift and a broken chart, with the guardrails on.
 
+## After this part you can
+
+give Claude Code a map of a repo, and a check it must run before it says done.
+
+## You leave with
+
+a CLAUDE.md, a fixed drift, a fixed chart, a runbook skill and a scheduled drift check.
+
 ## The problem
 
 People still change production directly, outside the code. Datadog found that at least 38 percent of organizations
@@ -29,14 +37,30 @@ flowchart LR
   H[guard hook from Fence the agent] -.blocks apply.-> A
 ```
 
+## Watch and read
+
+| Kind | Title | Who made it | Why it is here | Link |
+|---|---|---|---|---|
+| video | Claude Code best practices for agentic coding | Anthropic, conference talk | The team that builds Claude Code shows the habits that keep agents safe and useful | https://www.youtube.com/watch?v=gv0WHhKelSE |
+| video | Claude Code best practices webinar | Anthropic, webinar | A walk through the habits Anthropic teaches for real repos | https://claude.com/resources/webinars/claude-code-best-practices-lightspeed |
+| read | How Claude remembers your project | Anthropic, official docs | What goes in CLAUDE.md and rules, from the team that wrote the loader | https://code.claude.com/docs/en/memory |
+| read | Skills | Anthropic, official docs | How a runbook skill is found and run | https://code.claude.com/docs/en/skills |
+| read | Best practices | Anthropic, official docs | What to put in repo memory and what to leave out | https://code.claude.com/docs/en/best-practices |
+| read | Claude Code best practices | Anthropic, engineering blog | The original write-up of the repo-memory habit | https://www.anthropic.com/engineering/claude-code-best-practices |
+
+## Project
+
+Write a CLAUDE.md for one repo of yours with one check to run. Ask Claude Code to fix a small thing and see that it runs the check.
+
 ## What you build
 
 | Step | Minutes | What Claude Code makes for you | The check reads |
 |---|---|---|---|
 | `write-the-repo-memory` | 15 | `CLAUDE.md` under 200 lines and `.claude/rules/terraform.md` with `paths:` | The files' sections and line count, and that the guard hook still exists |
-| `fix-the-drift` | 20 | `reviews/buyer-records-drift.md`, and the Terraform code left as the source of truth | The prod plan after the checker applies as a person, the bucket's state, and the command log for any agent change |
-| `fix-the-helm-chart` | 20 | A fixed `charts/seat-api` | `helm lint`, the chart values, the rendered manifest, and the dev pods after the checker deploys |
+| `fix-the-drift` | 18 | `reviews/buyer-records-drift.md`, and the Terraform code left as the source of truth | The prod plan after the checker applies as a person, the bucket's state, and the command log for any agent change |
+| `fix-the-helm-chart` | 18 | A fixed `charts/seat-api` | `helm lint`, the chart values, the rendered manifest, and the dev pods after the checker deploys |
 | `write-a-runbook-skill` | 20 | `.claude/skills/drain-a-node/SKILL.md`, dev only | The skill's front matter, its `allowed-tools`, and each command it runs against the guard hook |
+| `schedule-the-drift-check` | 15 | `routines/drift-check.toml`: a weekday read-only plan that tells a person only on drift | The cron, the plan prompt, the allowed tools, the notify rule and the run contract |
 
 Every step starts from the last step's sample answer. So you can start any step fresh.
 
@@ -77,6 +101,7 @@ bun run verify write-the-repo-memory
 bun run verify fix-the-drift
 bun run verify fix-the-helm-chart
 bun run verify write-a-runbook-skill
+bun run verify schedule-the-drift-check
 ```
 
 Expect: `Done. All 8 rules pass.`, then 8, 7 and 8 rules, once each step is solved.

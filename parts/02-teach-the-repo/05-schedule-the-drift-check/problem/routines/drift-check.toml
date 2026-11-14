@@ -1,0 +1,11 @@
+name = "drift-check"
+cron = ""
+prompt = ""
+allowed_tools = []
+notify_when = ""
+owner = ""
+
+[contract]
+max_turns = 0
+on_failure = ""
+log = ""

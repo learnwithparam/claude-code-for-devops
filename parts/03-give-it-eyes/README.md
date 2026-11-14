@@ -2,6 +2,14 @@
 
 This part moves the **Transformation**: Claude Code reads prod for you, and it cannot change it.
 
+## After this part you can
+
+give Claude Code a read-only view of a cluster, and keep any change with a person.
+
+## You leave with
+
+a read-only role, a quieter alert, a split cost hunt and a triage note.
+
 ## The problem
 
 Reading is where an agent saves the most time. Ramp connected Claude Code to Datadog and Sentry through MCP. They
@@ -30,13 +38,29 @@ flowchart LR
   B --> R
 ```
 
+## Watch and read
+
+| Kind | Title | Who made it | Why it is here | Link |
+|---|---|---|---|---|
+| video | Claude Code best practices for agentic coding | Anthropic, conference talk | The team that builds Claude Code shows the habits that keep agents safe and useful | https://www.youtube.com/watch?v=gv0WHhKelSE |
+| video | Building effective agents | Anthropic, conference talk | Why a person stays in the loop, from the people who run agents in production | https://www.youtube.com/watch?v=D7_ipDqhtwk |
+| read | Connect Claude Code to tools with MCP | Anthropic, official docs | How a read-only cluster tool is wired in | https://code.claude.com/docs/en/mcp |
+| read | Subagents | Anthropic, official docs | How to give an agent only the tools it needs | https://code.claude.com/docs/en/sub-agents |
+| read | Permissions | Anthropic, official docs | Why a read-only role beats a rule in a prompt | https://code.claude.com/docs/en/permissions |
+| read | Building effective agents | Anthropic, engineering blog | When to split work across agents and when not to | https://www.anthropic.com/engineering/building-effective-agents |
+
+## Project
+
+Point the read-only role at a test cluster of yours and triage one real alert with it. A person does the rollback.
+
 ## What you build
 
 | Step | Minutes | What Claude Code makes for you | The check reads |
 |---|---|---|---|
-| `connect-the-cluster-read-only` | 25 | A reader ServiceAccount and ClusterRole, its kubeconfig, `.mcp.json` and deny rules | What the reader identity may do on both clusters, which kubeconfig the MCP server uses, and which MCP tools are denied |
-| `quiet-the-noisy-alert` | 20 | A fixed `alerts/seat.rules.yml` and its unit test | The rule run against `alerts/series.yml`: no firing on the three short spikes, firing on the sustained one |
-| `split-the-cost-hunt` | 30 | Three subagents in `.claude/agents/` and `investigations/cost-spike.md` | The agents' tools, the report's `root_causes` against the planted pair, its sections, and the command log for any write |
+| `connect-the-cluster-read-only` | 20 | A reader ServiceAccount and ClusterRole, its kubeconfig, `.mcp.json` and deny rules | What the reader identity may do on both clusters, which kubeconfig the MCP server uses, and which MCP tools are denied |
+| `quiet-the-noisy-alert` | 15 | A fixed `alerts/seat.rules.yml` and its unit test | The rule run against `alerts/series.yml`: no firing on the three short spikes, firing on the sustained one |
+| `split-the-cost-hunt` | 25 | Three subagents in `.claude/agents/` and `investigations/cost-spike.md` | The agents' tools, the report's `root_causes` against the planted pair, its sections, and the command log for any write |
+| `triage-the-live-incident` | 20 | Read-only settings and `incident/triage.md`, with a rollback a person runs | The deny rules, the evidence commands, the named person and the read-only `/loop` |
 
 ## Walkthrough
 
@@ -53,9 +77,9 @@ In the first step, Claude Code writes the reader identity. Ask the practice `kub
 identity may do on the sample answer:
 
 ```bash
-bun parts/03-give-it-eyes/helpers/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution get pods
-bun parts/03-give-it-eyes/helpers/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution delete pods
-bun parts/03-give-it-eyes/helpers/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution list secrets
+bun checks/helpers/03-give-it-eyes/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution get pods
+bun checks/helpers/03-give-it-eyes/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution delete pods
+bun checks/helpers/03-give-it-eyes/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution list secrets
 ```
 
 Expect: `yes`, then `no`, then `no`.
@@ -63,7 +87,7 @@ Expect: `yes`, then `no`, then `no`.
 In the second step, play the recorded latency through the alert rule. On the starter, every window pages:
 
 ```bash
-bun parts/03-give-it-eyes/helpers/alerts.ts parts/03-give-it-eyes/02-quiet-the-noisy-alert/problem
+bun checks/helpers/03-give-it-eyes/alerts.ts parts/03-give-it-eyes/02-quiet-the-noisy-alert/problem
 ```
 
 Expect: four lines, each ending in `FIRES`.
@@ -84,6 +108,7 @@ every FAIL:
 bun run verify connect-the-cluster-read-only
 bun run verify quiet-the-noisy-alert
 bun run verify split-the-cost-hunt
+bun run verify triage-the-live-incident
 ```
 
 Expect: `Done. All 9 rules pass.`, then 7 and 7 rules, once each step is solved.
@@ -128,5 +153,5 @@ itself refuses its writes. It found two causes of the cost spike and wrote a fix
 For example, ask it "why does seat-api restart on prod?" It can list pods and read logs. It cannot delete a pod
 to "fix" it.
 
-The next part, `run-it-without-you`, takes you out of the loop. Claude Code reviews Terraform plans in CI with no
+The next part, `run-it-in-ci`, takes you out of the loop. Claude Code reviews Terraform plans in CI with no
 write keys, and the guardrails become a kit another team can install.
