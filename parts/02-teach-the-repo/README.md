@@ -57,10 +57,10 @@ Write a CLAUDE.md for one repo of yours with one check to run. Ask Claude Code t
 | Step | Minutes | What Claude Code makes for you | The check reads |
 |---|---|---|---|
 | `write-the-repo-memory` | 15 | `CLAUDE.md` under 200 lines and `.claude/rules/terraform.md` with `paths:` | The files' sections and line count, and that the guard hook still exists |
-| `fix-the-drift` | 20 | `reviews/buyer-records-drift.md`, and the Terraform code left as the source of truth | The prod plan after the checker applies as a person, the bucket's state, and the command log for any agent change |
-| `fix-the-helm-chart` | 20 | A fixed `charts/seat-api` | `helm lint`, the chart values, the rendered manifest, and the dev pods after the checker deploys |
+| `fix-the-drift` | 18 | `reviews/buyer-records-drift.md`, and the Terraform code left as the source of truth | The prod plan after the checker applies as a person, the bucket's state, and the command log for any agent change |
+| `fix-the-helm-chart` | 18 | A fixed `charts/seat-api` | `helm lint`, the chart values, the rendered manifest, and the dev pods after the checker deploys |
 | `write-a-runbook-skill` | 20 | `.claude/skills/drain-a-node/SKILL.md`, dev only | The skill's front matter, its `allowed-tools`, and each command it runs against the guard hook |
-| `schedule-the-drift-check` | 20 | `routines/drift-check.toml`: a weekday read-only plan that tells a person only on drift | The cron, the plan prompt, the allowed tools, the notify rule and the run contract |
+| `schedule-the-drift-check` | 15 | `routines/drift-check.toml`: a weekday read-only plan that tells a person only on drift | The cron, the plan prompt, the allowed tools, the notify rule and the run contract |
 
 Every step starts from the last step's sample answer. So you can start any step fresh.
 
