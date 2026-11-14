@@ -8,7 +8,7 @@ Have Claude Code turn one of your review rules into a policy that gates the plan
 You write no code. You write prompts in `prompts.md`, and Claude Code writes the Rego.
 
 The starter is in `starter/`: the two plan files, an empty policy and an empty `prompts.md`. A working reference
-is in `parts/05-check-infrastructure-rules-with-conftest/01-write-the-plan-policy/solution/`. This folder needs no
+is in `parts/07-check-infrastructure-rules-with-conftest/01-write-the-plan-policy/solution/`. This folder needs no
 containers, so `compose.yaml` starts none.
 
 Also write `CHOICE.md`: three or four sentences on when you would pick Checkov instead.

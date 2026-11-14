@@ -2,6 +2,14 @@
 
 This part moves the **Outcome**: Claude Code fixes real drift and a broken chart, with the guardrails on.
 
+## After this part you can
+
+give Claude Code a map of a repo, and a check it must run before it says done.
+
+## You leave with
+
+a CLAUDE.md, a fixed drift, a fixed chart, a runbook skill and a scheduled drift check.
+
 ## The problem
 
 People still change production directly, outside the code. Datadog found that at least 38 percent of organizations
@@ -28,6 +36,21 @@ flowchart LR
   L -->|Running| D
   H[guard hook from Fence the agent] -.blocks apply.-> A
 ```
+
+## Watch and read
+
+| Kind | Title | Who made it | Why it is here | Link |
+|---|---|---|---|---|
+| video | Claude Code best practices for agentic coding | Anthropic, conference talk | The team that builds Claude Code shows the habits that keep agents safe and useful | https://www.youtube.com/watch?v=gv0WHhKelSE |
+| video | Claude Code best practices webinar | Anthropic, webinar | A walk through the habits Anthropic teaches for real repos | https://claude.com/resources/webinars/claude-code-best-practices-lightspeed |
+| read | How Claude remembers your project | Anthropic, official docs | What goes in CLAUDE.md and rules, from the team that wrote the loader | https://code.claude.com/docs/en/memory |
+| read | Skills | Anthropic, official docs | How a runbook skill is found and run | https://code.claude.com/docs/en/skills |
+| read | Best practices | Anthropic, official docs | What to put in repo memory and what to leave out | https://code.claude.com/docs/en/best-practices |
+| read | Claude Code best practices | Anthropic, engineering blog | The original write-up of the repo-memory habit | https://www.anthropic.com/engineering/claude-code-best-practices |
+
+## Project
+
+Write a CLAUDE.md for one repo of yours with one check to run. Ask Claude Code to fix a small thing and see that it runs the check.
 
 ## What you build
 

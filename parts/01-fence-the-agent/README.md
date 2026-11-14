@@ -2,6 +2,14 @@
 
 This part moves the **Objective**: you can prove Claude Code cannot apply, delete or read a secret.
 
+## After this part you can
+
+prove Claude Code cannot apply, delete or read a secret.
+
+## You leave with
+
+deny rules, a guard hook, a sandbox, a permission mode, and an undo log from one bad edit you rewound.
+
 ## The problem
 
 A Claude Code session that runs with no prompts can do real damage in one tool call. For example, in issue
@@ -31,6 +39,21 @@ flowchart LR
   S -->|allowed| R[Runs]
   G[Guard suite: 45 planted calls] -.-> H
 ```
+
+## Watch and read
+
+| Kind | Title | Who made it | Why it is here | Link |
+|---|---|---|---|---|
+| video | Claude Code best practices for agentic coding | Anthropic, conference talk | The team that builds Claude Code shows the habits that keep agents safe and useful | https://www.youtube.com/watch?v=gv0WHhKelSE |
+| video | Building effective agents | Anthropic, conference talk | Why a person stays in the loop, from the people who run agents in production | https://www.youtube.com/watch?v=D7_ipDqhtwk |
+| read | Permissions | Anthropic, official docs | The rule syntax this part's deny rules use | https://code.claude.com/docs/en/permissions |
+| read | Hooks reference | Anthropic, official docs | Exact exit codes and JSON a guard hook must return | https://code.claude.com/docs/en/hooks |
+| read | Sandboxing | Anthropic, official docs | What the operating system blocks no matter what the agent says | https://code.claude.com/docs/en/sandboxing |
+| read | How we built Claude Code auto mode | Anthropic, engineering blog | The numbers behind why prompts and classifiers are not a fence | https://www.anthropic.com/engineering/claude-code-auto-mode |
+
+## Project
+
+Put three deny rules and the guard hook on one real repo of yours. Run the guard suite and keep its counts.
 
 ## What you build
 

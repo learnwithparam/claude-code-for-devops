@@ -32,5 +32,6 @@
     "grade": 6
   },
   "ladder": true,
-  "capstone": true
+  "capstone": true,
+  "picks": true
 }

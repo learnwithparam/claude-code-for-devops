@@ -67,7 +67,7 @@ The prompts that solve this step are in `../solution/prompts.md`. Read them afte
 - `disableBypassPermissionsMode` is `"disable"`.
 - The hook and the sandbox are still in place.
 - `scratch/replicas.yaml` is back to `replicas: 3`, and `notes/undo-log.md` shows the diff and how you got it back.
-- A last section in the permission note, When it goes wrong, says how you review a diff, stop with Esc, go back with `/rewind` and start fresh with `/clear`.
+- The permission note ends with a section, When it goes wrong. It says how you review a diff, stop with Esc, go back with `/rewind` and start fresh with `/clear`.
 
 ```bash
 bun run verify choose-the-permission-mode

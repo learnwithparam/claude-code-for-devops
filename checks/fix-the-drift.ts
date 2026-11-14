@@ -1,6 +1,6 @@
-import { agentChanges, withWorldCopy } from "./helpers/02-teach-the-repo/world-copy";
 import type { Rule } from "../scripts/verify";
 import { applyPlan, loadCloud, plan } from "../world/sim/state";
+import { agentChanges, withWorldCopy } from "./helpers/02-teach-the-repo/world-copy";
 import { explain, read, section } from "./lib";
 
 const STEP = "fix-the-drift";

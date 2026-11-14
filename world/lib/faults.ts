@@ -143,7 +143,7 @@ function ciFault(repo: string): Fault {
   return {
     id: "ci",
     name: "Failing CI pipeline",
-    part: "run-it-without-you",
+    part: "run-it-in-ci",
     fixed: problems.length === 0,
     evidence: problems.join("; ") || "every action pinned and tflint clean",
   };

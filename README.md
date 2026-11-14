@@ -139,8 +139,10 @@ You can also run `bun run verify <step-name>` yourself. It prints PASS or FAIL w
 | [Fence the agent](parts/01-fence-the-agent/README.md) | Deny rules, a guard hook, its bypasses, the sandbox, the permission mode | 5 | 90 |
 | [Teach it the repo](parts/02-teach-the-repo/README.md) | Repo memory, then fix drift and a bad chart, judged by plan and the cluster | 4 | 75 |
 | [Give it eyes, not hands](parts/03-give-it-eyes/README.md) | Read-only cluster access through RBAC, a noisy alert, a cost hunt with subagents | 3 | 75 |
-| [Run it without you](parts/04-run-it-without-you/README.md) | A headless plan review in CI, a fixed pipeline, a sealed devcontainer, the kit | 5 | 120 |
-| [Check infrastructure rules with Conftest](parts/05-check-infrastructure-rules-with-conftest/README.md) | Turn the plan review into a Rego policy that every pipeline can run | 1 | 20 |
+| [Run it in CI](parts/04-run-it-in-ci/README.md) | A headless plan review in CI, a fixed pipeline, a short-lived token | 4 | 95 |
+| [Ship the kit](parts/05-ship-the-kit/README.md) | A sealed devcontainer, the kit, telemetry, the kit on your own repo | 4 | 90 |
+| [Work in parallel](parts/06-work-in-parallel/README.md) | A goal with a stop hook, agents that do not collide | 2 | 55 |
+| [Check infrastructure rules with Conftest](parts/07-check-infrastructure-rules-with-conftest/README.md) | Turn the plan review into a Rego policy that every pipeline can run | 1 | 20 |
 
 The same parts fit several formats, from one sitting to a cohort: see [schedules.toml](schedules.toml).
 

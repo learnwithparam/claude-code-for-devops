@@ -103,7 +103,7 @@ function nameOf(element) {
 }
 
 function sentenceCount(text) {
-  return text.split(/[.!?]+(\s|$)/).filter((part) => part && part.trim()).length;
+  return text.split(/[.!?]+(\s|$)/).filter((part) => part?.trim()).length;
 }
 
 function buttonLabel(button) {

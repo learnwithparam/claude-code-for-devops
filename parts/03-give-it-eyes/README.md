@@ -2,6 +2,14 @@
 
 This part moves the **Transformation**: Claude Code reads prod for you, and it cannot change it.
 
+## After this part you can
+
+give Claude Code a read-only view of a cluster, and keep any change with a person.
+
+## You leave with
+
+a read-only role, a quieter alert, a split cost hunt and a triage note.
+
 ## The problem
 
 Reading is where an agent saves the most time. Ramp connected Claude Code to Datadog and Sentry through MCP. They
@@ -29,6 +37,21 @@ flowchart LR
   W --> R
   B --> R
 ```
+
+## Watch and read
+
+| Kind | Title | Who made it | Why it is here | Link |
+|---|---|---|---|---|
+| video | Claude Code best practices for agentic coding | Anthropic, conference talk | The team that builds Claude Code shows the habits that keep agents safe and useful | https://www.youtube.com/watch?v=gv0WHhKelSE |
+| video | Building effective agents | Anthropic, conference talk | Why a person stays in the loop, from the people who run agents in production | https://www.youtube.com/watch?v=D7_ipDqhtwk |
+| read | Connect Claude Code to tools with MCP | Anthropic, official docs | How a read-only cluster tool is wired in | https://code.claude.com/docs/en/mcp |
+| read | Subagents | Anthropic, official docs | How to give an agent only the tools it needs | https://code.claude.com/docs/en/sub-agents |
+| read | Permissions | Anthropic, official docs | Why a read-only role beats a rule in a prompt | https://code.claude.com/docs/en/permissions |
+| read | Building effective agents | Anthropic, engineering blog | When to split work across agents and when not to | https://www.anthropic.com/engineering/building-effective-agents |
+
+## Project
+
+Point the read-only role at a test cluster of yours and triage one real alert with it. A person does the rollback.
 
 ## What you build
 
@@ -130,5 +153,5 @@ itself refuses its writes. It found two causes of the cost spike and wrote a fix
 For example, ask it "why does seat-api restart on prod?" It can list pods and read logs. It cannot delete a pod
 to "fix" it.
 
-The next part, `run-it-without-you`, takes you out of the loop. Claude Code reviews Terraform plans in CI with no
+The next part, `run-it-in-ci`, takes you out of the loop. Claude Code reviews Terraform plans in CI with no
 write keys, and the guardrails become a kit another team can install.

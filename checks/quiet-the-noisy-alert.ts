@@ -1,11 +1,11 @@
 import { join } from "node:path";
+import type { Rule } from "../scripts/verify";
 import {
   findSlowRule,
   holdMinutes,
   playSeries,
   quantileOf,
 } from "./helpers/03-give-it-eyes/alerts";
-import type { Rule } from "../scripts/verify";
 import { exists, explain, read } from "./lib";
 
 const STEP = "quiet-the-noisy-alert";

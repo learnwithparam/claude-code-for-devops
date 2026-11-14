@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { withWorldCopy } from "./helpers/02-teach-the-repo/world-copy";
 import type { Rule } from "../scripts/verify";
 import { renderChart } from "../world/sim/cli";
 import { repoDir, WORLD } from "../world/sim/state";
+import { withWorldCopy } from "./helpers/02-teach-the-repo/world-copy";
 import { explain } from "./lib";
 
 const STEP = "fix-the-helm-chart";

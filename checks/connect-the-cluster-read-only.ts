@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, normalize } from "node:path";
+import type { Rule } from "../scripts/verify";
 import {
   canI,
   READER_NAME,
@@ -8,7 +9,6 @@ import {
   readerRoles,
   readManifests,
 } from "./helpers/03-give-it-eyes/rbac";
-import type { Rule } from "../scripts/verify";
 import { explain, read, readSettings, suite } from "./lib";
 
 const STEP = "connect-the-cluster-read-only";

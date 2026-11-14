@@ -8,7 +8,7 @@ import { ROOT } from "./structure";
 
 const SOLUTION = join(
   ROOT,
-  "parts/05-check-infrastructure-rules-with-conftest/01-write-the-plan-policy/solution",
+  "parts/07-check-infrastructure-rules-with-conftest/01-write-the-plan-policy/solution",
 );
 const STARTER = join(ROOT, "assignment", "starter");
 const problems: string[] = [];
