@@ -9,12 +9,12 @@ first minute the median goes over 0.3 seconds.
 
 For example, `alerts/series.yml` holds what seat-api really did. There were three short spikes of one or two
 minutes. Fans never noticed them, but each one paged the on-call person. Then, at minute 100, p99 sat at 2.4
-seconds for 15 minutes. That slowdown cost ticket sales.
+seconds for a long stretch. That slowdown cost ticket sales.
 
 Try it on the starter:
 
 ```bash
-bun parts/03-give-it-eyes/helpers/alerts.ts parts/03-give-it-eyes/02-quiet-the-noisy-alert/problem
+bun checks/helpers/03-give-it-eyes/alerts.ts parts/03-give-it-eyes/02-quiet-the-noisy-alert/problem
 ```
 
 Expect: four lines, and each one says `FIRES`.
@@ -23,7 +23,7 @@ Expect: four lines, and each one says `FIRES`.
 flowchart LR
   S[alerts/series.yml] --> R{SeatApiSlow}
   R -->|3 short spikes| Q[silent]
-  R -->|15 minute slowdown| P[page]
+  R -->|long slowdown| P[page]
   T[alerts/seat.test.yml] -.promtool test rules.-> R
 ```
 
@@ -70,7 +70,7 @@ Expect: `Done. All 7 rules pass.`
 | What you see | What to ask Claude Code |
 |---|---|
 | `FAIL SeatApiSlow watches p99 latency` | "Use histogram_quantile(0.99, ...). A longer for on p50 still hides the slow tail." |
-| `FAIL it stays silent on all 3 short spikes` | "Set for: 5m. The longest spike is 2 minutes." |
+| `FAIL it stays silent on all 3 short spikes` | "Set for: 5m. The longest spike is two minutes." |
 | `FAIL it fires during the sustained slowdown` | "The threshold is above 2.4 seconds. Bring it down to 1 second." |
 
 ## Words you will use

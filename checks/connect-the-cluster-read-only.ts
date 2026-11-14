@@ -7,7 +7,7 @@ import {
   readerAccount,
   readerRoles,
   readManifests,
-} from "../parts/03-give-it-eyes/helpers/rbac";
+} from "./helpers/03-give-it-eyes/rbac";
 import type { Rule } from "../scripts/verify";
 import { explain, read, readSettings, suite } from "./lib";
 

@@ -22,19 +22,19 @@ Show me your plan first.
 The words change from run to run. A good plan has these points:
 
 1. The reason: p50 goes over 0.3 seconds in each spike, and `for: 0m` pages at once.
-2. The new rule: `histogram_quantile(0.99, ...) > 1` over a 5 minute rate, with `for: 5m`.
+2. The new rule: `histogram_quantile(0.99, ...) > 1` over a five minute rate, with `for: 5m`.
 3. A unit test with four bucket series, one quiet check at `42m` and one firing check at `110m`.
 
 ## What you check before you say yes
 
 - The quantile is 0.99. The `wrong/longer-for-only` answer keeps p50 and only waits longer.
-- `for` is 5 minutes. The `wrong/p99-no-hold` answer still pages on a 1 minute spike.
+- `for` is five minutes. The `wrong/p99-no-hold` answer still pages on a one minute spike.
 - The threshold is under 2.4 seconds. The `wrong/threshold-too-high` answer never pages at all.
 
 ## Play the series through the new rule
 
 ```bash
-bun parts/03-give-it-eyes/helpers/alerts.ts parts/03-give-it-eyes/02-quiet-the-noisy-alert/solution
+bun checks/helpers/03-give-it-eyes/alerts.ts parts/03-give-it-eyes/02-quiet-the-noisy-alert/solution
 ```
 
 Expect: three `silent` lines for the spikes, and `FIRES` for the slowdown at minute 100.

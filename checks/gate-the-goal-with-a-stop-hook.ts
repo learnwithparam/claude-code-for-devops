@@ -3,7 +3,7 @@
 import { cpSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { frontMatter, listField } from "../parts/03-give-it-eyes/helpers/front-matter";
+import { frontMatter, listField } from "./helpers/03-give-it-eyes/front-matter";
 import type { Rule } from "../scripts/verify";
 import { read, readSettings, section } from "./lib";
 

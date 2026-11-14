@@ -17,7 +17,7 @@ For example, one rule says a plan must not delete the orders database. Conftest 
 ## Why it matters
 
 A rule in chat is forgotten when the chat ends. A rule in a policy file runs on every plan, fails with a message,
-and has its own tests. Conftest is Apache 2.0 licensed, and the same Rego language is used across Kubernetes.
+and has its own tests. Conftest is open source, and the same Rego language is used across Kubernetes.
 
 ## What we teach
 
@@ -48,14 +48,14 @@ homework.
 
 ## Options
 
-Conftest is the pick for this part. Checkov 3.4.5 is the runner-up.
+Conftest is the pick for this part. Checkov is the runner-up.
 
 - **Choose when:** you want many ready-made checks without writing Rego.
 - **Trade-off:** you learn its rule set, not a policy language.
 
 ## Walkthrough
 
-Conftest v0.71.1 is the pinned version. The check downloads that exact release into `.cache/` if your machine
+Conftest is pinned to one exact release. The check downloads that exact release into `.cache/` if your machine
 does not have it, and verifies its checksum.
 
 See the finished policy catch the bad plan and pass the good one:

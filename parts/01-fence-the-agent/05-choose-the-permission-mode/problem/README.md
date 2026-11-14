@@ -49,6 +49,14 @@ permissions.disableBypassPermissionsMode to "disable".
 Keep the hook and the sandbox as they are. Show me your plan first.
 ```
 
+Last, undo a bad edit. In the same session, give this job:
+
+```text
+Tidy scratch/replicas.yaml. Make it replicas: 0.
+```
+
+Read the diff. It is a bad edit. Let Claude Code make it, press Esc, then run /rewind and choose the point before the edit. Then write `notes/undo-log.md` with two headings. Under "The bad edit", paste the diff. Under "How I got it back", say you pressed Esc and ran /rewind. The file must show `replicas: 3` again.
+
 The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
 
 ## Done when
@@ -58,13 +66,14 @@ The prompts that solve this step are in `../solution/prompts.md`. Read them afte
 - The note's `Mode:` line matches the setting.
 - `disableBypassPermissionsMode` is `"disable"`.
 - The hook and the sandbox are still in place.
-- A last section, When it goes wrong, says how you review a diff, stop with Esc, go back with `/rewind` and start fresh with `/clear`.
+- `scratch/replicas.yaml` is back to `replicas: 3`, and `notes/undo-log.md` shows the diff and how you got it back.
+- A last section in the permission note, When it goes wrong, says how you review a diff, stop with Esc, go back with `/rewind` and start fresh with `/clear`.
 
 ```bash
 bun run verify choose-the-permission-mode
 ```
 
-Expect: `Done. All 7 rules pass.`
+Expect: `Done. All 10 rules pass.`
 
 ![The mode check passing on the sample answer](../images/expected.png)
 

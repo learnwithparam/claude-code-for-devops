@@ -71,7 +71,7 @@ Expect: `Done. All 5 rules pass.`
 | What you see | What to ask Claude Code |
 |---|---|
 | `FAIL the tflint step still runs` | "Put the tflint step back and fix the module instead." |
-| `... action(s) not pinned to a commit SHA` | "Pin each uses: to the 40 character SHA, not a tag like v7.0.1." |
+| `... action(s) not pinned to a commit SHA` | "Pin each uses: to the 40 character SHA, not a tag." |
 | `FAIL ... the dev plan stays empty` | "Remove the resource you added. This fix only adds a terraform block." |
 
 ## Words you will use

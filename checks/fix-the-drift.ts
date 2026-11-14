@@ -1,4 +1,4 @@
-import { agentChanges, withWorldCopy } from "../parts/02-teach-the-repo/helpers/world-copy";
+import { agentChanges, withWorldCopy } from "./helpers/02-teach-the-repo/world-copy";
 import type { Rule } from "../scripts/verify";
 import { applyPlan, loadCloud, plan } from "../world/sim/state";
 import { explain, read, section } from "./lib";

@@ -4,13 +4,13 @@ Every message a script prints on failure is in this table.
 
 | What you see | What it means | Fix |
 |---|---|---|
-| `bun: command not found` | Bun is not installed. | Install Bun 1.4.4 from bun.sh, then open a new terminal. |
+| `bun: command not found` | Bun is not installed. | Install Bun from bun.sh, then open a new terminal. |
 | `There is no step called "..."` | The step name is misspelled. | Copy a name from the list it prints. |
 | `There is no part called "..."` | The part name is misspelled. | Copy a name from the list it prints, such as `fence-the-agent`. |
 | `ERROR the check for ... could not load` | The check itself is broken, not your work. | Open an issue with the full output. |
 | `FAIL ...` followed by `Try next: ...` | One rule of the step is not met yet. | Do what the Try next line says, then run the same command again. |
 | `Unknown command "..."` from `bun run world` | `world` takes `reset`, `use <step-name>` or `status`. | Run `bun run world` with one of those. |
-| `Name a step: bun run world use <step-name>` | `world use` needs a step name. | Add the step name, such as `write-the-deny-rules`. |
+| Name a step: bun run world use <step-name> | `world use` needs a step name. | Add the step name, such as `write-the-deny-rules`. |
 | `The step ... has no problem/.claude folder to use.` | That step does not change Claude Code settings. | Use a step from Fence the agent. |
 | `Error: No configuration files. Run terraform from terraform/envs/dev or terraform/envs/prod, or pass -chdir.` | You ran `terraform` outside an environment folder. | `cd` into `terraform/envs/dev` or pass `-chdir=terraform/envs/dev`. |
 | `Apply cancelled. Run with -auto-approve, or type yes when a person approves.` | The world's terraform wants an approval. | That is the point. A person applies, not the agent. |
@@ -25,7 +25,7 @@ Every message a script prints on failure is in this table.
 | `No recording at world/recordings/....jsonl` | A recording the replay needs is missing. | Pull the repo again, or record it with `bun run record` on a signed-in Claude Code. |
 | `Cannot record: ...` or `Cannot run live: ...` | `bun run record` and `bun run demo --live` need a signed-in Claude Code. | Do what the message says, such as `claude` then `/login`. |
 | `claude -p printed nothing it could read.` | Claude Code started but failed, often a sign-in that ran out or no network. | Run `claude -p "say ok"` to see the error, then `/login` again. |
-| `Claude Code stopped: Sandbox required but unavailable` or `FIX   Sandbox` from the doctor | The finished settings set `failIfUnavailable`, and the sandbox cannot start. On Linux it needs `bubblewrap` and `socat`. | Install them (for example `sudo apt-get install bubblewrap socat`), or see the sandboxing docs for your system. |
-| `checksum mismatch for conftest_...` or `conftest ...: 404` | The check could not download Conftest v0.71.1, or the file did not match its published checksum. | Check your network, then install Conftest v0.71.1 from its GitHub releases page and run `conftest --version`. |
+| `Claude Code stopped: Sandbox required but unavailable` or `FIX   Sandbox` from the doctor | The finished settings set `failIfUnavailable`, and the sandbox cannot start. On Linux it needs `bubblewrap` and `socat`. | Install them (for example sudo apt-get install bubblewrap socat), or see the sandboxing docs for your system. |
+| `checksum mismatch for conftest_...` or `conftest ...: 404` | The check could not download Conftest, or the file did not match its published checksum. | Check your network, then install the pinned Conftest from its GitHub releases page and run `conftest --version`. |
 | `FAIL  the bad plan fails with a message, and the good plan passes` | Your policy does not deny the bad plan, or it also denies the good one. | Run `conftest test --policy policy plans/bad.json` and read what it prints. |
 | `The repo does not meet the standard.` | `bun run check` found a rule broken. | Fix each listed line. Authors only; learners do not need this. |

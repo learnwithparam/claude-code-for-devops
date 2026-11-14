@@ -51,7 +51,7 @@ Show me your plan first.
 Read the plan. Does any line of the ClusterRole say `"*"`? Then ask what the reader can do:
 
 ```bash
-bun parts/03-give-it-eyes/helpers/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/problem delete pods
+bun checks/helpers/03-give-it-eyes/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/problem delete pods
 ```
 
 Expect: `no`

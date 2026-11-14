@@ -2,7 +2,7 @@
 // answers what one ServiceAccount may do, by following ClusterRoleBindings to ClusterRoles.
 // The practice clusters have no real API server, so this is how a check asks the question.
 //
-// Try it: bun parts/03-give-it-eyes/helpers/rbac.ts <step folder> <verb> <resource>
+// Try it: bun checks/helpers/03-give-it-eyes/rbac.ts <step folder> <verb> <resource>
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -74,7 +74,7 @@ export function canI(manifests: Manifest[], verb: string, resource: string): boo
 if (import.meta.main) {
   const [folder, verb, resource] = process.argv.slice(2);
   if (!folder || !verb || !resource) {
-    console.log("Use: bun parts/03-give-it-eyes/helpers/rbac.ts <step folder> <verb> <resource>");
+    console.log("Use: bun checks/helpers/03-give-it-eyes/rbac.ts <step folder> <verb> <resource>");
     process.exit(1);
   }
   const allowed = canI(readManifests(folder), verb, resource);

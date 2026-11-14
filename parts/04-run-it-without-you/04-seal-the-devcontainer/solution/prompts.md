@@ -9,7 +9,7 @@ plan, and pushed back once.
 Read https://code.claude.com/docs/en/devcontainer and the managed settings page in the same docs.
 In parts/04-run-it-without-you/04-seal-the-devcontainer/problem/.devcontainer/, write
 devcontainer.json, a Dockerfile, init-firewall.sh and managed-settings.json.
-The Dockerfile installs @anthropic-ai/claude-code@2.1.322 exactly, sets DISABLE_AUTOUPDATER=1,
+The Dockerfile installs @anthropic-ai/claude-code at the exact version that claude --version prints, sets DISABLE_AUTOUPDATER=1,
 and copies managed-settings.json to /etc/claude-code/managed-settings.json.
 The firewall drops everything except api.anthropic.com, registry.npmjs.org and registry.tallowmark.test.
 It runs at start, with --cap-add=NET_ADMIN. Managed settings set allowManagedHooksOnly to true and

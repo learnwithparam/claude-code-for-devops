@@ -11,7 +11,7 @@ The starter is in `starter/`: the two plan files, an empty policy and an empty `
 is in `parts/05-check-infrastructure-rules-with-conftest/01-write-the-plan-policy/solution/`. This folder needs no
 containers, so `compose.yaml` starts none.
 
-Also write `CHOICE.md`: three or four sentences on when you would pick Checkov 3.4.5 instead.
+Also write `CHOICE.md`: three or four sentences on when you would pick Checkov instead.
 
 ## Done when
 
@@ -23,7 +23,7 @@ bun checks/assignment.ts
 
 Expect: `PASS` on all three lines and `Assignment passes.`
 
-- Conftest reports v0.71.1.
+- Conftest reports the pinned version.
 - The bad plan fails and the good plan passes.
 - `conftest verify` passes.
 

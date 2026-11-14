@@ -2,7 +2,7 @@
 // world whether its CI fault is fixed. The practice repo keeps ci.yml in workflows/; the world
 // reads it from the GitHub workflows folder, so the check copies it there.
 
-import { withWorldCopy } from "../parts/04-run-it-without-you/helpers/world-copy";
+import { withWorldCopy } from "./helpers/04-run-it-without-you/world-copy";
 import type { Rule } from "../scripts/verify";
 import { explain, faults, plan, read } from "./lib";
 

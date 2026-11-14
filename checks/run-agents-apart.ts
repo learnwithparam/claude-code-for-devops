@@ -1,5 +1,5 @@
 // Reads batch.md, scripts/start-agents.sh and the reviewer agent. It starts no agent.
-import { frontMatter, listField } from "../parts/03-give-it-eyes/helpers/front-matter";
+import { frontMatter, listField } from "./helpers/03-give-it-eyes/front-matter";
 import type { Rule } from "../scripts/verify";
 import { read, section } from "./lib";
 

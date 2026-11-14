@@ -39,7 +39,7 @@ Expect: `Done. All 3 rules pass.`
 
 ## Done when
 
-- `conftest --version` reports v0.71.1.
+- `conftest --version` reports the pinned version.
 - The bad plan fails with your message and the good plan passes.
 - `conftest verify --policy policy` passes with at least one test.
 

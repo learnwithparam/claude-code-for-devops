@@ -16,7 +16,7 @@ world/bin/kubectl get pods -n seat --context kind-tallowmark-dev
 world/bin/kubectl logs seat-api --context kind-tallowmark-dev
 ```
 
-Expect: three `seat-api` pods in `CrashLoopBackOff`, then `listening on :8080`.
+Expect: three `seat-api` pods in `CrashLoopBackOff`, then listening on :8080.
 
 A weak fix moves the app to port 9090 to match the probe. The pods go green, but the app still listens on 8080,
 and every request fails.

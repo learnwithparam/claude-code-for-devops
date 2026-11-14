@@ -1,15 +1,13 @@
-// bun run verify <step-name>            check your work on one step,
-//                                       then show progress on every step
-// bun run verify <step-name> solution   check the sample solution instead
-// bun run verify part <part-name>       check every step in one part (a deliverable)
-// bun run verify --report               write verify-report.json for cohort grading
-// bun run verify --all                  CI: each check fails on its starter and wrong answers,
-//                                       and passes on its solution
+// bun run verify <step-name>           check your work on one step, then show all progress
+// bun run verify <step-name> solution  check the sample solution instead
+// bun run verify part <part-name>      check every step in one part (a deliverable)
+// bun run verify --report              write verify-report.json for cohort grading
+// bun run verify --all                 CI: each check fails on its starter and wrong answers,
+//                                      and passes on its solution
 // Exit codes: 0 pass, 1 fail, 2 the check could not run.
 
 import { existsSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { stopWritingGuardLog } from "../checks/lib/guard";
 import { allSteps, findStep, parts, ROOT, type Step } from "./structure";
 
 export type Rule = {
@@ -26,26 +24,24 @@ type Result = {
 };
 
 async function rulesFor(step: Step): Promise<Rule[]> {
-  const checkFile = join(ROOT, "checks", `${step.name}.ts`);
-  const checkModule = await import(checkFile);
-  return checkModule.default;
+  return (await import(join(ROOT, "checks", `${step.name}.ts`))).default;
 }
 
-// A rule that throws counts as a fail, so one broken rule never stops the others.
-async function rulePasses(rule: Rule, dir: string): Promise<boolean> {
+async function ruleHolds(rule: Rule, folder: string): Promise<boolean> {
   try {
-    return await rule.test(dir);
+    return await rule.test(folder);
   } catch {
+    // A rule that crashes counts as not met, so the learner sees a FAIL line to act on.
     return false;
   }
 }
 
-function printRule(rule: Rule, passed: boolean) {
-  if (passed) console.log(`  PASS  ${rule.says}`);
+function printRuleLine(rule: Rule, holds: boolean) {
+  if (holds) console.log(`  PASS  ${rule.says}`);
   else console.log(`  FAIL  ${rule.says}\n        Try next: ${rule.tryNext}`);
 }
 
-async function run(step: Step, dir: string, print = false): Promise<Result> {
+async function run(step: Step, folder: string, print = false): Promise<Result> {
   let rules: Rule[];
   try {
     rules = await rulesFor(step);
@@ -58,177 +54,171 @@ async function run(step: Step, dir: string, print = false): Promise<Result> {
   }
   const failed: string[] = [];
   for (const rule of rules) {
-    const passed = await rulePasses(rule, dir);
-    if (!passed) failed.push(rule.says);
-    if (print) printRule(rule, passed);
+    const holds = await ruleHolds(rule, folder);
+    if (!holds) failed.push(rule.says);
+    if (print) printRuleLine(rule, holds);
   }
-  return {
-    step: step.name,
-    status: failed.length > 0 ? "fail" : "pass",
-    passed: rules.length - failed.length,
-    total: rules.length,
-    failed,
-  };
+  const passed = rules.length - failed.length;
+  const status = failed.length ? "fail" : "pass";
+  return { step: step.name, status, passed, total: rules.length, failed };
 }
 
-const learnerWork = (step: Step) => join(step.dir, "problem");
+const starterFolder = (step: Step) => join(step.dir, "problem");
 
-function wrongAnswers(step: Step) {
+function wrongAnswers(step: Step): { name: string; dir: string }[] {
   const wrongFolder = join(step.dir, "wrong");
   if (!existsSync(wrongFolder)) return [];
   return readdirSync(wrongFolder).map((name) => ({ name, dir: join(wrongFolder, name) }));
 }
 
-function rulesWithoutTryNext(step: Step, rules: Rule[]): string[] {
+const countPassing = (results: Result[]) => results.filter((result) => result.status === "pass");
+
+const [firstArgument, secondArgument] = process.argv.slice(2);
+
+function problemsWithTryNext(step: Step, rules: Rule[]): string[] {
   const problems: string[] = [];
   for (const rule of rules) {
-    const tryNextWords = rule.tryNext.trim().split(/\s+/);
-    if (tryNextWords.length < 3) {
-      problems.push(`${step.name}: rule "${rule.says}" needs a try-next sentence`);
-    }
+    const wordCount = rule.tryNext.trim().split(/\s+/).length;
+    if (wordCount < 3) problems.push(`${step.name}: rule "${rule.says}" needs a try-next sentence`);
   }
   return problems;
 }
 
-async function solutionProblems(step: Step): Promise<string[]> {
-  const solution = join(step.dir, "solution");
-  if (!existsSync(solution)) {
+async function problemsWithSolution(step: Step): Promise<string[]> {
+  const solutionFolder = join(step.dir, "solution");
+  if (!existsSync(solutionFolder)) {
     return [`${step.name}: needs solution/ so CI can prove the check can pass`];
   }
-  const result = await run(step, solution);
-  if (result.status === "pass") return [];
-  return [`${step.name}: the sample solution fails: ${result.failed.join("; ")}`];
+  const outcome = await run(step, solutionFolder);
+  if (outcome.status === "pass") return [];
+  return [`${step.name}: the sample solution fails: ${outcome.failed.join("; ")}`];
 }
 
-async function wrongAnswerProblems(step: Step): Promise<string[]> {
-  const wrong = wrongAnswers(step);
+async function problemsWithWrongAnswers(step: Step): Promise<string[]> {
   const problems: string[] = [];
+  const wrong = wrongAnswers(step);
   if (wrong.length === 0) {
     problems.push(
       `${step.name}: needs at least one wrong/<mistake>/ answer that the check must reject`,
     );
   }
   for (const answer of wrong) {
-    const result = await run(step, answer.dir);
-    if (result.status === "pass") {
+    const outcome = await run(step, answer.dir);
+    if (outcome.status === "pass") {
       problems.push(`${step.name}: wrong answer "${answer.name}" passes the check`);
     }
   }
   return problems;
 }
 
-async function checkProblems(step: Step): Promise<string[]> {
-  let rules: Rule[] = [];
+async function problemsWithStep(step: Step): Promise<string[]> {
+  let rules: Rule[];
   try {
     rules = await rulesFor(step);
   } catch (error) {
+    // When the check cannot load, nothing else about this step can be tried.
     return [`${step.name}: the check could not load: ${(error as Error).message}`];
   }
-  const problems = rulesWithoutTryNext(step, rules);
-  const starter = await run(step, learnerWork(step));
+  const problems = problemsWithTryNext(step, rules);
+  const starter = await run(step, starterFolder(step));
   if (starter.status === "pass") {
     problems.push(`${step.name}: the check passes on the starter, so it checks nothing`);
   }
-  problems.push(...(await solutionProblems(step)));
-  problems.push(...(await wrongAnswerProblems(step)));
+  problems.push(...(await problemsWithSolution(step)));
+  problems.push(...(await problemsWithWrongAnswers(step)));
   return problems;
 }
 
-async function checkEveryCheck(): Promise<never> {
-  // CI runs of starters, solutions and wrong answers are not your work, so the board ignores them.
-  stopWritingGuardLog();
+async function verifyEveryCheck(onlySteps: string[] = []): Promise<never> {
   const problems: string[] = [];
-  for (const step of allSteps()) problems.push(...(await checkProblems(step)));
+  const chosen = allSteps().filter(
+    (step) => onlySteps.length === 0 || onlySteps.includes(step.name),
+  );
+  for (const step of chosen) problems.push(...(await problemsWithStep(step)));
   for (const problem of problems) console.log(`  ${problem}`);
   if (problems.length > 0) console.log(`${problems.length} check problem(s).`);
   else console.log("Every check rejects its starter and wrong answers, and passes its solution.");
   process.exit(problems.length > 0 ? 1 : 0);
 }
 
-async function workOnEveryStep(): Promise<Result[]> {
-  const results: Result[] = [];
-  for (const step of allSteps()) results.push(await run(step, learnerWork(step)));
-  return results;
-}
-
-const passCount = (results: Result[]) =>
-  results.filter((result) => result.status === "pass").length;
-
 async function writeReport(): Promise<never> {
-  const results = await workOnEveryStep();
-  const reportPath = join(ROOT, "verify-report.json");
+  const results: Result[] = [];
+  for (const step of allSteps()) results.push(await run(step, starterFolder(step)));
   const report = { version: 1, at: new Date().toISOString(), results };
-  writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
-  const passing = passCount(results);
+  writeFileSync(join(ROOT, "verify-report.json"), `${JSON.stringify(report, null, 2)}\n`);
+  const passing = countPassing(results).length;
   console.log(`Wrote verify-report.json: ${passing} of ${results.length} steps pass.`);
   process.exit(0);
 }
 
-function listPartsAndExit(partName: string | undefined): never {
-  if (partName) console.log(`There is no part called "${partName}". Parts:`);
+function listPartsAndStop(): never {
+  if (secondArgument) console.log(`There is no part called "${secondArgument}". Parts:`);
   else console.log("Name a part. Parts:");
   for (const part of parts()) console.log(`  bun run verify part ${part.name}`);
   process.exit(1);
 }
 
-async function verifyPart(partName: string | undefined): Promise<never> {
-  const part = parts().find((candidate) => candidate.name === partName);
-  if (!part) return listPartsAndExit(partName);
+function partExitCode(results: Result[]): number {
+  if (results.some((result) => result.status === "error")) return 2;
+  return countPassing(results).length === results.length ? 0 : 1;
+}
+
+async function verifyOnePart(): Promise<never> {
+  const part = parts().find((candidate) => candidate.name === secondArgument);
+  if (!part) return listPartsAndStop();
   console.log(`Part ${part.name}:`);
   const results: Result[] = [];
   for (const step of part.steps) {
-    const result = await run(step, learnerWork(step));
+    const result = await run(step, starterFolder(step));
     results.push(result);
-    const status = result.status.toUpperCase().padEnd(5);
-    console.log(`  ${status}  ${step.name}  (${result.passed}/${result.total} rules)`);
+    const label = result.status.toUpperCase().padEnd(5);
+    console.log(`  ${label}  ${step.name}  (${result.passed}/${result.total} rules)`);
   }
-  const done = passCount(results);
-  const total = results.length;
-  if (done === total) console.log(`Part ${part.name} is done: ${done}/${total} steps pass.`);
-  else {
-    console.log(
-      `${done}/${total} steps pass. Run bun run verify <step-name> on a FAIL line to see why.`,
-    );
-  }
-  if (results.some((result) => result.status === "error")) process.exit(2);
-  process.exit(done === total ? 0 : 1);
+  const done = countPassing(results).length;
+  const summary = `${done}/${results.length} steps pass.`;
+  if (done === results.length) console.log(`Part ${part.name} is done: ${summary}`);
+  else console.log(`${summary} Run bun run verify <step-name> on a FAIL line to see why.`);
+  process.exit(partExitCode(results));
 }
 
-function listStepsAndExit(stepName: string | undefined): never {
-  if (stepName) console.log(`There is no step called "${stepName}". Steps:`);
+function listStepsAndStop(): never {
+  if (firstArgument) console.log(`There is no step called "${firstArgument}". Steps:`);
   else console.log("Name a step. Steps:");
   for (const step of allSteps()) console.log(`  bun run verify ${step.name}`);
   process.exit(1);
 }
 
-async function verifyStep(stepName: string | undefined, which: string | undefined) {
-  const step = stepName ? findStep(stepName) : undefined;
-  if (!step) return listStepsAndExit(stepName);
-  const asSolution = which === "solution";
+async function printProgress() {
+  // Done is recomputed from the checks every time, never read from a saved flag.
+  const everyResult: Result[] = [];
+  for (const step of allSteps()) everyResult.push(await run(step, starterFolder(step)));
+  const passing = countPassing(everyResult).length;
+  console.log(`Progress: ${passing}/${everyResult.length} steps pass.`);
+}
+
+async function verifyOneStep(step: Step): Promise<never> {
+  const asSolution = secondArgument === "solution";
   const whose = asSolution ? "sample solution" : "your work";
   console.log(`Checking ${step.name} (${whose}):`);
-  const folder = asSolution ? join(step.dir, "solution") : learnerWork(step);
+  const folder = asSolution ? join(step.dir, "solution") : starterFolder(step);
   const result = await run(step, folder, true);
   if (result.status === "error") process.exit(2);
-  if (result.status === "pass") console.log(`Done. All ${result.total} rules pass.`);
-  else {
+  if (result.status === "pass") {
+    console.log(`Done. All ${result.total} rules pass.`);
+  } else {
     console.log(
       `${result.passed} of ${result.total} rules pass. Fix the FAIL lines and run it again.`,
     );
   }
-  if (!asSolution) {
-    // Done is recomputed from the checks every time, never read from a saved flag.
-    // The other steps' starters are not your work, so their guard runs stay out of the board.
-    stopWritingGuardLog();
-    const everyResult = await workOnEveryStep();
-    console.log(`Progress: ${passCount(everyResult)}/${everyResult.length} steps pass.`);
-  }
+  if (!asSolution) await printProgress();
   process.exit(result.status === "pass" ? 0 : 1);
 }
 
-const [command, which] = process.argv.slice(2);
-
-if (command === "--all") await checkEveryCheck();
-if (command === "--report") await writeReport();
-if (command === "part") await verifyPart(which);
-await verifyStep(command, which);
+if (import.meta.main) {
+  if (firstArgument === "--all") await verifyEveryCheck(process.argv.slice(3));
+  if (firstArgument === "--report") await writeReport();
+  if (firstArgument === "part") await verifyOnePart();
+  const step = firstArgument ? findStep(firstArgument) : undefined;
+  if (!step) listStepsAndStop();
+  await verifyOneStep(step);
+}

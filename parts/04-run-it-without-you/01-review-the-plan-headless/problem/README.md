@@ -72,9 +72,9 @@ Expect: `Done. All 6 rules pass.`
 
 | What you see | What to ask Claude Code |
 |---|---|
-| `destroy-orders-db, run 1: verdict needs-human` | "Force block in code when destroys or replaces is not empty." |
+| destroy-orders-db, run 1: verdict needs-human | "Force block in code when destroys or replaces is not empty." |
 | `FAIL destroys and replaces match the plan exactly` | "A replace has delete and create. Only a lone delete is a destroy." |
-| `it printed text, not one JSON object` | "Print only the JSON object. No other lines." |
+| it printed text, not one JSON object | "Print only the JSON object. No other lines." |
 
 ## Words you will use
 

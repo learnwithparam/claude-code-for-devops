@@ -4,7 +4,7 @@
 
 Claude Code runs commands on your laptop, with your keys nearby. A package it installs can run code too.
 
-In August 2025, 19 bad versions of `nx` packages ran a script when they were installed. The script searched the
+Once, 19 bad versions of `nx` packages ran a script when they were installed. The script searched the
 disk for credentials and posted them to a public repo. It even carried a prompt that started "You are a
 file-search agent" ([Nx advisory GHSA-cxm3-wv7p-598c](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c)).
 
@@ -33,7 +33,7 @@ repo, and give it this job:
 Read https://code.claude.com/docs/en/devcontainer and the managed settings page in the same docs.
 In parts/04-run-it-without-you/04-seal-the-devcontainer/problem/.devcontainer/, write
 devcontainer.json, a Dockerfile, init-firewall.sh and managed-settings.json.
-The Dockerfile installs @anthropic-ai/claude-code@2.1.322 exactly, sets DISABLE_AUTOUPDATER=1,
+The Dockerfile installs @anthropic-ai/claude-code at the exact version that claude --version prints, sets DISABLE_AUTOUPDATER=1,
 and copies managed-settings.json to /etc/claude-code/managed-settings.json.
 The firewall drops everything except api.anthropic.com, registry.npmjs.org and registry.tallowmark.test.
 It runs at start, with --cap-add=NET_ADMIN. Managed settings set allowManagedHooksOnly to true and
@@ -70,7 +70,7 @@ Expect: `Done. All 9 rules pass.`
 | What you see | What to ask Claude Code |
 |---|---|
 | `hosts in init-firewall.sh: ... github.com ...` | "Remove every host except the three. A blocked install is safer than an open box." |
-| `FAIL Claude Code is pinned to an exact version` | "Install @anthropic-ai/claude-code@2.1.322, not latest." |
+| `FAIL Claude Code is pinned to an exact version` | "Pin @anthropic-ai/claude-code to the exact version that claude --version prints, not latest." |
 | `FAIL the guard hook moves into managed settings` | "allowManagedHooksOnly turns off the repo's hook. Wire the guard in managed settings." |
 
 ## Words you will use

@@ -5,7 +5,7 @@
 The review command from the last step runs on your laptop. Now it must run on every pull request, in CI, where
 nobody watches.
 
-A CI job is a target. In March 2025, attackers moved the version tags of the `tj-actions/changed-files` action to
+A CI job is a target. Once, attackers moved the version tags of the `tj-actions/changed-files` action to
 a bad commit. That commit printed CI secrets into the logs of thousands of repos
 ([GitHub advisory GHSA-mrrh-fwg8-r2c3](https://github.com/advisories/GHSA-mrrh-fwg8-r2c3)). A tag can move. A
 commit SHA cannot.

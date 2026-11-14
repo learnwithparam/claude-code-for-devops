@@ -4,7 +4,7 @@ import {
   holdMinutes,
   playSeries,
   quantileOf,
-} from "../parts/03-give-it-eyes/helpers/alerts";
+} from "./helpers/03-give-it-eyes/alerts";
 import type { Rule } from "../scripts/verify";
 import { exists, explain, read } from "./lib";
 

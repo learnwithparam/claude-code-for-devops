@@ -20,7 +20,7 @@ Do not upgrade or install any release. Show me your plan first.
 The words change from run to run. A good plan has these points:
 
 1. `kubectl get pods` shows three pods in `CrashLoopBackOff`.
-2. `kubectl logs` says `listening on :8080`. The probe checks 9090. That is the crash.
+2. `kubectl logs` says listening on :8080. The probe checks 9090. That is the crash.
 3. Set `probe.port` to 8080. Leave `containerPort` at 8080.
 4. Set the tag to `2.7.1`, the appVersion in `Chart.yaml`.
 5. Add requests and limits for CPU and memory.

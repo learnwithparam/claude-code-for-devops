@@ -54,9 +54,9 @@ In the first step, Claude Code writes the reader identity. Ask the practice `kub
 identity may do on the sample answer:
 
 ```bash
-bun parts/03-give-it-eyes/helpers/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution get pods
-bun parts/03-give-it-eyes/helpers/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution delete pods
-bun parts/03-give-it-eyes/helpers/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution list secrets
+bun checks/helpers/03-give-it-eyes/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution get pods
+bun checks/helpers/03-give-it-eyes/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution delete pods
+bun checks/helpers/03-give-it-eyes/rbac.ts parts/03-give-it-eyes/01-connect-the-cluster-read-only/solution list secrets
 ```
 
 Expect: `yes`, then `no`, then `no`.
@@ -64,7 +64,7 @@ Expect: `yes`, then `no`, then `no`.
 In the second step, play the recorded latency through the alert rule. On the starter, every window pages:
 
 ```bash
-bun parts/03-give-it-eyes/helpers/alerts.ts parts/03-give-it-eyes/02-quiet-the-noisy-alert/problem
+bun checks/helpers/03-give-it-eyes/alerts.ts parts/03-give-it-eyes/02-quiet-the-noisy-alert/problem
 ```
 
 Expect: four lines, each ending in `FIRES`.

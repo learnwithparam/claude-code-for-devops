@@ -2,7 +2,7 @@
 // minute by minute, the way Prometheus evaluates an alert with a `for` hold.
 // It reads only the parts of the rule this alert uses: the quantile, the threshold and `for`.
 //
-// Try it: bun parts/03-give-it-eyes/helpers/alerts.ts <step folder>
+// Try it: bun checks/helpers/03-give-it-eyes/alerts.ts <step folder>
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 

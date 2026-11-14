@@ -2,7 +2,7 @@ import {
   asList,
   frontMatter,
   pathPatternMatches,
-} from "../parts/02-teach-the-repo/helpers/markdown";
+} from "./helpers/02-teach-the-repo/markdown";
 import type { Rule } from "../scripts/verify";
 import { read, readSettings, section, suite } from "./lib";
 

@@ -1,196 +1,41 @@
-# The Claude Code ladder, L0 to L6, mapped to this course.
-# Each feature names the step that uses it and a words-from-a-rule that its check must still hold.
-# checks/ladder.ts fails when a feature has no step, a step has no check, or the rule is gone.
-
-[[feature]]
-level = "L0"
-name = "plan mode"
-step = "choose-the-permission-mode"
-rule = "filled row for each of the five modes"
-
-[[feature]]
-level = "L0"
-name = "@ files"
-step = "meet-the-world"
-rule = "How I asked"
-
-[[feature]]
-level = "L0"
-name = "screenshots"
-step = "meet-the-world"
-rule = "How I asked"
-
-[[feature]]
-level = "L0"
-name = "a specific prompt"
-step = "meet-the-world"
-rule = "named one of the five faults"
-
-[[feature]]
-level = "L1"
-name = "permission modes"
-step = "choose-the-permission-mode"
-rule = "permissions.defaultMode is set"
-
-[[feature]]
-level = "L1"
-name = "diff review"
-step = "choose-the-permission-mode"
-rule = "When it goes wrong"
-
-[[feature]]
-level = "L1"
-name = "Esc"
-step = "choose-the-permission-mode"
-rule = "When it goes wrong"
-
-[[feature]]
-level = "L1"
-name = "/rewind"
-step = "choose-the-permission-mode"
-rule = "When it goes wrong"
-
-[[feature]]
-level = "L1"
-name = "/clear"
-step = "choose-the-permission-mode"
-rule = "When it goes wrong"
-
-[[feature]]
-level = "L2"
-name = "/init"
-step = "write-the-repo-memory"
-rule = "CLAUDE.md exists"
-
-[[feature]]
-level = "L2"
-name = "CLAUDE.md under 200 lines"
-step = "write-the-repo-memory"
-rule = "CLAUDE.md exists"
-
-[[feature]]
-level = "L2"
-name = ".claude/rules"
-step = "write-the-repo-memory"
-rule = "terraform.md has paths"
-
-[[feature]]
-level = "L2"
-name = "a check to run"
-step = "write-the-repo-memory"
-rule = "Done means names"
-
-[[feature]]
-level = "L3"
-name = "hooks"
-step = "catch-the-sneaky-commands"
-rule = "the hook blocks all 10 bypass forms"
-
-[[feature]]
-level = "L3"
-name = "deny rules"
-step = "write-the-deny-rules"
-rule = "a deny rule stops reading .env"
-
-[[feature]]
-level = "L3"
-name = "sandbox"
-step = "sandbox-the-shell"
-rule = "the sandbox is on"
-
-[[feature]]
-level = "L3"
-name = "skills"
-step = "write-a-runbook-skill"
-rule = "has a name and a description"
-
-[[feature]]
-level = "L3"
-name = "MCP or CLI tools"
-step = "connect-the-cluster-read-only"
-rule = "kubernetes-mcp-server"
-
-[[feature]]
-level = "L4"
-name = "interview to SPEC.md"
-step = "gate-the-goal-with-a-stop-hook"
-rule = "SPEC.md has Goal"
-
-[[feature]]
-level = "L4"
-name = "/goal"
-step = "gate-the-goal-with-a-stop-hook"
-rule = "goal.txt has a /goal line"
-
-[[feature]]
-level = "L4"
-name = "Stop hook gate"
-step = "gate-the-goal-with-a-stop-hook"
-rule = "the Stop hook blocks when the check fails"
-
-[[feature]]
-level = "L4"
-name = "/code-review in a subagent"
-step = "gate-the-goal-with-a-stop-hook"
-rule = "the reviewer subagent cannot Edit or Write"
-
-[[feature]]
-level = "L5"
-name = "subagents"
-step = "split-the-cost-hunt"
-rule = "three or more subagents"
-
-[[feature]]
-level = "L5"
-name = "worktrees"
-step = "run-agents-apart"
-rule = "each in its own worktree"
-
-[[feature]]
-level = "L5"
-name = "/batch"
-step = "run-agents-apart"
-rule = "batch.md has a /batch line"
-
-[[feature]]
-level = "L5"
-name = "a reviewer agent"
-step = "run-agents-apart"
-rule = "the reviewer subagent cannot Edit or Write"
-
-[[feature]]
-level = "L6"
-name = "claude -p"
-step = "review-the-plan-headless"
-rule = "on every plan it prints one JSON object"
-
-[[feature]]
-level = "L6"
-name = "/loop"
-step = "triage-the-live-incident"
-rule = "Watch it runs a read-only /loop"
-
-[[feature]]
-level = "L6"
-name = "/schedule"
-step = "schedule-the-drift-check"
-rule = "the schedule runs at most once an hour"
-
-[[feature]]
-level = "L6"
-name = "a GitHub Action"
-step = "wire-the-plan-review"
-rule = "every action is pinned"
-
-[[feature]]
-level = "L6"
-name = "a run contract"
-step = "schedule-the-drift-check"
-rule = "the run contract caps turns"
-
-[[feature]]
-level = "L6"
-name = "metrics"
-step = "export-the-telemetry"
-rule = "metrics and logs go out over OTLP"
-
+# Maps each Claude Code feature a learner must use to the step that teaches it.
+# Levels come from standard section 7.
+[features]
+# L0 Ask
+plan-mode = "choose-the-permission-mode"
+at-files = "meet-the-world"
+screenshots = "meet-the-world"
+specific-prompt = "meet-the-world"
+# L1 Supervise
+permission-modes = "choose-the-permission-mode"
+diff-review = "choose-the-permission-mode"
+esc = "choose-the-permission-mode"
+rewind = "choose-the-permission-mode"
+clear = "choose-the-permission-mode"
+# L2 Teach the repo
+init = "write-the-repo-memory"
+claude-md = "write-the-repo-memory"
+rules = "write-the-repo-memory"
+check-to-run = "write-the-repo-memory"
+# L3 Fence it
+hooks = "catch-the-sneaky-commands"
+deny-rules = "write-the-deny-rules"
+sandbox = "sandbox-the-shell"
+skills = "write-a-runbook-skill"
+mcp-or-cli-tools = "connect-the-cluster-read-only"
+# L4 Spec and verify
+spec-interview = "gate-the-goal-with-a-stop-hook"
+goal = "gate-the-goal-with-a-stop-hook"
+stop-hook-gate = "gate-the-goal-with-a-stop-hook"
+code-review-subagent = "gate-the-goal-with-a-stop-hook"
+# L5 Parallel
+subagents = "split-the-cost-hunt"
+worktrees = "run-agents-apart"
+batch = "run-agents-apart"
+reviewer-agent = "run-agents-apart"
+# L6 Unattended
+headless = "review-the-plan-headless"
+loop = "triage-the-live-incident"
+schedule = "schedule-the-drift-check"
+github-action = "wire-the-plan-review"
+run-contract-and-metrics = "export-the-telemetry"

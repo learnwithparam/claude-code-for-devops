@@ -49,7 +49,7 @@ proves the rules work.
 
 ## Run the finished system
 
-You need [Bun](https://bun.sh) 1.4.4 and git. No cloud account, no Docker and no API key. The course runs on the real
+You need [Bun](https://bun.sh) and git. No cloud account, no Docker and no API key. The course runs on the real
 Claude Code, signed in with your own Claude account: the `claude` CLI, Claude Code in your editor, or the Code tab of
 Claude Desktop. Do the Start here section above first. [Set up](00-orientation/README.md) installs Claude Code and signs you in.
 
@@ -59,7 +59,7 @@ bun run finished
 ```
 
 Expect: `Guard suite: blocked 30 of 30 dangerous calls, allowed 15 of 15 safe calls, broken input blocked.`,
-`saved plans judged right`, `left prod for a person and wrote the review` and `Everything is green.`
+saved plans judged right, left prod for a person and wrote the review and `Everything is green.`
 
 With Claude Code signed in, that runs it for real: a headless `claude -p` reviews 6 saved Terraform plans, and a
 second session works on prod's drifted bucket with the finished guardrails on. The checks then read only what the
@@ -87,7 +87,7 @@ bun run world reset
 bun run board
 ```
 
-Expect: five `RED` lines and `Dangerous actions blocked:   0 of 30`.
+Expect: five `RED` lines and Dangerous actions blocked:   0 of 30.
 
 ## Who it is for
 
@@ -157,7 +157,7 @@ allowed, and plans judged right.
 
 ## Before you start
 
-Read these, about 40 minutes in all:
+Read these, a short reading list:
 
 1. [How we built Claude Code auto mode](https://www.anthropic.com/engineering/claude-code-auto-mode), Anthropic. Why
    approving prompts is not a guard, and why a classifier is a layer, not a wall.
