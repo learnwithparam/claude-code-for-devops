@@ -12,7 +12,7 @@ For example, the hook reads `bash scripts/rotate-logs.sh` and finds the `terrafo
 Python program starts `terraform destroy` as a subprocess, the hook never sees that command. The kit's README must
 say so.
 
-This step is the course goal. When it passes, the guard you built in part one works in a fresh folder, with no
+This step is the course goal. When it passes, the guard you built in Fence the agent works in a fresh folder, with no
 help from this repo.
 
 ```mermaid

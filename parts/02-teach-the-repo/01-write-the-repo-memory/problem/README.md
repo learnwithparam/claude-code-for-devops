@@ -11,7 +11,7 @@ followed less well.
 
 But memory is advice, not a guard. For example, many people report that Claude Code skipped a "mandatory" rule
 in their `CLAUDE.md` ([issue #2544](https://github.com/anthropics/claude-code/issues/2544)). So the hook from
-part one stays. The memory tells Claude Code how to work. The hook stops what it must never do.
+the Fence the agent part stays. The memory tells Claude Code how to work. The hook stops what it must never do.
 
 ```mermaid
 flowchart LR
@@ -57,7 +57,7 @@ The prompts that solve this step are in `../solution/prompts.md`. Read them afte
 - The Commands section has no apply, destroy or delete.
 - Done means names `terraform plan -detailed-exitcode`.
 - `.claude/rules/terraform.md` loads for `terraform/envs/prod/main.tf`, and not for the Helm chart.
-- The guard hook from part one still blocks 30 of 30 and allows 15 of 15.
+- The guard hook from Fence the agent still blocks 30 of 30 and allows 15 of 15.
 
 ```bash
 bun run verify write-the-repo-memory
@@ -73,7 +73,7 @@ Expect: `Done. All 8 rules pass.`
 |---|---|
 | `FAIL CLAUDE.md exists and is under 200 lines` | "Cut every line that is not needed in every session. Move Terraform detail to the rule file." |
 | `FAIL .claude/rules/terraform.md has paths: ...` | "Use `terraform/**/*.tf`. The pattern `terraform/*.tf` only matches files directly in terraform/." |
-| `FAIL the guard hook from part one still blocks 30 of 30 ...` | "Put back the hooks block in settings.json and the file .claude/hooks/guard-infra.ts." |
+| `FAIL the guard hook from Fence the agent still blocks 30 of 30 ...` | "Put back the hooks block in settings.json and the file .claude/hooks/guard-infra.ts." |
 
 ## Words you will use
 

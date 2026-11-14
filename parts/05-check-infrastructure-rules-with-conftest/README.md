@@ -5,7 +5,7 @@ earlier in the course changes. You still review a plan in chat first, then turn 
 
 ## Problem
 
-In part four, Claude Code reviews a plan and answers `block` for a plan that deletes the orders database. That
+In Run it without you, Claude Code reviews a plan and answers `block` for a plan that deletes the orders database. That
 review lives in a command you wrote with a prompt. A team wants the same rule in a form every pipeline can run and
 every reviewer can read.
 

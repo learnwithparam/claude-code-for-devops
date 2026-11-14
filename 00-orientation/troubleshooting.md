@@ -11,7 +11,7 @@ Every message a script prints on failure is in this table.
 | `FAIL ...` followed by `Try next: ...` | One rule of the step is not met yet. | Do what the Try next line says, then run the same command again. |
 | `Unknown command "..."` from `bun run world` | `world` takes `reset`, `use <step-name>` or `status`. | Run `bun run world` with one of those. |
 | `Name a step: bun run world use <step-name>` | `world use` needs a step name. | Add the step name, such as `write-the-deny-rules`. |
-| `The step ... has no problem/.claude folder to use.` | That step does not change Claude Code settings. | Use a step from part one. |
+| `The step ... has no problem/.claude folder to use.` | That step does not change Claude Code settings. | Use a step from Fence the agent. |
 | `Error: No configuration files. Run terraform from terraform/envs/dev or terraform/envs/prod, or pass -chdir.` | You ran `terraform` outside an environment folder. | `cd` into `terraform/envs/dev` or pass `-chdir=terraform/envs/dev`. |
 | `Apply cancelled. Run with -auto-approve, or type yes when a person approves.` | The world's terraform wants an approval. | That is the point. A person applies, not the agent. |
 | `error: context "..." does not exist` | kubectl or helm got a context the world does not have. | Use `kind-tallowmark-dev` or `kind-tallowmark-prod`. |
