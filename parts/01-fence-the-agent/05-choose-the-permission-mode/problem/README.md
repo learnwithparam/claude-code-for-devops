@@ -10,6 +10,8 @@ The permission mode decides who says yes to each action. There are a few modes:
 
 Neither one belongs on a repo whose shell starts on prod.
 
+In a session, press Shift+Tab to move to the next mode. The [ways of working](../../../../00-orientation/ways-of-working.md) page lists the other techniques.
+
 For example, in default mode Claude Code asks you before it runs `kubectl rollout restart` for the first time. In
 bypass mode it runs the command and does not ask.
 

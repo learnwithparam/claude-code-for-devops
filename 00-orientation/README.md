@@ -1,4 +1,4 @@
-# Start here
+# Set up
 
 This part sets up the **Goal** you will prove at the end: a guard that blocks 30 of 30 dangerous calls.
 
@@ -6,8 +6,15 @@ You set up the repo, meet Tallowmark Tickets, run the finished system and see th
 three lines about what you saw. You check them, and the course check reads them.
 
 You write no code in this course. You type prompts into the real Claude Code, read its plan, and say yes or no.
+The [ways of working](ways-of-working.md) page lists every technique the course teaches.
 
 ## Setup
+
+A terminal is a window where you type commands. On macOS, open the Terminal app. On Windows, open PowerShell, or
+the Ubuntu app if you use WSL. On Linux, open your terminal app.
+
+To move into a folder, type `cd` and the folder name. For example, `cd claude-code-for-devops` moves into this
+course folder. Open every new terminal in this folder before you type a command from this course.
 
 You need [Bun](https://bun.sh) 1.4.4, git, and Claude Code signed in with your own Claude account (a Pro or Max
 plan, or a Console account). You do not need Docker, a cloud account or an API key: the world runs on your laptop,
@@ -39,9 +46,11 @@ claude --version
 
 Expect: `(Claude Code)` after a version number.
 
+After you sign in, read [Claude Code ways of working](ways-of-working.md). It is one short page.
+
 The course is tested on Claude Code 2.1.311 to 2.1.322. The doctor below tells you if yours is older.
 
-Now set up the repo and the world:
+Now set up the repo and the world. The doctor is the setup check, so it tells you what to fix before you go on:
 
 ```bash
 bun install
@@ -129,7 +138,13 @@ Expect: `BLOCKED  Blocked by guard-infra: terraform apply changes real infrastru
 ## Walkthrough
 
 Your one step here is [meet-the-world](meet-the-world/problem/README.md). Get Claude Code to fill in
-`notes/first-look.md` in its `problem/` folder. Check the note, then run:
+`notes/first-look.md` in its `problem/` folder. Check the note, then ask Claude Code to check your work:
+
+```text
+Run the check for meet-the-world and tell me what it printed. Do not change anything to make it pass.
+```
+
+You can also run the check yourself:
 
 ```bash
 bun run verify meet-the-world

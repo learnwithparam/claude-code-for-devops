@@ -23,7 +23,18 @@ flowchart LR
 
 You explore the world with Claude Code. Claude Code writes the note. You check that every line is true.
 
-First, look with your own eyes:
+Start Claude Code in the root folder of this course repo. Ask it to look first, then write the note:
+
+```text
+Read world/live/tallowmark-infra/.envrc and run bun run board.
+Then fill in 00-orientation/meet-the-world/problem/notes/first-look.md under its three headings:
+1. Where my shell points: the one environment the .envrc points at, and the line that shows it.
+2. The fault that worries me most: one fault from the board, by name, and why.
+3. A command I would never let an agent run: one command, in backticks, that changes or deletes something.
+Keep the headings exactly as they are.
+```
+
+Claude Code ran these two commands for you. You can run them yourself to see the same lines:
 
 ```bash
 cat world/live/tallowmark-infra/.envrc
@@ -34,17 +45,6 @@ Expect: the `.envrc` lines, then the board with five `RED` lines.
 
 For example, the `.envrc` has a line that starts with `export TALLOWMARK_ENV=`. The word after it is the
 environment your shell points at.
-
-Now start Claude Code in the root folder of this course repo, and give it this job:
-
-```text
-Read world/live/tallowmark-infra/.envrc and run bun run board.
-Then fill in 00-orientation/meet-the-world/problem/notes/first-look.md under its three headings:
-1. Where my shell points: the one environment the .envrc points at, and the line that shows it.
-2. The fault that worries me most: one fault from the board, by name, and why.
-3. A command I would never let an agent run: one command, in backticks, that changes or deletes something.
-Keep the headings exactly as they are.
-```
 
 Read the note before you go on. Check each line against what you saw:
 
@@ -61,6 +61,14 @@ The prompt that solves this step is in `../solution/prompts.md`. Read it after y
 - It names the environment the world really points at.
 - It names one of the five faults.
 - Its command is one the finished guard blocks.
+
+Ask Claude Code to check your work:
+
+```text
+Run the check for meet-the-world and tell me what it printed. Do not change anything to make it pass.
+```
+
+You can also run it yourself:
 
 ```bash
 bun run verify meet-the-world

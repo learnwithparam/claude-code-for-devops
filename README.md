@@ -3,6 +3,26 @@
 Let Claude Code fix your Terraform, Helm and CI. Then prove with a test that it cannot apply, delete or read a
 secret.
 
+## Start here
+
+Claude Code is an AI helper that works inside a folder on your computer. You tell it a job in plain English. It
+reads your files, shows a plan, and changes them only when you say yes.
+
+You do not write code in this course. You only paste prompts and read what comes back.
+
+To begin:
+
+1. Read [Set up](00-orientation/README.md). It shows how to open a terminal, install Claude Code and sign in.
+2. Open a terminal in this folder, and type `claude` to start Claude Code there.
+3. Keep [Claude Code ways of working](00-orientation/ways-of-working.md) open. It lists every technique the course
+   teaches.
+
+For example, a prompt looks like this:
+
+```text
+Read world/live/tallowmark-infra/.envrc and tell me which environment my shell points at.
+```
+
 ## The promise
 
 - **Objective**: you can let Claude Code work in an infra repo whose shell points at prod. You can prove with a
@@ -31,7 +51,7 @@ proves the rules work.
 
 You need [Bun](https://bun.sh) 1.4.4 and git. No cloud account, no Docker and no API key. The course runs on the real
 Claude Code, signed in with your own Claude account: the `claude` CLI, Claude Code in your editor, or the Code tab of
-Claude Desktop. [00-orientation](00-orientation/README.md) installs it and signs you in.
+Claude Desktop. Do the Start here section above first. [Set up](00-orientation/README.md) installs Claude Code and signs you in.
 
 ```bash
 bun install
@@ -109,9 +129,9 @@ flowchart LR
 
 ## How the course works
 
-Start in [00-orientation](00-orientation/README.md). Each part opens with a real problem and a diagram. Each step has a
-challenge, a Done when list and one command, `bun run verify <step-name>`, that prints PASS or FAIL with a Try next
-line. Checks read the repo, the world's state, the hook log and plan output. They never read what Claude said.
+Begin at Start here above, then go to [00-orientation](00-orientation/README.md). The [ways of working](00-orientation/ways-of-working.md) page lists every technique. Each part opens with a real problem and a diagram. Each step has a
+challenge and a Done when list. To check your work, ask Claude Code to run the check and tell you what it printed.
+You can also run `bun run verify <step-name>` yourself. It prints PASS or FAIL with a Try next line. Checks read the repo, the world's state, the hook log and plan output. They never read what Claude said.
 
 | Part | What you do | Steps | Minutes |
 |---|---|---|---|
