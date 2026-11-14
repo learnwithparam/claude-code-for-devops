@@ -59,6 +59,14 @@ const SIMPLER_WORDS: Record<string, string> = {
   "just ": "nothing; cut it",
 };
 
+// "Part one" breaks when parts move. Name the part by its title instead.
+const ORDINAL_WORDS =
+  "one|two|three|four|five|six|seven|eight|nine|ten|first|second|third|fourth|fifth";
+const ORDINAL_REFERENCE = new RegExp(
+  `\\b(part|lab|step|chapter|session)\\s+(${ORDINAL_WORDS})\\b`,
+  "i",
+);
+
 type Problem = { file: string; message: string };
 
 function markdownFiles(folder: string, found: string[] = []): string[] {
@@ -133,6 +141,12 @@ function hardWordProblems(file: string, prose: string): Problem[] {
   return problems;
 }
 
+function ordinalProblems(file: string, prose: string): Problem[] {
+  const found = prose.match(ORDINAL_REFERENCE);
+  if (!found) return [];
+  return [{ file, message: `"${found[0]}": name the part or lab by its title, not a number word` }];
+}
+
 function sentenceProblems(file: string, sentences: string[]): Problem[] {
   const problems: Problem[] = [];
   for (const sentence of sentences) {
@@ -148,7 +162,11 @@ function sentenceProblems(file: string, sentences: string[]): Problem[] {
 export function problemsIn(file: string, markdown: string, gradeLimit: number): Problem[] {
   const prose = proseOf(markdown);
   const sentences = sentencesOf(prose);
-  const problems = [...hardWordProblems(file, prose), ...sentenceProblems(file, sentences)];
+  const problems = [
+    ...hardWordProblems(file, prose),
+    ...ordinalProblems(file, prose),
+    ...sentenceProblems(file, sentences),
+  ];
 
   const grade = readingGrade(sentences);
   if (sentences.length >= 5 && grade > gradeLimit) {

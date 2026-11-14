@@ -65,7 +65,7 @@ The prompts that solve this step are in `../solution/prompts.md`. Read them afte
 - The reader kubeconfig reaches dev and prod as `claude-reader`, with a token and no admin key.
 - `.mcp.json` runs `kubernetes-mcp-server` at an exact version, with `read_only` on and the reader kubeconfig.
 - Settings deny every write tool of the `kubernetes` server, and still allow its read tools.
-- The guard from part one still blocks 30 of 30 calls.
+- The guard from Fence the agent still blocks 30 of 30 calls.
 
 ```bash
 bun run verify connect-the-cluster-read-only

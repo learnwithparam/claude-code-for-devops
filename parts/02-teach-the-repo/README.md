@@ -13,7 +13,7 @@ For example, at Tallowmark someone on call used the AWS CLI on the buyer records
 versioning and removed the public access block. Also, `seat-api` restarts again and again on dev. Its health probe
 points at the wrong port.
 
-With the fence from part one in place, Claude Code can now help. It needs to know the rules of the repo. Its work is
+With the fence from Fence the agent in place, Claude Code can now help. It needs to know the rules of the repo. Its work is
 judged by the tools that own the truth: `terraform plan` and the cluster. It is never judged by what it says.
 
 You write no code in this part either. You tell Claude Code what the repo needs, and you check its plan.
@@ -26,7 +26,7 @@ flowchart LR
   R --> L[helm lint and the dev pods]
   P -->|exit 0 after a person applies| D[Done]
   L -->|Running| D
-  H[guard hook from part one] -.blocks apply.-> A
+  H[guard hook from Fence the agent] -.blocks apply.-> A
 ```
 
 ## What you build

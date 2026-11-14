@@ -33,7 +33,7 @@ The words change from run to run. A good plan has these points:
 - The note names both addresses. The `wrong/vague-note` answer says "some settings are different". A reviewer
   cannot check that.
 - Claude Code does not run apply. The `wrong/agent-applied` answer carries the world's log from a run where
-  `terraform apply -auto-approve` ran with no person. The hook from part one stops this in a real session.
+  `terraform apply -auto-approve` ran with no person. The hook from Fence the agent stops this in a real session.
 
 ## Then the person applies
 

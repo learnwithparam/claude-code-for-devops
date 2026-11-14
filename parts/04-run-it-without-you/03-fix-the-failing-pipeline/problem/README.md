@@ -47,7 +47,7 @@ Read the plan before you say yes. Check these points:
 
 - It names both causes: unpinned actions and the missing terraform block.
 - It keeps the `tflint` step.
-- It adds no resource. The lifecycle rule is a different fault, for part three.
+- It adds no resource. The lifecycle rule is a different fault, for Give it eyes, not hands.
 
 The prompts that solve this step are in `../solution/prompts.md`. Read them after you try.
 
