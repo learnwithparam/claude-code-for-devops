@@ -55,7 +55,7 @@ the job needs.
 ## Done when
 
 - The job asks for `id-token: write` and `contents: read`, and nothing wider.
-- It assumes a role. No AWS key or secret is named anywhere.
+- The job assumes a role. No AWS key or secret is named anywhere.
 - Every `uses:` is pinned by a 40 character SHA.
 - The job plans and never applies.
 

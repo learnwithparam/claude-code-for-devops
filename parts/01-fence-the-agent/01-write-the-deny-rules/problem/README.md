@@ -71,7 +71,7 @@ Expect: `Done. All 8 rules pass.`
 
 ## Solution
 
-The finished settings are in `../solution/.claude/settings.json`. It adds six deny rules and keeps the allow rules.
+The finished settings are in `../solution/.claude/settings.json`. That file adds six deny rules and keeps the allow rules.
 The prompts that made it are in `../solution/prompts.md`.
 
 ## If you get stuck

@@ -17,7 +17,7 @@ say this "could reduce initial incident triage time by up to 80%" ([Ramp](https:
 vendor case study).
 
 But read-only has to be a permission, not a setting. For example, the README of the Kubernetes MCP server says
-"`read_only` and `denied_resources` are best-effort guardrails". It says Kubernetes RBAC on its identity "is the
+"`read_only` and `denied_resources` are best-effort guardrails". The same README says Kubernetes RBAC on its identity "is the
 access control to rely on" ([kubernetes-mcp-server](https://github.com/containers/kubernetes-mcp-server)).
 
 Tallowmark's cloud bill jumped. Datadog found that 83 percent of container costs come from idle resources
@@ -98,11 +98,10 @@ To check your work, ask Claude Code. For example, for the step you just finished
 Check my work for this step. Run its check and tell me what it printed. Do not change anything to make it pass.
 ```
 
-You can also run the checks yourself:
+You can also run the checks yourself. In the third step, a session started inside the step folder loads the three
+subagents. The prompts for it are in the step README.
 
-In the third step, a session started inside the step folder loads the three subagents. Its prompts are in the
-step README. Check each step when Claude Code is done. Each prints PASS or FAIL lines, and a Try next line under
-every FAIL:
+Check each step when Claude Code is done. Each prints PASS or FAIL lines, and a Try next line under every FAIL:
 
 ```bash
 bun run verify connect-the-cluster-read-only
@@ -147,8 +146,8 @@ slowdown: `bun run verify quiet-the-noisy-alert`.
 
 ## Finished
 
-You now have Claude Code with eyes on both clusters and on the bill. It reads as `claude-reader`, and the cluster
-itself refuses its writes. It found two causes of the cost spike and wrote a fix plan for a person to apply.
+You now have Claude Code with eyes on both clusters and on the bill. Claude Code reads as `claude-reader`, and the cluster
+itself refuses its writes. Claude Code found two causes of the cost spike and wrote a fix plan for a person to apply.
 
 For example, ask it "why does seat-api restart on prod?" It can list pods and read logs. It cannot delete a pod
 to "fix" it.

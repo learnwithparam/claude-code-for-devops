@@ -3,7 +3,7 @@
 ## The problem
 
 You say "fix the drift" and walk away. Claude Code says it is done, but it is not. A Stop hook is a script that
-runs when Claude Code tries to stop. If a check fails, it sends the work back. For example, the plan still shows
+runs when Claude Code tries to stop. If a check fails, the hook sends the work back. For example, the plan still shows
 drift, so the hook says no.
 
 ## Watch it done

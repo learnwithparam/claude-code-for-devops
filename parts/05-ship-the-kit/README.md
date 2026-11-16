@@ -12,7 +12,9 @@ a sealed devcontainer, a kit, a telemetry setting and your own kit results.
 
 ## The problem
 
-A guard that lives on one laptop protects one laptop. The kit packs the settings, the hook and the sandbox so a team can copy them. The container and managed settings make them hard to switch off. For example, one copied folder gives a new teammate the same 30 blocked calls. Then you test the kit on your own repo, because a score on the course repo proves little.
+A guard that lives on one laptop protects one laptop. The kit packs the settings, the hook and the sandbox so a team can copy them. The container and managed settings make them hard to switch off.
+
+For example, one copied folder gives a new teammate the same 30 blocked calls. Then you test the kit on your own repo, because a score on the course repo proves little.
 
 ```mermaid
 flowchart LR

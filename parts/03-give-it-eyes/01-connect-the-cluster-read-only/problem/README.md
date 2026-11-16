@@ -75,7 +75,7 @@ Expect: `Done. All 9 rules pass.`
 
 ## Solution
 
-The after state is in `../solution/`. It adds the reader files, `mcp/kubernetes.toml`, `.mcp.json` and the deny rules. Prompts: `../solution/prompts.md`.
+The after state is in `../solution/`. That folder adds the reader files, `mcp/kubernetes.toml`, `.mcp.json` and the deny rules. Prompts: `../solution/prompts.md`.
 
 ## If you get stuck
 

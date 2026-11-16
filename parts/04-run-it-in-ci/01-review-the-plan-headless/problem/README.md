@@ -72,8 +72,8 @@ Expect: `Done. All 6 rules pass.`
 
 ## Solution
 
-The after state is in `../solution/`. It adds `review.config.json` and `review/plan-review.ts`, which forces
-`block` in code. Its prompts are in `../solution/prompts.md`.
+The after state is in `../solution/`. That folder adds `review.config.json` and `review/plan-review.ts`, which forces
+`block` in code. The prompts are in `../solution/prompts.md`.
 
 ## If you get stuck
 

@@ -57,7 +57,7 @@ Pick one alert on your team that pages too often. Ask Claude Code to find which 
 ## Done when
 
 - `SeatApiSlow` watches p99 latency and waits `for: 5m` or more.
-- It stays silent on all 3 short spikes in `alerts/series.yml`, and fires in the slowdown.
+- The alert stays silent on all 3 short spikes in `alerts/series.yml`, and fires in the slowdown.
 - `alerts/seat.test.yml` expects no alert in a spike and `SeatApiSlow` in the slowdown.
 - If `promtool` is installed, `promtool test rules` passes too.
 
@@ -69,7 +69,7 @@ Expect: `Done. All 7 rules pass.`
 
 ## Solution
 
-The after state is in `../solution/`. It changes `alerts/seat.rules.yml` to p99 with `for: 5m`, and adds `alerts/seat.test.yml`. Prompts: `../solution/prompts.md`.
+The after state is in `../solution/`. That folder changes `alerts/seat.rules.yml` to p99 with `for: 5m`, and adds `alerts/seat.test.yml`. Prompts: `../solution/prompts.md`.
 
 ## If you get stuck
 

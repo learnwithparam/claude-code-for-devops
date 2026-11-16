@@ -59,7 +59,7 @@ Save a plan from your own Terraform with `terraform show -json`. Pick one resour
 
 ## Solution
 
-The after state is in `../solution/`. It adds the rule in `policy/plan.rego` and its tests in `policy/plan_test.rego`. The prompts are in `../solution/prompts.md`.
+The after state is in `../solution/`. That folder adds the rule in `policy/plan.rego` and its tests in `policy/plan_test.rego`. The prompts are in `../solution/prompts.md`.
 
 ## If you get stuck
 

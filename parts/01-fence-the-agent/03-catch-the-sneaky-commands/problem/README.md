@@ -70,7 +70,7 @@ Expect: `Done. All 6 rules pass.`
 
 ## Solution
 
-The finished hook is `../solution/.claude/hooks/guard-infra.ts`. It adds the splitting, unwrapping and script
+The finished hook is `../solution/.claude/hooks/guard-infra.ts`. The hook adds the splitting, unwrapping and script
 reading. See also `../solution/notes/deny-rule-gaps.md`.
 
 ## If you get stuck

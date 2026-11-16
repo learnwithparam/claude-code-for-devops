@@ -3,7 +3,7 @@
 This part sets up the **Goal** you will prove at the end: a guard that blocks 30 of 30 dangerous calls.
 
 You set up the repo, meet Tallowmark Tickets, run the finished system and see the goal. Then Claude Code writes
-three lines about what you saw. You check them, and the course check reads them.
+a short note about what you saw. You check the note, and the course check reads it.
 
 You write no code in this course. You type prompts into the real Claude Code, read its plan, and say yes or no.
 The [ways of working](ways-of-working.md) page lists every technique the course teaches.

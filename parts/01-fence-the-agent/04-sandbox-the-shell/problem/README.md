@@ -4,7 +4,7 @@
 
 Rules and hooks read command text. The sandbox does not. The operating system stops a sandboxed command from
 reading a path or calling a host you did not allow. Anthropic says it cut permission prompts by 84% inside the
-company ([Sandboxing](https://www.anthropic.com/engineering/claude-code-sandboxing)). By default, it can still read
+company ([Sandboxing](https://www.anthropic.com/engineering/claude-code-sandboxing)). By default, Claude Code can still read
 `~/.aws/credentials`.
 
 ```mermaid

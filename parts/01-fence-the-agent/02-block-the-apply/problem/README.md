@@ -45,9 +45,9 @@ Expect: a plan that names exit 2 and the new matcher.
 
 2. Read the plan before you say yes:
 
-- It blocks with exit 2, never exit 1.
-- It matches the verb, like `apply`. `terraform plan` is safe.
-- It blocks when the JSON cannot be read. This is called failing closed.
+- The hook blocks with exit 2, never exit 1.
+- The hook matches the verb, like `apply`. `terraform plan` is safe.
+- The hook blocks when the JSON cannot be read. This is called failing closed.
 - The matcher becomes `Bash|Read|Edit|Write`.
 
 ## Do it on your work
@@ -58,7 +58,7 @@ exit 2. Good looks like this: a safe call passes, and the dangerous one stops wi
 ## Done when
 
 - The hook matches `Bash` and `Read`.
-- It blocks all 20 dangerous calls, allows all 15 safe ones, and blocks input it cannot read.
+- The hook blocks all 20 dangerous calls, allows all 15 safe ones, and blocks input it cannot read.
 - Your deny rules are still there.
 
 ```bash
@@ -69,7 +69,7 @@ Expect: `Done. All 6 rules pass.` Each call that gets through is listed above it
 
 ## Solution
 
-The finished hook is `../solution/.claude/hooks/guard-infra.ts`. It blocks with exit 2 and fails closed. The matcher in
+The finished hook is `../solution/.claude/hooks/guard-infra.ts`. The hook blocks with exit 2 and fails closed. The matcher in
 `../solution/.claude/settings.json` now covers four tools. The prompts are in `../solution/prompts.md`.
 
 ## If you get stuck

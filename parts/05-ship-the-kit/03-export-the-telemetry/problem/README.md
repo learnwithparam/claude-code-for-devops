@@ -8,8 +8,8 @@ sessions yesterday and their cost.
 
 ## Watch it done
 
-Claude Code sends metrics and logs as OpenTelemetry, a standard way to send them to a collector, a server that
-feeds a dashboard.
+Claude Code sends metrics and logs as OpenTelemetry. This is a standard way to send them to a collector. A
+collector is a server that feeds a dashboard.
 
 ```mermaid
 flowchart LR

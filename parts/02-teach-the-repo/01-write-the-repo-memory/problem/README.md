@@ -2,7 +2,7 @@
 
 ## The problem
 
-Each Claude Code session starts with an empty memory. It does not know that your shell starts on prod. It does
+Each Claude Code session starts with an empty memory. Claude Code does not know that your shell starts on prod. It does
 not know that `plan` is the judge of done. People report that it even skips "mandatory" rules in `CLAUDE.md`
 ([issue #2544](https://github.com/anthropics/claude-code/issues/2544)). So memory advises, and the hook still guards.
 

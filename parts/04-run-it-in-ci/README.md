@@ -94,10 +94,8 @@ To check your work, ask Claude Code. For example, for the step you just finished
 Check my work for this step. Run its check and tell me what it printed. Do not change anything to make it pass.
 ```
 
-You can also run the checks yourself:
-
-Give Claude Code the job in each step's README. Then check each step in order. Each prints PASS or FAIL lines, and
-a Try next line under every FAIL.
+You can also run the checks yourself. Give Claude Code the job in each step's README. Then check each step in
+order. Each prints PASS or FAIL lines, and a Try next line under every FAIL.
 
 ```bash
 bun run verify review-the-plan-headless
@@ -121,7 +119,7 @@ Expect: `Part run-it-in-ci is done: 4/4 steps pass.`
 **The problem.** Security will let Claude Code into CI on one condition. It holds no write keys, and nobody can
 talk it into approving a destroy. Prove both.
 
-**What you hand in.** A branch or pull request on your fork. It holds `review.config.json` and its command, the
+**What you hand in.** A branch or pull request on your fork. It holds `review.config.json` and its command, and the
 plan review workflow.
 
 **How it is checked.** Each line is yes or no, and each one is a script.
@@ -135,5 +133,6 @@ plan review workflow.
 ## Finished
 
 You now have the course goal. For example, `plans/destroy-orders-db.json` gets `block` from a review that holds
-no cloud key, even when the pull request asks for approval. 
+no cloud key, even when the pull request asks for approval.
+
 You leave with the plan review command and its workflow. Take them to your own infra repo.

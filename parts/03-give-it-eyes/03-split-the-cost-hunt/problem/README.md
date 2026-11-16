@@ -88,7 +88,7 @@ Expect: `Done. All 7 rules pass.`
 
 ## Solution
 
-The after state is in `../solution/`. It adds the three agents and `investigations/cost-spike.md`. Prompts: `../solution/prompts.md`.
+The after state is in `../solution/`. That folder adds the three agents and `investigations/cost-spike.md`. Prompts: `../solution/prompts.md`.
 
 ## If you get stuck
 

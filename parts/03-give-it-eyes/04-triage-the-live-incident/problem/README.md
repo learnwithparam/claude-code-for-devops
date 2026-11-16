@@ -60,7 +60,7 @@ Expect: `Done. All 8 rules pass.`
 
 ## Solution
 
-The after state is in `../solution/`. It adds the allow and deny rules in `.claude/settings.json` and the finished `incident/triage.md`. Prompts: `../solution/prompts.md`.
+The after state is in `../solution/`. That folder adds the allow and deny rules in `.claude/settings.json` and the finished `incident/triage.md`. Prompts: `../solution/prompts.md`.
 
 ## If you get stuck
 
@@ -73,5 +73,5 @@ The after state is in `../solution/`. It adds the allow and deny rules in `.clau
 ## Words you will use
 
 - **Triage**: a fast look to find what is wrong and what to do first.
-- **Read-only**: it can look and cannot change anything.
+- **Read-only**: you can look and you cannot change anything.
 - **Rollback**: go back to the last release that worked.

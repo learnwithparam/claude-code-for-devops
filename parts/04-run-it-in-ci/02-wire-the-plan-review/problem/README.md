@@ -72,8 +72,8 @@ Expect: `Done. All 9 rules pass.`
 
 ## Solution
 
-The after state is in `../solution/`. It adds `workflows/plan-review.yml` with pinned actions and small
-permissions. Its prompts are in `../solution/prompts.md`.
+The after state is in `../solution/`. That folder adds `workflows/plan-review.yml` with pinned actions and small
+permissions. The prompts are in `../solution/prompts.md`.
 
 ## If you get stuck
 

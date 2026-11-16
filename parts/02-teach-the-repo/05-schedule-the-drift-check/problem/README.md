@@ -48,7 +48,7 @@ a note only when something is wrong.
 - The schedule is five fields and runs at most once an hour.
 - The prompt plans with `-detailed-exitcode` and says never to apply.
 - No allowed tool applies, destroys or imports.
-- It notifies only on drift, and names an owner.
+- The routine notifies only on drift, and names an owner.
 - A run contract caps the turns, says what a failed run does, and names a log file.
 
 ```bash
