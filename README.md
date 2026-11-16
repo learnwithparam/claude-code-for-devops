@@ -49,9 +49,12 @@ proves the rules work.
 
 ## Run the finished system
 
-You need [Bun](https://bun.sh) and git. No cloud account, no Docker and no API key. The course runs on the real
-Claude Code, signed in with your own Claude account: the `claude` CLI, Claude Code in your editor, or the Code tab of
-Claude Desktop. Do the Start here section above first. [Set up](00-orientation/README.md) installs Claude Code and signs you in.
+You need [Bun](https://bun.sh) and git. No cloud account, no Docker and no API key.
+
+The course runs on the real Claude Code, signed in with your own Claude account. You can use the `claude` CLI, Claude
+Code in your editor, or the Code tab of Claude Desktop.
+
+Do the Start here section above first. [Set up](00-orientation/README.md) installs Claude Code and signs you in.
 
 ```bash
 bun install
@@ -61,10 +64,13 @@ bun run finished
 Expect: `Guard suite: blocked 30 of 30 dangerous calls, allowed 15 of 15 safe calls, broken input blocked.`,
 saved plans judged right, left prod for a person and wrote the review and `Everything is green.`
 
-With Claude Code signed in, that runs it for real: a headless `claude -p` reviews 6 saved Terraform plans, and a
-second session works on prod's drifted bucket with the finished guardrails on. The checks then read only what the
-runs left behind: the verdicts, the world's command log, prod's state and the review file. Without Claude Code, or in
-CI, it replays 3 real recorded runs from `world/recordings/` and says so in one line.
+With Claude Code signed in, that runs it for real. A headless `claude -p` reviews 6 saved Terraform plans. A
+second session works on prod's drifted bucket with the finished guardrails on.
+
+The checks then read only what the runs left behind. These are the verdicts, the world's command log, prod's state
+and the review file.
+
+Without Claude Code, or in CI, it replays 3 real recorded runs from `world/recordings/`. It says so in one line.
 
 ![The finished system's board: every fault fixed, 30 of 30 dangerous calls blocked, 15 of 15 safe calls allowed](images/finished-system.png)
 
@@ -104,9 +110,9 @@ Platform, DevOps and infrastructure engineers who own Terraform, Helm, CI and al
 
 ## The world and what you build
 
-Tallowmark Tickets, a fictional concert ticketing platform, owns one infra repo: seat checkout, the on-sale waiting
-room, door scanner telemetry and a bucket of buyer records. The shell starts on prod. Five faults are planted, and
-45 tool calls are waiting to test your guard. See [world/README.md](world/README.md).
+Tallowmark Tickets is a fictional concert ticketing platform. It owns one infra repo: seat checkout, the on-sale
+waiting room, door scanner telemetry and a bucket of buyer records. The shell starts on prod. Five faults are planted,
+and 45 tool calls are waiting to test your guard. See [world/README.md](world/README.md).
 
 ```mermaid
 flowchart LR
@@ -129,9 +135,14 @@ flowchart LR
 
 ## How the course works
 
-Begin at Start here above, then go to [00-orientation](00-orientation/README.md). The [ways of working](00-orientation/ways-of-working.md) page lists every technique. Each part opens with a real problem and a diagram. Each step has a
-challenge and a Done when list. To check your work, ask Claude Code to run the check and tell you what it printed.
-You can also run `bun run verify <step-name>` yourself. It prints PASS or FAIL with a Try next line. Checks read the repo, the world's state, the hook log and plan output. They never read what Claude said.
+Begin at Start here above, then go to [00-orientation](00-orientation/README.md). The [ways of working](00-orientation/ways-of-working.md) page lists every technique.
+
+Each part opens with a real problem and a diagram. Each step has a challenge and a Done when list.
+
+To check your work, ask Claude Code to run the check and tell you what it printed. You can also run
+`bun run verify <step-name>` yourself. It prints PASS or FAIL with a Try next line.
+
+Checks read the repo, the world's state, the hook log and plan output. They never read what Claude said.
 
 | Part | What you do | Steps | Minutes |
 |---|---|---|---|
@@ -150,8 +161,10 @@ The same parts fit several formats, from one sitting to a cohort: see [schedules
 
 Your project is a public fork of this repo with your guardrail kit. The kit has these parts:
 
-- the settings, the hook and the sandbox block;
-- the guard suite, with at least five bypass cases of your own;
+- the settings, the hook and the sandbox block.
+
+- the guard suite, with at least five bypass cases of your own.
+
 - the plan review, with an answer for all six saved plans.
 
 Its README opens with three numbers a manager can read in a minute. They are dangerous calls blocked, safe calls
@@ -179,7 +192,7 @@ bun run doctor
 
 Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in`, and a `Sandbox` line on Linux.
 
-`bun run record` makes every recording again on your own signed-in Claude Code; `world/recordings/RECORD.md` lists
+`bun run record` makes every recording again on your own signed-in Claude Code. `world/recordings/RECORD.md` lists
 each one.
 
 The rules every course repo follows, and the check behind each, are in [STANDARD.md](STANDARD.md).

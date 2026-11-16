@@ -113,5 +113,5 @@ Expect: `Part check-infrastructure-rules-with-conftest is done: 1/1 steps pass.`
 
 ## Finished
 
-You now have a rule that gates a plan, with a message and tests. Take it to your own repo: swap the types in
-`data_types` for the resources that hold your data, and run the same `conftest test` in your pipeline.
+You now have a rule that gates a plan, with a message and tests. Take it to your own repo. Swap the types in
+`data_types` for the resources that hold your data. Then run the same `conftest test` in your pipeline.

@@ -3,8 +3,9 @@
 ## The problem
 
 Draining a node moves every pod off it. On dev that is routine. On prod it can stop ticket sales. Your shell
-starts on prod, so a `kubectl drain` with no `--context` goes to prod. A skill is a folder with a `SKILL.md`. You
-start it by name, and its steps stay out of `CLAUDE.md`.
+starts on prod, so a `kubectl drain` with no `--context` goes to prod.
+
+A skill is a folder with a `SKILL.md`. You start it by name, and its steps stay out of `CLAUDE.md`.
 
 ## Watch it done
 

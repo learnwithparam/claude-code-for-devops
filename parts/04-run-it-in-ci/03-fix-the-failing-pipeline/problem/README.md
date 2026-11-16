@@ -2,9 +2,10 @@
 
 ## The problem
 
-Tallowmark's own CI is red. For example, two faults: the actions are not pinned by SHA (one uses `setup-tflint@main`), and
-`tflint` fails because the scan-store module does not say which Terraform it needs. Deleting the lint step turns
-it green and hides the fault.
+Tallowmark's own CI is red. For example, there are two faults. The actions are not pinned by SHA (one uses
+`setup-tflint@main`). And `tflint` fails because the scan-store module does not say which Terraform it needs.
+
+Deleting the lint step turns it green and hides the fault.
 
 ## Watch it done
 

@@ -17,8 +17,8 @@ To move into a folder, type `cd` and the folder name. For example, `cd claude-co
 course folder. Open every new terminal in this folder before you type a command from this course.
 
 You need [Bun](https://bun.sh), git, and Claude Code signed in with your own Claude account (a Pro or Max
-plan, or a Console account). You do not need Docker, a cloud account or an API key: the world runs on your laptop,
-and every check reads files and the world's logs, never what Claude said.
+plan, or a Console account). You do not need Docker, a cloud account or an API key. The world runs on your laptop.
+Every check reads files and the world's logs, never what Claude said.
 
 Install Claude Code with the official installer ([Set up Claude Code](https://code.claude.com/docs/en/setup)). On
 macOS, Linux or WSL:
@@ -62,7 +62,7 @@ Expect: one line each for `Bun`, `git`, `Claude Code` and `Signed in` (and `Sand
 `The world is ready: Tallowmark Tickets with 5 faults planted.` and two `export PATH` and `cd` lines to copy.
 The "world is ready" line shows only the first time. Later runs show the world's status instead.
 
-You can also work in Claude Code inside VS Code or JetBrains, or in the Code tab of Claude Desktop: open the world
+You can also work in Claude Code inside VS Code or JetBrains, or in the Code tab of Claude Desktop. Open the world
 repo folder there. The settings, hooks and `CLAUDE.md` that Claude Code writes for you are the same files in every
 one of them.
 
@@ -113,10 +113,13 @@ Expect: five `RED` lines and Dangerous actions blocked:   0 of 30.
 ## Run the finished system
 
 The finished system is the same world with every step's sample answer in place. It is built next to yours in
-`world/.finished`, so your world stays as it is. With Claude Code signed in, it runs Claude Code for real: a headless
-`claude -p` reviews 6 saved Terraform plans, and a second session works on prod's drifted bucket with the finished
-guardrails on. Then it checks what those runs left behind. Without Claude Code it replays real recorded runs and says
-so in one line.
+`world/.finished`, so your world stays as it is.
+
+With Claude Code signed in, it runs Claude Code for real. A headless `claude -p` reviews 6 saved Terraform plans. A
+second session works on prod's drifted bucket with the finished guardrails on. Then it checks what those runs left
+behind.
+
+Without Claude Code it replays real recorded runs and says so in one line.
 
 ```bash
 bun run finished

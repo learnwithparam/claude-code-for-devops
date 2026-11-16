@@ -43,8 +43,8 @@ FAIL  own-cases.jsonl has 5 calls to block and 3 to allow
 
 ## Do it on your work
 
-This step is already about your repo, so use its real scripts. Good looks like a Missed list you can act on: fix
-the hook for each missed call, then run the cases again until nothing is missed.
+This step is already about your repo, so use its real scripts. Good looks like a Missed list you can act on. Fix
+the hook for each missed call. Then run the cases again until nothing is missed.
 
 ## Done when
 
