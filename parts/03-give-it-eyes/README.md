@@ -110,7 +110,7 @@ bun run verify split-the-cost-hunt
 bun run verify triage-the-live-incident
 ```
 
-Expect: `Done. All 9 rules pass.`, then 7 and 7 rules, once each step is solved.
+Expect: `Done. All 9 rules pass.`, then 7, 7 and 8 rules, once each step is solved.
 
 Check the whole part in one go:
 
@@ -118,7 +118,7 @@ Check the whole part in one go:
 bun run verify part give-it-eyes
 ```
 
-Expect: `Part give-it-eyes is done: 3/3 steps pass.`
+Expect: `Part give-it-eyes is done: 4/4 steps pass.`
 
 ## Assignment
 

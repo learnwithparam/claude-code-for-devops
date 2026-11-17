@@ -155,6 +155,6 @@ bun run verify meet-the-world
 
 Expect: `1 of 5 rules pass.` while the note is still the starter.
 
-Once the note is filled in and checked, the same command ends with `Done. All 4 rules pass.`
+Once the note is filled in and checked, the same command ends with `Done. All 5 rules pass.`
 
 When a command prints something you do not expect, look it up in [troubleshooting.md](troubleshooting.md).

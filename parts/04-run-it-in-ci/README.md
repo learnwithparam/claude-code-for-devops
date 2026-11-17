@@ -104,7 +104,7 @@ bun run verify fix-the-failing-pipeline
 bun run verify use-oidc-not-a-stored-token
 ```
 
-Expect: `Done. All 6 rules pass.`, then 9, 5 and 6 rules, once each step is solved.
+Expect: `Done. All 6 rules pass.`, then 9, 5 and 5 rules, once each step is solved.
 
 Check the whole part in one go:
 

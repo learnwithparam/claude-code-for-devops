@@ -103,7 +103,7 @@ bun run verify write-a-runbook-skill
 bun run verify schedule-the-drift-check
 ```
 
-Expect: `Done. All 8 rules pass.`, then 8, 7 and 8 rules, once each step is solved.
+Expect: `Done. All 8 rules pass.`, then 8, 7, 8 and 7 rules, once each step is solved.
 
 To try your skill in a real session, point the world repo at the step's `.claude` folder:
 
@@ -121,7 +121,7 @@ Check the whole part in one go:
 bun run verify part teach-the-repo
 ```
 
-Expect: `Part teach-the-repo is done: 4/4 steps pass.`
+Expect: `Part teach-the-repo is done: 5/5 steps pass.`
 
 ## Assignment
 
